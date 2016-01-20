@@ -1,5 +1,31 @@
-HINT
-====
+General
+=======
+
+checkit_tiff is a conformance checker for baseline TIFFs (with various
+extensions). It works in different way than other tools. Instead to use a
+hardcoded rule set with predefined values, you are able to define tags and
+corresponding values more fine granulary. The rulesets are human readable and 
+could be adapted to own needs.
+
+The tools are developed for purposes of curation and longterm preservation
+
+In detail
+=========
+
+checkit_tiff:
+- checks a TIFF against ruleset
+- needs a Linux or an AIX system with installed libtiff4
+  (crosscompiling to Windows should work, too)
+- compile it with: make clean; make all; make strip
+- help comes with option "checkit_tiff -h"
+
+License
+=======
+
+the sourcecode is licensed under conditions of libtiff, see http://libtiff.maptools.org for details.
+
+HINTS
+====?
 
 * The program could already used to check TIFF-files now
 * Remember, it is in alpha-state and needs additional rules to validate tiff files completely. 
