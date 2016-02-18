@@ -14,7 +14,6 @@
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
-  printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
   tifp_check( tif)
     TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
 #ifdef DEBUG
@@ -24,6 +23,7 @@ ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
   uint32 count=0;
   int r = 0;
   if (datatype == TIFF_ASCII) {
+    printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
     int found=TIFFGetField(tif, tag, &string, &count);
     if (1==found) { /* there exists a tag */
       int i;
