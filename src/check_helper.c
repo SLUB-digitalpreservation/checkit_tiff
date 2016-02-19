@@ -22,9 +22,252 @@
 static int enabled_cache = 0;
 
 void clear_cache () {
-	enabled_cache = 0;
+  enabled_cache = 0;
 }
 
+const char * TIFFTagName( TIFF * tif, tag_t tag ) {
+   const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
+   if (NULL != fieldp) {
+#ifndef OLDTIFF
+        return TIFFFieldName(fieldp);
+#else
+        char * tagstring;
+        tagstring =malloc( sizeof(char) *MAXSTRLEN );
+        if (NULL==tagstring) {
+          fprintf(stderr, "could not allocate memory for tagstring\n");
+          exit(EXIT_FAILURE);
+          }; 
+          snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
+          char * ret = strdupa( tagstring );
+          free (tagstring); 
+          return ret;
+#endif
+   } else {
+     switch (tag) {
+       case 32932: return ("TIFF annotation data"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+       case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33448: return ("MD_LabName"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33449: return ("MD_SampleInfo"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+       case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 34732: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
+       case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
+       case 34908: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 34909: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 34910: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
+       case 42112: return ("GDAL_Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 42113: return ("GDAL_nodata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+       case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
+       default: return ("undefined tag"); 
+     }
+   }
+}
+
+
+void renderer_debug ( ret_t ret ) {
+  //printf("\t");
+  if (0 == ret.returncode) {
+    printf("OK|");
+  } else {
+    printf("FALSE|");
+  }
+  retmsg_t * startp = ret.returnmsg;
+  int c = 0;
+  while (NULL != startp && c < ret.count) {
+        switch (startp->rm_type) {
+          case rm_rule: printf ("RULE|"); break;
+          case rm_tag: printf ("TAG|"); break;
+          case rm_value:printf ("VALUE|"); break;
+          case rm_expected:printf ("EXPECTED|"); break;
+          case rm_hard_error:printf ("HERROR|"); break;
+          case rm_error:printf ("ERR|"); break;
+          case rm_warning:printf ("WARN|"); break;
+          default: ;
+        }
+        printf("%s", startp->rm_msg);
+        startp++;
+        c++; 
+  }
+  printf ("\n");
+}
+void renderer_ansi ( ret_t ret ) {
+#define ANSI_COLOR_RED "\033[22;31m"
+#define ANSI_COLOR_RED_BOLD     "\033[01;31m"
+#define ANSI_COLOR_GREEN   "\033[22;32m"
+#define ANSI_COLOR_RESET   "\033[22;30m"
+  //printf("\t");
+  if (0 == ret.returncode) {
+    printf("%sOK|%s", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+  } else {
+    printf("%sFALSE|%s", ANSI_COLOR_RED_BOLD, ANSI_COLOR_RESET);
+  }
+  retmsg_t * startp = ret.returnmsg;
+  int c = 0;
+  while (NULL != startp && c < ret.count) {
+        switch (startp->rm_type) {
+          case rm_rule: printf ("RULE|"); break;
+          case rm_tag: printf ("TAG|"); break;
+          case rm_value:printf ("VALUE|"); break;
+          case rm_expected:printf ("EXPECTED|"); break;
+          case rm_hard_error:printf ("HERROR|"); break;
+          case rm_error:printf ("%sERR|%s", ANSI_COLOR_RED, ANSI_COLOR_RESET); break;
+          case rm_warning:printf ("WARN|"); break;
+          default: ;
+        }
+        printf("%s", startp->rm_msg);
+        startp++;
+        c++; 
+  }
+  printf ("%s\n", ANSI_COLOR_RESET);
+}
+
+void renderer ( ret_t ret ) {
+  // call debug renderer
+  renderer_ansi( ret );
+}
+
+ret_t tif_fails(const char* fail_message) {
+  ret_t res;
+  char * str =malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==str) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (str, MAXSTRLEN-1, "FAIL:>>%s<<", fail_message);
+  res.returnmsg = NULL;
+  res.returncode=1;
+  res.returnmsg = malloc( sizeof( retmsg_t ) );
+  if  (NULL==res.returnmsg) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  res.returnmsg->rm_type=rm_error;
+  res.count = 1;
+  res.returnmsg->rm_msg = str;
+  renderer( res);
+  // free (str);
+  // free (res.returnmsg);
+  return res;
+}
+
+ret_t tif_fails_tag(const char* tag, const char* expected, const char* value) {
+  ret_t res = tif_returns( tag, expected, value);
+   // call renderer
+  renderer( res);
+  // free (str);
+  // free (res.returnmsg);
+  return res;
+
+}
+
+void tifp_check( TIFF * tif) {
+  if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); };
+}
+
+ret_t tif_returns(const char* tag, const char* expected, const char* value) {
+ ret_t res;
+  /* 
+  char * str =malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==str) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (str, MAXSTRLEN-1, "FAILTAG:tag >>%s<< should have value >>%s<<, but has count/value >>%s<<\n", tag, expected, value);
+  */
+  res.returnmsg = NULL;
+  res.returncode=1;
+  res.count = 4;
+  res.returnmsg = malloc( sizeof( retmsg_t) * res.count );
+  retmsg_t * p =  res.returnmsg;
+  if  (NULL==res.returnmsg) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  // header
+  p->rm_type=rm_error;
+  p->rm_msg = "";
+  // tag
+  p++;
+  p->rm_type=rm_tag;
+  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==p->rm_msg) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (p->rm_msg, MAXSTRLEN-1, "tag >>%s<<", tag);
+  // expected
+  p++;
+  p->rm_type=rm_expected;
+  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==p->rm_msg) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (p->rm_msg, MAXSTRLEN-1, " should have value >>%s<<", expected);
+  // value
+p++;
+  p->rm_type=rm_value;
+  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==p->rm_msg) {
+    fprintf(stderr, "could not allocate memory for tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (p->rm_msg, MAXSTRLEN-1, ", but has count/value >>%s<<", value);
+
+   return res;
+}
+
+ret_t tif_fails_by_returns( ret_t ret ) {
+ // TODO:
+ // printf("\tFAILSBYRETURNS\n");
+ renderer( ret);
+ return ret;
+}
+
+
+const char * float2str(float v) {
+  char array[10];
+  snprintf(array, sizeof(array), "%f", v);
+  return strdup(array);
+}
+
+const char* tag2str(TIFF * tif, tag_t tag) {
+ char array[40];
+  snprintf(array, sizeof(array), "%u (%s)", tag, TIFFTagName(tif, tag));
+  return strdup(array);
+}
+
+const char* int2str(int v) {
+ char array[10];
+  snprintf(array, sizeof(array), "%u", v);
+  return strdup(array);
+}
+
+const char* frac2str(int d, int n) {
+  char array[40];
+  snprintf(array, sizeof(array), "%u/%u", d, n);
+  return strdup(array);
+}
+
+const char* range2str(int d, int n) {
+  char array[40];
+  snprintf(array, sizeof(array), "<%u-%u>", d, n);
+  return strdup(array);
+}
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
@@ -38,11 +281,14 @@ ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
       res.returncode=0;
       return res;
     } else {
-      tif_returns("tag %u should have value %f, but have count/value=%f\n", tag, value, val);
+      return tif_returns( tag2str(tif, tag), float2str(value), float2str(val));
     }
 
   } else {
-    tif_returns("tag %u should exist, because defined\n", tag);
+    // FIXME: tif_fails?
+    char array[40];
+    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    return tif_fails(array);
   }
 }
 
@@ -58,11 +304,14 @@ ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value)
       res.returncode=0;
       return res;
     } else {
-      tif_returns("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
+      return tif_returns( tag2str(tif, tag), int2str(value), int2str(val));
     }
 
   } else {
-    tif_returns("tag %u should exist, because defined\n", tag);
+    // FIXME: tif_fails?
+    char array[40];
+    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    return tif_fails(array);
   }
 }
 
@@ -79,65 +328,17 @@ ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
       res.returncode=0;
       return res;
     } else {
-      tif_returns("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
+      return tif_returns( tag2str(tif, tag), int2str(value), int2str(val));
     }
 
   } else {
-    tif_returns("tag %u should exist, because defined\n", tag);
+    // FIXME: tif_fails?
+    char array[40];
+    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    return tif_fails(array);
   }
 }
 
-const char * TIFFTagName( TIFF * tif, tag_t tag ) {
-   const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
-   if (NULL != fieldp) {
-#ifndef OLDTIFF   
-        return TIFFFieldName(fieldp);
-#else
-        char * tagstring;
-        tagstring =malloc( sizeof(char) *MAXSTRLEN );
-        if (NULL==tagstring) {
-          fprintf(stderr, "could not allocate memory for tagstring\n");
-          exit(EXIT_FAILURE);
-          }; 
-          snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
-	  char * ret = strdupa( tagstring );
-	  free (tagstring); 
-          return ret;
-#endif
-   } else {
-	  switch (tag) {
-		  case 32932: return ("TIFF annotation data"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
-		  case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33448: return ("MD_LabName"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33449: return ("MD_SampleInfo"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-		  case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 34732: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
-                  case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
-		  case 34908: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 34909: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 34910: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
-		  case 42112: return ("GDAL_Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 42113: return ("GDAL_nodata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-		  case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
-		  default: return ("undefined tag"); 
-	  }
-   }
-}
 
 int parse_header_and_endianess(TIFF * tif) {
   thandle_t client = TIFFClientdata(tif);
@@ -701,7 +902,10 @@ ret_t check_tagorder(TIFF* tif) {
     if (i>0 && lasttag >= tag) {
       // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tag, tag, hi, lo);
       free( ifdentries );
-      tif_fails("Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(tif, lasttag),  tag,  TIFFTagName(tif, tag), i, count);
+      // FIXME: tif_fails?
+      char array[80];
+      snprintf(array, sizeof(array), "Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(tif, lasttag),  tag,  TIFFTagName(tif, tag), i, count);
+      return tif_fails(array);
     }
     lasttag = tag;
     e+=10;
@@ -713,6 +917,5 @@ ret_t check_tagorder(TIFF* tif) {
   res.returncode=0;
   return res;
 }
-
 
 

@@ -12,10 +12,17 @@
 #include <tiff.h>
 #include <tiffio.h>
 
+typedef struct retmsg_s {
+  enum{ rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning } rm_type;
+  char * rm_msg;
+} retmsg_t;
+
 typedef struct ret_s {
   int returncode;
-  char * returnmsg;
+  int count;
+  retmsg_t * returnmsg;
 } ret_t;
+
 
 typedef struct ifd_entry_s {
   uint16 count;
@@ -51,11 +58,24 @@ typedef uint16 tag_t;
 
 #define MAXSTRLEN 160
 
-#define tif_fails(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); printf("\t%s", str); res.returnmsg = str; res.returncode=1; return res;}
+//#define tif_fails(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); printf("\t%s", str); res.returnmsg = str; res.returncode=1; return res;}
 
-#define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
+//#define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
 
-#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); res.returnmsg = str; res.returncode=1; return res;}
+//#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); res.returnmsg = str; res.returncode=1; return res;}
+
+void tifp_check( TIFF * tif);
+ret_t tif_returns(const char* tag, const char* expected, const char* value);
+ret_t tif_fails_tag(const char* tag, const char* expected, const char* value);
+ret_t tif_fails(const char* fail_message);
+ret_t tif_fails_by_returns( ret_t ret );
+
+const char * float2str(float v);
+const char* tag2str(TIFF * tif, tag_t tag);
+const char* int2str(int v);
+const char* frac2str(int d, int n);
+const char* range2str(int d, int n);
+
 ret_t check_tag_has_some_of_these_values( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_valuelist( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b);

@@ -13,7 +13,7 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_quiet(TIFF* tif, tag_t tag) {
-  tifp_check( tif)
+  tifp_check( tif);
     int i;
   ret_t res;
   res.returnmsg=NULL;
@@ -30,7 +30,7 @@ ret_t check_tag_quiet(TIFF* tif, tag_t tag) {
 /* checks if TIF has a specified tag */
 ret_t check_tag(TIFF* tif, tag_t tag) {
   printf("check if tag %u (%s) exists\n", tag, TIFFTagName(tif, tag));
-  tifp_check( tif)
+  tifp_check( tif);
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
     res = check_tag_has_valid_type( tif, tag);
@@ -39,17 +39,17 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
     }
     return res;
   } else {
-    tif_fails("tag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
+    return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");
   }
 }
 
 /* checks if TIF does not have a specified tag,
  * needed only for checks to ensure whitelist */
 ret_t check_notag(TIFF* tif, tag_t tag) {
-  tifp_check( tif)
+  tifp_check( tif);
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
-    tif_fails("found tag %u (%s) which is not whitelisted or rule has no matched dependency \n", tag,  TIFFTagName(tif, tag));
+    return tif_fails_tag( tag2str( tif, tag), "", "which is not whitelisted or rule has no matched dependency");
   } else {
     res.returnmsg=NULL;
     res.returncode=0;

@@ -14,7 +14,7 @@
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
-  tifp_check( tif)
+  tifp_check( tif);
     TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
@@ -36,7 +36,9 @@ ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
     }
   }
   if (0 != r) {
-    tif_fails("tag %u (%s) has incorrect asciivalue (\\0 at position %i in %i-len String) \n", tag,TIFFTagName(tif, tag), r, count);
+    char array[80];
+    snprintf(array, sizeof(array), "incorrect asciivalue (\\0 at position %i in %i-len String)", r, count);
+    return tif_fails_tag( tag2str(tif, tag), "", array);
   } else {
     ret_t res;
     res.returnmsg=NULL;

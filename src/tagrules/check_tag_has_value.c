@@ -17,36 +17,42 @@
 
 
 ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
-  tifp_check( tif)
+  tifp_check( tif);
     ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(tif, tag);
-  if (ifd_entry.count > 1)
-    tif_returns("tag %u (%s) should have single value of type long, short or float, but has type:%i and count:%i\n", tag, TIFFTagName(tif, tag), ifd_entry.datatype, ifd_entry.count);
+  if (ifd_entry.count > 1) {
+    char array[40];
+     snprintf(array, sizeof(array), "but has type:%i and count:%i",ifd_entry.datatype, ifd_entry.count);
+    return tif_returns( tag2str(tif, tag), "should have single value of type long, short or float", strdup(array));
+  }
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
                       if (value != ifd_entry.data32) {
-                        tif_returns("tag %u (%s), tagvalue %u differs from value %u (long)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data32, value); 
+                        return tif_returns( tag2str(tif, tag), int2str(ifd_entry.data32), int2str(value)); 
                       }
                       break;
                     }
     case TIFF_SHORT: {
                        if (value != ifd_entry.data16[0])  {
-                         tif_returns("tag %u (%s), tagvalue %u differs from value %u (short)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], value); 
+                         return tif_returns(  tag2str(tif, tag), int2str(ifd_entry.data16[0]), int2str(value)); 
                        }
                        break;
                      }
     case TIFF_RATIONAL: {
                           if (0 == ifd_entry.data16[1]) {
-                            tif_returns("tag %u (%s), dedominator is zero, tagvalue %u/%u differs from value %u (rational)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
+                            return tif_returns( tag2str(tif, tag), frac2str( ifd_entry.data16[0], ifd_entry.data16[1]), float2str(value));
                             break;
-                            } else if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
-                            tif_returns("tag %u (%s), tagvalue %u/%u differs from value %u (rational)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
+                          } else if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
+                            return tif_returns( tag2str(tif, tag),  frac2str( ifd_entry.data16[0], ifd_entry.data16[1]), float2str(value));
                             break;
                           }
-                          default: /*  none */
-                          tif_returns("tag %u (%s) should have single value of type long, short or float, but was datatype:%u\n", tag, TIFFTagName(tif, tag), ifd_entry.datatype);
-                          break;
-
                         };
+    default: { /*  none */
+               char array[40];
+               snprintf(array, sizeof(array), " but was datatype:%u",  ifd_entry.datatype);
+               return tif_returns( tag2str(tif, tag), "should have single value of type long, short or float", array );
+               break;
+
+             };
   };
   ret_t ret;
   ret.returncode=0; ret.returnmsg=NULL; return ret;
@@ -56,15 +62,15 @@ ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
   printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName(tif, tag), value);
   ret_t ret = check_tag_has_value_quiet( tif, tag, value);
   if (ret.returncode == 0) {
-        return ret;
+    return ret;
   } else {
-        tif_fails("%s", ret.returnmsg);
+    return tif_fails_by_returns( ret );
   }
 }
 
 ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * regex_string) {
   printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), regex_string);
-  tifp_check( tif)
+  tifp_check( tif);
     TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_ASCII: {
@@ -100,31 +106,38 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                            } else {
                              switch(rc) {
                                case PCRE_ERROR_NOMATCH: 
-                                 tif_fails("tag %u with value '%s' no match to given regex '%s'\n", tag, val, regex_string);
+                                 return tif_fails_tag( tag2str(tif, tag), strdup(regex_string), val);
                                  break;
                                  /*
                                     Handle other special cases if you like
                                     */
                                default: 
-                                 tif_fails("tag %u with value '%s' called regex '%s' with matching error %d\n", tag, val, regex_string, rc); 
+                                 return tif_fails_tag( tag2str(tif, tag), strdup(regex_string), val);
+                                 // tif_fails("tag %u with value '%s' called regex '%s' with matching error %d\n", tag, val, regex_string, rc); 
                                  break;
                              }
                          }
                          } else {
-                           tif_fails("regex '%s' compile error: %s at offset: %i\n",regex_string, errorcode, erroffset);
+                            char array[80];
+                            snprintf(array, sizeof(array), "regex '%s' compile error: %s at offset: %i\n",regex_string, errorcode, erroffset);
+                           return tif_fails(array);
                          }
                        } else {
-                         tif_fails("tag %u should exist, because defined\n", tag);
+                         return tif_fails_tag( tag2str(tif, tag), "should exist, because defined", "");
                        }
                      }
     default:  /*  none */
-                     tif_fails("tag %u (%s) should have value of type ASCII, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
+                     {
+                     char array[10];
+                     snprintf(array, sizeof(array), "but was:%i\n", datatype);
+                     return tif_fails_tag( tag2str(tif, tag), "should have value of type ASCII", array);
+                     }
   }
 }
 
 ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * values) {
   printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
-  tifp_check( tif)
+  tifp_check( tif);
   int i;
   unsigned int v[count];
   for (i=0; i< count; i++) {
@@ -135,18 +148,27 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
   printf("\n");
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(tif, tag);
   if (count != ifd_entry.count) {
-    tif_fails("tag %u (%s) has %u values, but list has %u values\n", tag, TIFFTagName(tif, tag), ifd_entry.count, count);
+    char expected[10];
+    snprintf(expected, sizeof(expected), "list has %u values", count);
+    char value[10];
+    snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
+    return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
   }
   ret_t res;
   res.returncode=0;
   res.returnmsg=NULL;
   switch (ifd_entry.datatype) {
-    case TIFF_LONG: { 
+    case TIFF_LONG: {
                       /*  value */
                       if (ifd_entry.value_or_offset == is_value) {
                         for (i=0; i< count; i++) {
                           if (v[i] != ifd_entry.data32) {
-                            tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (long)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data32, v[i]); 
+                            char expected[10];
+                            snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
+                            char value[10];
+                            snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data32);
+                            return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                            //tif_fails_tag( tag2str(tif, tag), "tag %u (%s), tagvalue[%i]=%u differs from value=%u (long)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data32, v[i]); 
                           }
                         }
                       }
@@ -155,14 +177,18 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                         offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
                         uint32 * p = offset.data32p;
                         for (i=0; i< count; i++) {
-				uint32 pval = *p;
+                          uint32 pval = *p;
                           if (TIFFIsByteSwapped(tif))
                             TIFFSwabLong(&pval);
 #ifdef DEBUG
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                           if (v[i] != *p) {
-                            tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (long offset) \n",  tag, TIFFTagName(tif, tag), i, pval, v[i]); 
+                            char expected[10];
+                            snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
+                            char value[10];
+                            snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
+                            return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
                           }
                           p++;
                         }
@@ -172,38 +198,53 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                       break;
                     }
     case TIFF_SHORT: {
-                      /*  value */
+                       /*  value */
                        if (ifd_entry.value_or_offset == is_value) {
                          for (i=0; i< count; i++) {
                            int c = (v[i]) == (ifd_entry.data16[i]);
                            if (!c) {
-                             tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value[%i]=%u (short)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data16[i], i, v[i]); 
+                             char expected[10];
+                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
+                             char value[10];
+                             snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data16[i]);
+                             return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                             //tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value[%i]=%u (short)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data16[i], i, v[i]); 
                            }
-                         } 
+                         }
                        }
                        /*  offset */
                        if (ifd_entry.value_or_offset == is_offset) {
                          offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
                          uint16 * p = offset.data16p;
-			 for (i=0; i< count; i++) {
-			   uint16 pval = *p;
-			   if (TIFFIsByteSwapped(tif))
-			     TIFFSwabShort(&pval);
+                         for (i=0; i< count; i++) {
+                           uint16 pval = *p;
+                           if (TIFFIsByteSwapped(tif))
+                             TIFFSwabShort(&pval);
 #ifdef DEBUG
-			     printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
+                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
-			     if (v[i] != pval) {
-			       tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, pval, v[i]); 
-			     }
-			     p++;
-			 }
-		       }
+                           if (v[i] != pval) {
+                             char expected[10];
+                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
+                             char value[10];
+                             snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
+                             return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                             // tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, pval, v[i]); 
+                           }
+                           p++;
+                         }
+                       }
 
                        return res;
                        break;
                      }
     default: /*  none */
-                     tif_fails("tag %u (%s) should have values of type long, short or float, but was:%u\n", tag, TIFFTagName(tif, tag), ifd_entry.datatype);
+                      {
+                        char array[10];
+                        snprintf(array, sizeof(array), "but was:%i\n", ifd_entry.datatype);
+                        return tif_fails_tag( tag2str(tif, tag), "should have values of type long, short or float", array);
+                      }
+
   }
 
 }

@@ -82,7 +82,10 @@ ret_t check_has_only_one_ifd(TIFF* tif) {
     res.returncode=0;
     return res;
   } else {
-    tif_fails("baseline TIFF should have only one IFD, but IFD0 at 0x%08x has pointer to IFDn 0x%08x\n", offset, IFDn );
+    // FIXME: tif_fails?
+      char array[160];
+      snprintf(array, sizeof(array), "baseline TIFF should have only one IFD, but IFD0 at 0x%08x has pointer to IFDn 0x%08x", offset, IFDn );
+      return tif_fails( array);
   }
 }
 
@@ -97,7 +100,10 @@ ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
       uint32 offset = ifd_entry.data32offset;
       if ( 0 != (offset & 1)) {
         uint32 tag = TIFFGetRawTagListEntry( tif, tagidx);
-        tif_fails("offset of tag %u (%s) points to 0x%08x and is not word-aligned\n", tag, TIFFTagName(tif, tag), offset);
+        // FIXME: tif_fails?
+        char array[80];
+        snprintf(array, sizeof(array), "pointing to 0x%08x and is not word-aligned", offset);
+        return tif_fails_tag( tag2str(tif, tag), "word-aligned", array);
       }
     }
   }
@@ -112,7 +118,10 @@ ret_t check_all_IFDs_are_word_aligned(TIFF * tif) {
   printf("check if all IFDs are word aligned\n");
   uint32 ifd = get_first_IFD( tif ); /*  TODO: check all other IFDs, too */
   if ( 0 != (ifd & 1)) {
-    tif_fails("offset of first IFD points to 0x%08x and is not word-aligned\n", ifd);
+    // FIXME: tif_fails?
+    char array[80];
+    snprintf(array, sizeof(array), "offset of first IFD points to 0x%08x and is not word-aligned", ifd);
+    return tif_fails(array);
   }
   ret_t res;
   res.returnmsg=NULL;
@@ -141,7 +150,10 @@ ret_t check_all_offsets_are_used_once_only(TIFF * tif) {
       uint32 tag = TIFFGetRawTagListEntry( tif, tagidx);
       for (i=0; i< count_of_offsets; i++) {
         if (offsets[ i ] == offset) {
-          tif_fails("offset of tag %u (%s) points to %08x, which address is used previously by tag %u (%s)\n", tag, TIFFTagName(tif, tag), offset, tags[i], TIFFTagName(tif, tags[i]) );
+          // FIXME: tif_fails?
+          char array[80];
+          snprintf(array, sizeof(array), "offset of tag %u (%s) points to %08x, which address is used previously by tag %u (%s)", tag, TIFFTagName(tif, tag), offset, tags[i], TIFFTagName(tif, tags[i]) );
+          return tif_fails(array);
         }
       }
       offsets[ ++count_of_offsets ] = offset;

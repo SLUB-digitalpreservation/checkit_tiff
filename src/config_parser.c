@@ -154,10 +154,10 @@ int execute_plan (TIFF * tif) {
           res =  call_fp(tif, fp->pred->pred);
           if (0 != res.returncode ) {
 #ifdef DEBUG
-            printf("execute: predicate predicate was not successfull\n");
+            printf("execute: predicate predicate was not successfull, skipped check\n");
 #endif
             this_exe_p->result.returncode=0;
-            this_exe_p->result.returnmsg=strdup("predicate predicate was not successfull, skipped check");
+            this_exe_p->result.returnmsg=NULL;
             goto exitcall;
             /* the predicate was not successfull, skip check */
           } else { /* predicate predicate successfull*/
@@ -170,10 +170,10 @@ int execute_plan (TIFF * tif) {
           res =  call_fp(tif, fp->pred);
           if (0 != res.returncode ) {
 #ifdef DEBUG
-            printf("execute: predicate was not successfull\n");
+            printf("execute: predicate was not successfull, skipped check\n");
 #endif
             this_exe_p->result.returncode=0;
-            this_exe_p->result.returnmsg=strdup("predicate was not successfull, skipped check");
+            this_exe_p->result.returnmsg=NULL;
           /* the predicate was not successfull, skip check */
           goto exitcall;
         } else {
@@ -225,9 +225,11 @@ void print_plan_results() {
   while (NULL != this_exe_p) {
     const char * msg;
     if (0 == this_exe_p->result.returncode) { 
-      msg = strdup("passed"); 
+      msg = "passed"; 
     } else {
-      msg=strdup(this_exe_p->result.returnmsg); 
+      /*  FIXME: needs a copy of struct retmsg_t * */
+      // msg=strdup(this_exe_p->result.returnmsg); 
+      msg = "failed";
     }
     printf("action was: %s, result=%s\n", this_exe_p->name, msg);
     this_exe_p = this_exe_p->next;
