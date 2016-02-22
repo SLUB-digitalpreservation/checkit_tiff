@@ -16,6 +16,9 @@
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b) {
   printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
   tifp_check( tif);
+  ret_t res = check_tag_has_valid_type( tif, tag);
+    if (res.returncode == 0) {
+
   if (a > b) { unsigned int c=a; a=b; b=c; }
   TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
@@ -79,9 +82,9 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           // tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
                           char array[10];
                           snprintf(array, sizeof(array), "but was:%i", datatype);
-                          return tif_fails_tag( tag2str(tif, tag), "should have values of type long, short or float", array);
+                          return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
                         }
-
   }
-
+  }
+  return tif_fails_by_returns( res );
 }

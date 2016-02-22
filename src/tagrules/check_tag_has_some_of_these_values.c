@@ -24,6 +24,9 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
     p++;
   }
   printf("\n");
+  ret_t res = check_tag_has_valid_type( tif, tag);
+  if (res.returncode == 0) {
+
   TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
@@ -86,8 +89,10 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                         // tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
                         char array[10];
                         snprintf(array, sizeof(array), "but was:%i", datatype);
-                        return tif_fails_tag( tag2str(tif, tag), "should have values of type long, short or float", array);
+                        return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
                         }
   }
+  }
+  return res; 
 }
 

@@ -35,9 +35,9 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
   if (res.returncode == 0) {
     res = check_tag_has_valid_type( tif, tag);
     if (res.returncode == 0) {
-      res = check_tag_has_valid_asciivalue(tif, tag);
+      return check_tag_has_valid_asciivalue(tif, tag);
     }
-    return res;
+    return tif_fails_by_returns(res);
   } else {
     return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");
   }

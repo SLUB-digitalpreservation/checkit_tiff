@@ -86,8 +86,8 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
   }
   if (!res) {
     char array[40];
-    snprintf(array, sizeof(array), "has incorrect type: %i", datatype);
-    return tif_fails_tag( tag2str(tif, tag), "", array);
+    snprintf(array, sizeof(array), "with incorrect type: %i", datatype);
+    return tif_returns( tag2str(tif, tag), "", array);
   } else {
     ret_t res;
     res.returnmsg=NULL;

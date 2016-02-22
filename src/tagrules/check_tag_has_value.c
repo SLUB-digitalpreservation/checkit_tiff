@@ -22,7 +22,7 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
   if (ifd_entry.count > 1) {
     char array[40];
      snprintf(array, sizeof(array), "but has type:%i and count:%i",ifd_entry.datatype, ifd_entry.count);
-    return tif_returns( tag2str(tif, tag), "should have single value of type long, short or float", strdup(array));
+    return tif_returns( tag2str(tif, tag), "of type long, short or float", strdup(array));
   }
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
@@ -49,7 +49,7 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
     default: { /*  none */
                char array[40];
                snprintf(array, sizeof(array), " but was datatype:%u",  ifd_entry.datatype);
-               return tif_returns( tag2str(tif, tag), "should have single value of type long, short or float", array );
+               return tif_returns( tag2str(tif, tag), "of type long, short or float", array );
                break;
 
              };
@@ -60,12 +60,15 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
 
 ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
   printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName(tif, tag), value);
-  ret_t ret = check_tag_has_value_quiet( tif, tag, value);
+  ret_t ret;
+  ret = check_tag_has_valid_type( tif, tag);
   if (ret.returncode == 0) {
-    return ret;
-  } else {
-    return tif_fails_by_returns( ret );
+    ret =  check_tag_has_value_quiet( tif, tag, value);
+    if (ret.returncode == 0) {
+      return ret;
+    }
   }
+  return tif_fails_by_returns( ret ); 
 }
 
 ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * regex_string) {
@@ -130,7 +133,7 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                      {
                      char array[10];
                      snprintf(array, sizeof(array), "but was:%i\n", datatype);
-                     return tif_fails_tag( tag2str(tif, tag), "should have value of type ASCII", array);
+                     return tif_fails_tag( tag2str(tif, tag), "of type ASCII", array);
                      }
   }
 }
@@ -241,8 +244,8 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
     default: /*  none */
                       {
                         char array[10];
-                        snprintf(array, sizeof(array), "but was:%i\n", ifd_entry.datatype);
-                        return tif_fails_tag( tag2str(tif, tag), "should have values of type long, short or float", array);
+                        snprintf(array, sizeof(array), "type:%i", ifd_entry.datatype);
+                        return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
                       }
 
   }
