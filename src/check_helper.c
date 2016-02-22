@@ -89,7 +89,7 @@ ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
 
 const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
-   if (NULL != fieldp) {
+   if (NULL != fieldp && strncmp(TIFFFieldName(fieldp), "Tag ",4) != 0) {
 #ifndef OLDTIFF   
         return TIFFFieldName(fieldp);
 #else
@@ -106,7 +106,11 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
 #endif
    } else {
 	  switch (tag) {
-		  case 32932: return ("TIFF annotation data"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+                  /*  WANG TIFF  */
+		  case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+                  case 32933: return ("unknown Wang TIFF"); 
+                  case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
+                  case 32935: return ("unknown Wang TIFF");
 		  case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
 		  case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
 		  case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
