@@ -27,8 +27,8 @@ void clear_cache () {
 
 const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
-   if (NULL != fieldp) {
-#ifndef OLDTIFF
+   if (NULL != fieldp && strncmp(TIFFFieldName(fieldp), "Tag ",4) != 0) {
+#ifndef OLDTIFF   
         return TIFFFieldName(fieldp);
 #else
         char * tagstring;
@@ -38,13 +38,25 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
           exit(EXIT_FAILURE);
           }; 
           snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
-          char * ret = strdupa( tagstring );
-          free (tagstring); 
+	  char * ret = strdupa( tagstring );
+	  free (tagstring); 
           return ret;
 #endif
    } else {
      switch (tag) {
-       case 32932: return ("TIFF annotation data"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+       /*  WANG TIFF  */
+       case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+       case 32933: return ("unknown Wang TIFF"); 
+       case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
+       case 32935: return ("unknown Wang TIFF");
+                   /* TODO: needs to be rechecked, unsure if correct */            
+       case 32995: return ("Matteing"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+       case 32996: return ("DataType"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+       case 32997: return ("ImageDepth"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+       case 32998: return ("TileDepth"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+                   /*  TODO: needs to be rechecked, unsure if correct */
+       case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+
        case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
        case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
        case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
@@ -77,7 +89,6 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    }
 }
 
-
 void renderer_debug ( ret_t ret ) {
   //printf("\t");
   if (0 == ret.returncode) {
@@ -105,34 +116,49 @@ void renderer_debug ( ret_t ret ) {
   printf ("\n");
 }
 void renderer_ansi ( ret_t ret ) {
-#define ANSI_COLOR_RED "\033[22;31m"
-#define ANSI_COLOR_RED_BOLD     "\033[01;31m"
-#define ANSI_COLOR_GREEN   "\033[22;32m"
-#define ANSI_COLOR_RESET   "\033[22;30m"
+#define ANSI_RED "\033[22;31m"
+#define ANSI_RED_BOLD     "\033[01;31m"
+#define ANSI_GREEN "\033[22;32m"
+#define ANSI_GREEN_BOLD "\033[01;32m"
+#define ANSI_RESET   "\033[22;30m"
+#define ANSI_BOLD "\033[0;31m"
+#define ANSI_ITALIC "\033[0;34m"
+#define ANSI_UNDERLINE "\033[0;32m"
+#define ANSI_DEFAULT "\033[0;37m"
+#define ANSI_BLACK "\033[22;30m"
+#define ANSI_BROWN "\033[22;33m"
+#define ANSI_BLUE "\033[22;34m"
+#define ANSI_PURPLE "\033[22;35m"
+#define ANSI_CYAN "\033[22;36m"
+#define ANSI_GREY "\033[22;37m"
+#define ANSI_DARK_GREY "\033[01;30m"
+#define ANSI_YELLOW "\033[01;33m"
+#define ANSI_WHITE "\033[01;37m"
+
   //printf("\t");
   if (0 == ret.returncode) {
-    printf("%sOK|%s", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+    printf("\t%s", ANSI_GREEN);
   } else {
-    printf("%sFALSE|%s", ANSI_COLOR_RED_BOLD, ANSI_COLOR_RESET);
+    printf("\t%s", ANSI_RED_BOLD);
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
   while (NULL != startp && c < ret.count) {
         switch (startp->rm_type) {
-          case rm_rule: printf ("RULE|"); break;
-          case rm_tag: printf ("TAG|"); break;
-          case rm_value:printf ("VALUE|"); break;
-          case rm_expected:printf ("EXPECTED|"); break;
+          case rm_rule: printf      ("%s", ANSI_DARK_GREY); break;
+          case rm_tag: printf       ("%s", ANSI_RED_BOLD); break;
+          case rm_value:printf      ("%s", ANSI_BLUE); break;
+          case rm_expected:printf   ("%s", ANSI_RED); break;
           case rm_hard_error:printf ("HERROR|"); break;
-          case rm_error:printf ("%sERR|%s", ANSI_COLOR_RED, ANSI_COLOR_RESET); break;
-          case rm_warning:printf ("WARN|"); break;
-          default: ;
+          case rm_error:printf      ("%s", ANSI_RED); break;
+          case rm_warning:printf    ("%s", ANSI_YELLOW); break;
+          default: printf("%s", ANSI_RESET) ;
         }
         printf("%s", startp->rm_msg);
         startp++;
-        c++; 
+        c++;
   }
-  printf ("%s\n", ANSI_COLOR_RESET);
+  printf ("%s\n", ANSI_RESET);
 }
 
 void renderer ( ret_t ret ) {
