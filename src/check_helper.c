@@ -115,7 +115,21 @@ void renderer_debug ( ret_t ret ) {
   }
   printf ("\n");
 }
-void renderer_ansi ( ret_t ret ) {
+
+char * secstrcat (char * dest, char * src, int maxsize) {
+        int destsize = strlen(dest);
+        int srclen = strlen(src);
+        //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
+        if (destsize+srclen < maxsize) {
+          strcat( dest, src);
+        }
+        //destsize = strlen(dest);
+        //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
+        return dest;
+}
+
+const char * renderer_ansi ( ret_t ret ) {
+  char res[1024] = "";
 #define ANSI_RED "\033[22;31m"
 #define ANSI_RED_BOLD     "\033[01;31m"
 #define ANSI_GREEN "\033[22;32m"
@@ -134,36 +148,38 @@ void renderer_ansi ( ret_t ret ) {
 #define ANSI_DARK_GREY "\033[01;30m"
 #define ANSI_YELLOW "\033[01;33m"
 #define ANSI_WHITE "\033[01;37m"
-
-  //printf("\t");
   if (0 == ret.returncode) {
-    printf("\t%s", ANSI_GREEN);
+    secstrcat( res, "\t", 1024  );
+    secstrcat (res, ANSI_GREEN, 1024);
   } else {
-    printf("\t%s", ANSI_RED_BOLD);
+    secstrcat( res, "\t", 1024  );
+    secstrcat (res, ANSI_RED_BOLD, 1024);
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
   while (NULL != startp && c < ret.count) {
         switch (startp->rm_type) {
-          case rm_rule: printf      ("%s", ANSI_DARK_GREY); break;
-          case rm_tag: printf       ("%s", ANSI_RED_BOLD); break;
-          case rm_value:printf      ("%s", ANSI_BLUE); break;
-          case rm_expected:printf   ("%s", ANSI_RED); break;
-          case rm_hard_error:printf ("HERROR|"); break;
-          case rm_error:printf      ("%s", ANSI_RED); break;
-          case rm_warning:printf    ("%s", ANSI_YELLOW); break;
-          default: printf("%s", ANSI_RESET) ;
+          case rm_rule:       secstrcat( res, ANSI_DARK_GREY, 1024); break;
+          case rm_tag:        secstrcat( res, ANSI_RED_BOLD , 1024); break;
+          case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
+          case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
+          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
+          case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
+          case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
+          default:            secstrcat( res, ANSI_RESET    , 1024);
         }
-        printf("%s", startp->rm_msg);
+        secstrcat(res, startp->rm_msg, 1024);
         startp++;
         c++;
   }
-  printf ("%s\n", ANSI_RESET);
+  secstrcat(res, ANSI_RESET, 1024);
+  secstrcat(res, "\n", 1024);
+  return strdup( res );
 }
 
-void renderer ( ret_t ret ) {
+const char * renderer ( ret_t ret ) {
   // call debug renderer
-  renderer_ansi( ret );
+  return renderer_ansi( ret );
 }
 
 ret_t tif_fails(const char* fail_message) {
@@ -173,7 +189,7 @@ ret_t tif_fails(const char* fail_message) {
     fprintf(stderr, "could not allocate memory for tif_fails\n");
     exit(EXIT_FAILURE);
   };
-  snprintf (str, MAXSTRLEN-1, "FAIL:>>%s<<", fail_message);
+  snprintf (str, MAXSTRLEN-1, "%s", fail_message);
   res.returnmsg = NULL;
   res.returncode=1;
   res.returnmsg = malloc( sizeof( retmsg_t ) );
@@ -181,10 +197,10 @@ ret_t tif_fails(const char* fail_message) {
     fprintf(stderr, "could not allocate memory for tif_fails\n");
     exit(EXIT_FAILURE);
   };
-  res.returnmsg->rm_type=rm_error;
+  res.returnmsg->rm_type=rm_hard_error;
   res.count = 1;
   res.returnmsg->rm_msg = str;
-  renderer( res);
+  printf( "%s", renderer( res) );
   // free (str);
   // free (res.returnmsg);
   return res;
@@ -193,7 +209,7 @@ ret_t tif_fails(const char* fail_message) {
 ret_t tif_fails_tag(const char* tag, const char* expected, const char* value) {
   ret_t res = tif_returns( tag, expected, value);
    // call renderer
-  renderer( res);
+  printf( "%s", renderer( res) );
   // free (str);
   // free (res.returnmsg);
   return res;
@@ -204,16 +220,18 @@ void tifp_check( TIFF * tif) {
   if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); };
 }
 
+/* TODO: add tif_returns specialized for types */
+
 ret_t tif_returns(const char* tag, const char* expected, const char* value) {
- ret_t res;
+  ret_t res;
   /* 
-  char * str =malloc( sizeof(char) *MAXSTRLEN );
-  if (NULL==str) {
-    fprintf(stderr, "could not allocate memory for tif_fails\n");
-    exit(EXIT_FAILURE);
-  };
-  snprintf (str, MAXSTRLEN-1, "FAILTAG:tag >>%s<< should have value >>%s<<, but has count/value >>%s<<\n", tag, expected, value);
-  */
+     char * str =malloc( sizeof(char) *MAXSTRLEN );
+     if (NULL==str) {
+     fprintf(stderr, "could not allocate memory for tif_fails\n");
+     exit(EXIT_FAILURE);
+     };
+     snprintf (str, MAXSTRLEN-1, "FAILTAG:tag >>%s<< should have value >>%s<<, but has count/value >>%s<<\n", tag, expected, value);
+     */
   res.returnmsg = NULL;
   res.returncode=1;
   res.count = 4;
@@ -234,7 +252,7 @@ ret_t tif_returns(const char* tag, const char* expected, const char* value) {
     fprintf(stderr, "could not allocate memory for tif_fails\n");
     exit(EXIT_FAILURE);
   };
-  snprintf (p->rm_msg, MAXSTRLEN-1, "tag >>%s<<", tag);
+  snprintf (p->rm_msg, MAXSTRLEN-1, "tag %s", tag);
   // expected
   p++;
   p->rm_type=rm_expected;
@@ -243,24 +261,22 @@ ret_t tif_returns(const char* tag, const char* expected, const char* value) {
     fprintf(stderr, "could not allocate memory for tif_fails\n");
     exit(EXIT_FAILURE);
   };
-  snprintf (p->rm_msg, MAXSTRLEN-1, " should have value >>%s<<", expected);
+  snprintf (p->rm_msg, MAXSTRLEN-1, " should have value %s", expected);
   // value
-p++;
+  p++;
   p->rm_type=rm_value;
   p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
   if (NULL==p->rm_msg) {
     fprintf(stderr, "could not allocate memory for tif_fails\n");
     exit(EXIT_FAILURE);
   };
-  snprintf (p->rm_msg, MAXSTRLEN-1, ", but has count/value >>%s<<", value);
+  snprintf (p->rm_msg, MAXSTRLEN-1, ", but has value (values or count) %s", value);
 
-   return res;
+  return res;
 }
 
 ret_t tif_fails_by_returns( ret_t ret ) {
- // TODO:
- // printf("\tFAILSBYRETURNS\n");
- renderer( ret);
+ printf( "%s", renderer( ret) );
  return ret;
 }
 
