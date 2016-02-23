@@ -13,9 +13,10 @@ SANITIZE?=-fsanitize=undefined -fsanitize=shift \
 -fsanitize=signed-integer-overflow 
 #-fsanitize=leak
 CFLAGS?= -g -Wall $(SANITIZE)
-GRAMMAR=config_dsl.grammar.c
-SRCS=$(wildcard tagrules/*.c) check_helper.c check_ifd.c config_parser.c
+GRAMMAR=parser/config_dsl.grammar.c
+SRCS=$(wildcard tagrules/*.c) $(wildcard ifdrules/*.c) $(wildcard helper/*.c) $(wildcard parser/*parser.c)
 OBJS=$(patsubst %.c,%.o, $(SRCS))
+CFLAGS+=-I headers/
 
 # default target
 all: checkit_tiff test
@@ -24,9 +25,9 @@ all: checkit_tiff test
 strip: all
 	strip --strip-all checkit_tiff
 
-config_parser.c: config_dsl.grammar.c
+parser/config_parser.c: parser/config_dsl.grammar.c
 
-config_dsl.grammar.c: config_dsl.grammar.peg
+parser/config_dsl.grammar.c: parser/config_dsl.grammar.peg
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
@@ -55,12 +56,12 @@ doc: ../common/doxygen.conf
 
 # clean workdir
 clean:
-	@rm -f *.o tagrules/*.o
+	@rm -f *.o $(OBJS)
 	@rm -f checkit_tiff test
 
 # mrproper clean
 distclean: clean
-	@rm -f *~ tagrules/*~
+	@find ./ -name "*~" -exec rm -f \{\} \;
 	@rm -f core
 	@rm -Rf doc/
 	@rm -f .depend
@@ -68,13 +69,14 @@ distclean: clean
 	@rm -f .depend
 
 
-depend: .depend
+#depend: .depend
 
-.depend: $(SRCS)
-	rm -f ./.depend
-	$(CC) $(CFLAGS) -MM $^>>./.depend;
+#.depend: $(SRCS)
+#	rm -f ./.depend
+#	echo $^
+#	$(CC) $(CFLAGS) -MM $^>>./.depend;
 
--include .depend
+#-include .depend
 
 .PHONY: all clean distclean strip depend
 
