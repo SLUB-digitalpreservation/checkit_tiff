@@ -6,6 +6,10 @@
  *
  */
 
+#define _GNU_SOURCE
+
+#include <string.h>
+
 #include "check.h"
 #include "check_helper.h"
 #include <assert.h>
