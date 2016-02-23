@@ -1,7 +1,7 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
- * 
+ *
  * author: Andreas Romeyke, 2015
- * licensed under conditions of libtiff 
+ * licensed under conditions of libtiff
  * (see http://libtiff.maptools.org/misc.html)
  *
  */
@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <string.h>
-/* 
+/*
 #define DEBUG
 */
 
@@ -28,7 +28,7 @@ void clear_cache () {
 const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
    if (NULL != fieldp && strncmp(TIFFFieldName(fieldp), "Tag ",4) != 0) {
-#ifndef OLDTIFF   
+#ifndef OLDTIFF
         return TIFFFieldName(fieldp);
 #else
         char * tagstring;
@@ -36,20 +36,20 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
         if (NULL==tagstring) {
           fprintf(stderr, "could not allocate memory for tagstring\n");
           exit(EXIT_FAILURE);
-          }; 
+          };
           snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
 	  char * ret = strdupa( tagstring );
-	  free (tagstring); 
+	  free (tagstring);
           return ret;
 #endif
    } else {
      switch (tag) {
        /*  WANG TIFF  */
        case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
-       case 32933: return ("unknown Wang TIFF"); 
+       case 32933: return ("unknown Wang TIFF");
        case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
        case 32935: return ("unknown Wang TIFF");
-                   /* TODO: needs to be rechecked, unsure if correct */            
+                   /* TODO: needs to be rechecked, unsure if correct */
        case 32995: return ("Matteing"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
        case 32996: return ("DataType"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
        case 32997: return ("ImageDepth"); /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
@@ -84,103 +84,11 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
        case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
        case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
        case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
-       default: return ("undefined tag"); 
+       default: return ("undefined tag");
      }
    }
 }
 
-void renderer_debug ( ret_t ret ) {
-  //printf("\t");
-  if (0 == ret.returncode) {
-    printf("OK|");
-  } else {
-    printf("FALSE|");
-  }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && c < ret.count) {
-        switch (startp->rm_type) {
-          case rm_rule: printf ("RULE|"); break;
-          case rm_tag: printf ("TAG|"); break;
-          case rm_value:printf ("VALUE|"); break;
-          case rm_expected:printf ("EXPECTED|"); break;
-          case rm_hard_error:printf ("HERROR|"); break;
-          case rm_error:printf ("ERR|"); break;
-          case rm_warning:printf ("WARN|"); break;
-          default: ;
-        }
-        printf("%s", startp->rm_msg);
-        startp++;
-        c++; 
-  }
-  printf ("\n");
-}
-
-char * secstrcat (char * dest, char * src, int maxsize) {
-        int destsize = strlen(dest);
-        int srclen = strlen(src);
-        //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
-        if (destsize+srclen < maxsize) {
-          strcat( dest, src);
-        }
-        //destsize = strlen(dest);
-        //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
-        return dest;
-}
-
-const char * renderer_ansi ( ret_t ret ) {
-  char res[1024] = "";
-#define ANSI_RED "\033[22;31m"
-#define ANSI_RED_BOLD     "\033[01;31m"
-#define ANSI_GREEN "\033[22;32m"
-#define ANSI_GREEN_BOLD "\033[01;32m"
-#define ANSI_RESET   "\033[22;30m"
-#define ANSI_BOLD "\033[0;31m"
-#define ANSI_ITALIC "\033[0;34m"
-#define ANSI_UNDERLINE "\033[0;32m"
-#define ANSI_DEFAULT "\033[0;37m"
-#define ANSI_BLACK "\033[22;30m"
-#define ANSI_BROWN "\033[22;33m"
-#define ANSI_BLUE "\033[22;34m"
-#define ANSI_PURPLE "\033[22;35m"
-#define ANSI_CYAN "\033[22;36m"
-#define ANSI_GREY "\033[22;37m"
-#define ANSI_DARK_GREY "\033[01;30m"
-#define ANSI_YELLOW "\033[01;33m"
-#define ANSI_WHITE "\033[01;37m"
-  if (0 == ret.returncode) {
-    secstrcat( res, "\t", 1024  );
-    secstrcat (res, ANSI_GREEN, 1024);
-  } else {
-    secstrcat( res, "\t", 1024  );
-    secstrcat (res, ANSI_RED_BOLD, 1024);
-  }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && c < ret.count) {
-        switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_DARK_GREY, 1024); break;
-          case rm_tag:        secstrcat( res, ANSI_RED_BOLD , 1024); break;
-          case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
-          case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
-          case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
-          default:            secstrcat( res, ANSI_RESET    , 1024);
-        }
-        secstrcat(res, startp->rm_msg, 1024);
-        startp++;
-        c++;
-  }
-  secstrcat(res, ANSI_RESET, 1024);
-  secstrcat(res, "\n", 1024);
-  return strdup( res );
-}
-
-const char * renderer ( ret_t ret ) {
-  // call debug renderer
-  return renderer_ansi( ret );
-}
 
 ret_t tif_fails(const char* fail_message) {
   ret_t res;
@@ -224,7 +132,7 @@ void tifp_check( TIFF * tif) {
 
 ret_t tif_returns(const char* tag, const char* expected, const char* value) {
   ret_t res;
-  /* 
+  /*
      char * str =malloc( sizeof(char) *MAXSTRLEN );
      if (NULL==str) {
      fprintf(stderr, "could not allocate memory for tif_fails\n");
@@ -340,7 +248,7 @@ ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value)
   uint16 val;
   int found=TIFFGetField(tif, tag, &val);
   if (1 == found) {
-    if ( val == value ) {  
+    if ( val == value ) {
       ret_t res;
       res.returnmsg=NULL;
       res.returncode=0;
@@ -422,7 +330,7 @@ int parse_header_and_endianess(TIFF * tif) {
     perror ("TIFF Header read error");
     exit( EXIT_FAILURE );
   }
-  */ 
+  */
   if ( readproc( client, &magic, 2) != 2 ) {
 	  perror ("TIFF Header read error");
 	  exit( EXIT_FAILURE );
@@ -431,7 +339,7 @@ int parse_header_and_endianess(TIFF * tif) {
   uint16 magic2 = magic;
   if (ret) TIFFSwabShort( &magic2 ); /*  big endian */
   if (magic2 == 42) { return ret; }
-  else { 
+  else {
 	  fprintf (stderr, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
 	  if (magic2==0x2b00) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
 	  if (magic2==0x5500) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
@@ -440,7 +348,7 @@ int parse_header_and_endianess(TIFF * tif) {
 	  if (magic2==0x5243) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
 	  if (magic2==0x524f) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
 	  if (magic2==0x5253) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
-    exit(EXIT_FAILURE); 
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -505,7 +413,7 @@ int TIFFGetRawTagListCount (TIFF * tif) {
 	uint32 offset = get_first_IFD( tif );
 
 	// printf("diroffset to %i (0x%04lx)\n", offset, offset);
-	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
+	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
 	/* read and seek to IFD address */
 	//lseek(fd, (off_t) offset, SEEK_SET);
 	seekproc(client, offset, SEEK_SET);
@@ -623,7 +531,7 @@ offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datat
   switch (datatype) {
     case 1: /* 8-bit unsigned integer */
     case 7: /* !8-bit untyped data */
-      /* 
+      /*
       offset.data8p = NULL;
       offset.data8p = malloc ( sizeof(uint8) * count);
       if (read(fd, offset.data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
@@ -733,7 +641,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
       uint16 tagtype = (hi << 8) + lo;
       if (TIFFIsByteSwapped(tif))
         TIFFSwabShort(&tagtype);
-      
+
       uint32 count = (*(e++));
       count += (*(e++) << 8);
       count += (*(e++) << 16);
@@ -743,7 +651,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
 #ifdef DEBUG
 printf("\ncount=%0x\n\n", count);
 #endif
-      
+
       /*  is value or offset? */
       /*  TODO */
       ifd_entry.count=count;
@@ -764,10 +672,10 @@ printf("\ncount=%0x\n\n", count);
         case 2: /* 8-bit bytes w/ last byte null */
         case 6: /* !8-bit signed integer */
         case 7: /* !8-bit untyped data */
-          if (count > 4) { /* offset */ 
+          if (count > 4) { /* offset */
             ifd_entry.value_or_offset=is_offset;
             ifd_entry.data32offset=value_or_offset;
-          } else { /*  values */ 
+          } else { /*  values */
             ifd_entry.value_or_offset=is_value;
             ifd_entry.data8[0] = data[0];
             ifd_entry.data8[1] = data[1];
@@ -782,15 +690,15 @@ printf("\ncount=%0x\n\n", count);
           }; break;
         case 3: /* 16-bit unsigned integer */
         case 8: /* !16-bit signed integer */
-          if (count > 2) { /* offset */  
-            ifd_entry.value_or_offset=is_offset; 
+          if (count > 2) { /* offset */
+            ifd_entry.value_or_offset=is_offset;
             ifd_entry.data32offset=value_or_offset;
-          } else { /*  values */  
+          } else { /*  values */
             ifd_entry.value_or_offset=is_value;
             uint16 w0 = (data[0]) + (data[1]<<8);
             uint16 w1 = (data[2]) + (data[3]<<8);
             if (TIFFIsByteSwapped(tif)) {
-              TIFFSwabShort( &w0 ); 
+              TIFFSwabShort( &w0 );
               TIFFSwabShort( &w1 );
             }
             ifd_entry.data16[0] = w0;
@@ -802,10 +710,10 @@ printf("\ncount=%0x\n\n", count);
           }; break;
         case 4: /* 32-bit unsigned integer */
         case 9: /* !32-bit signed integer */
-          if (count > 1) { /* offset */ 
+          if (count > 1) { /* offset */
             ifd_entry.value_or_offset=is_offset;
             ifd_entry.data32offset=value_or_offset;
-          } else { /*  values */   
+          } else { /*  values */
             ifd_entry.value_or_offset=is_value;
             ifd_entry.data32=value_or_offset;
 #ifdef DEBUG
@@ -820,7 +728,7 @@ printf("\ncount=%0x\n\n", count);
 	case 16: /* BigTIFF 64-bit unsigned integer */
 	case 17: /* BigTIFF 64-bit signed integer */
 	case 18: /* BigTIFF 64-bit unsigned integer (offset) */
-          ifd_entry.value_or_offset=is_offset; 
+          ifd_entry.value_or_offset=is_offset;
           ifd_entry.data32offset=value_or_offset;
 
       }
@@ -850,7 +758,7 @@ ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag) {
   ifd_entry_t ifd_entry;
   if (tagidx >= 0) {
     ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
-  } else { /* tag not defined */ 
+  } else { /* tag not defined */
 	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
 	  ifd_entry.value_or_offset = is_error;
 	  ifd_entry.count = 0;
@@ -863,7 +771,7 @@ if (tagidx >= 0) {
     ifd_entry_t ifd_entry;
     ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
     return ifd_entry.datatype;
-  } else { /* tag not defined */ 
+  } else { /* tag not defined */
     fprintf(stderr, "tagidx should be greater equal 0");
     exit(EXIT_FAILURE);
   }
@@ -875,7 +783,7 @@ if (tagidx >= 0) {
  * @param tif pointer to TIFF structure
  * @param tag tag
  * @return datatype of given tag
- * if tag does not exists the function aborts with an error 
+ * if tag does not exists the function aborts with an error
  */
 TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
   int tagidx = -1;
@@ -892,7 +800,7 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
     printf("### datatype=%i \n", datatype);
 #endif
     return datatype;
-  } else { /* tag not defined */ 
+  } else { /* tag not defined */
 	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
           return -1;
   }
@@ -920,7 +828,7 @@ ret_t check_tagorder(TIFF* tif) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  /* 
+  /*
   if (read(fd, ifdentries, 12 * count) != 12*count) {
     perror ("TIFF Header read error5");
     exit(EXIT_FAILURE);
