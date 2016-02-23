@@ -19,7 +19,7 @@ OBJS=$(patsubst %.c,%.o, $(SRCS))
 CFLAGS+=-I headers/
 
 # default target
-all: checkit_tiff test
+all: checkit_tiff checkit_check_config
 
 # remove debugging symbols (smaller size)
 strip: all
@@ -45,10 +45,10 @@ checkit_tiff.o: checkit_tiff.c
 checkit_tiff: $(OBJS) checkit_tiff.o
 	$(CC) -o $@ $(CFLAGS) $(INC) $^ $(LIB)
 
-test: $(OBJS) test.o
+checkit_check_config: $(OBJS) checkit_check_config.o
 	$(CC) -o $@ $(CFLAGS) $(INC) $^ $(LIB)
 
-test.c: $(GRAMMAR)
+checkit_check_config.c: $(GRAMMAR)
 
 # doc
 doc: ../common/doxygen.conf
@@ -57,7 +57,7 @@ doc: ../common/doxygen.conf
 # clean workdir
 clean:
 	@rm -f *.o $(OBJS)
-	@rm -f checkit_tiff test
+	@rm -f checkit_tiff checkit_check_config
 
 # mrproper clean
 distclean: clean
