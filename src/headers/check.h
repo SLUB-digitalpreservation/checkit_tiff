@@ -13,7 +13,7 @@
 #include <tiffio.h>
 
 typedef struct retmsg_s {
-  enum{ rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning } rm_type;
+  enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning } rm_type;
   char * rm_msg;
 } retmsg_t;
 
@@ -70,6 +70,7 @@ ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails(const char* fail_message);
 ret_t tif_fails_by_returns( ret_t ret );
 ret_t tif_rules_tag(tag_t tag, const char *msg);
+ret_t tif_rules(const char *msg);
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);
