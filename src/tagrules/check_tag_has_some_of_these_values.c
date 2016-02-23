@@ -6,8 +6,8 @@
  *
  */
 
-#include "../check.h"
-#include "../check_helper.h"
+#include "check.h"
+#include "check_helper.h"
 #include <string.h>
 /*
 #define DEBUG

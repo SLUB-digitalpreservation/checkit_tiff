@@ -6,8 +6,8 @@
  *
  */
 
-#include "../check.h"
-#include "../check_helper.h"
+#include "check.h"
+#include "check_helper.h"
 
 /** check if date / time values are within correct ranges 
  * @param year year
