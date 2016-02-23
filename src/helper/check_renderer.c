@@ -18,6 +18,23 @@
 #define DEBUG
 */
 
+#define ANSI_RED "\033[22;31m"
+#define ANSI_RED_BOLD     "\033[01;31m"
+#define ANSI_GREEN "\033[22;32m"
+#define ANSI_GREEN_BOLD "\033[01;32m"
+#define ANSI_RESET   "\033[22;30m"
+#define ANSI_BLACK "\033[22;30m"
+#define ANSI_BLACK_BOLD "\033[01;30m"
+#define ANSI_BROWN "\033[22;33m"
+#define ANSI_BLUE "\033[22;34m"
+#define ANSI_BLUE_BOLD "\033[01;34m"
+#define ANSI_PURPLE "\033[22;35m"
+#define ANSI_CYAN "\033[22;36m"
+#define ANSI_GREY "\033[22;37m"
+#define ANSI_DARK_GREY "\033[01;30m"
+#define ANSI_YELLOW "\033[01;33m"
+#define ANSI_WHITE "\033[01;37m"
+#define ANSI_INVERSE "\033[7m"
 
 
 render_type render_engine=render_default;
@@ -31,24 +48,6 @@ void set_renderer_to_ansi() {
 
 const char * renderer_debug ( ret_t ret ) {
   char res[1024] = "";
-#define ANSI_RED "\033[22;31m"
-#define ANSI_RED_BOLD     "\033[01;31m"
-#define ANSI_GREEN "\033[22;32m"
-#define ANSI_GREEN_BOLD "\033[01;32m"
-#define ANSI_RESET   "\033[22;30m"
-#define ANSI_BOLD "\033[0;31m"
-#define ANSI_ITALIC "\033[0;34m"
-#define ANSI_UNDERLINE "\033[0;32m"
-#define ANSI_DEFAULT "\033[0;37m"
-#define ANSI_BLACK "\033[22;30m"
-#define ANSI_BROWN "\033[22;33m"
-#define ANSI_BLUE "\033[22;34m"
-#define ANSI_PURPLE "\033[22;35m"
-#define ANSI_CYAN "\033[22;36m"
-#define ANSI_GREY "\033[22;37m"
-#define ANSI_DARK_GREY "\033[01;30m"
-#define ANSI_YELLOW "\033[01;33m"
-#define ANSI_WHITE "\033[01;37m"
   if (0 == ret.returncode) {
     secstrcat( res, "\t", 1024  );
     secstrcat (res, ANSI_GREEN, 1024);
@@ -60,14 +59,15 @@ const char * renderer_debug ( ret_t ret ) {
   int c = 0;
   while (NULL != startp && c < ret.count) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_DARK_GREY, 1024); break;
+          case rm_rule:       secstrcat( res, ANSI_RESET    , 1024); break;
           case rm_tag:        secstrcat( res, ANSI_RED_BOLD , 1024); break;
           case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
           case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
           case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
           case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
           case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
-          default:            secstrcat( res, ANSI_RESET    , 1024);
+          case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, 1024); break;
+          default:            secstrcat( res, ANSI_INVERSE    , 1024);
         }
         secstrcat(res, startp->rm_msg, 1024);
         startp++;
@@ -98,24 +98,6 @@ const char * renderer_default ( ret_t ret ) {
 
 const char * renderer_ansi ( ret_t ret ) {
   char res[1024] = "";
-#define ANSI_RED "\033[22;31m"
-#define ANSI_RED_BOLD     "\033[01;31m"
-#define ANSI_GREEN "\033[22;32m"
-#define ANSI_GREEN_BOLD "\033[01;32m"
-#define ANSI_RESET   "\033[22;30m"
-#define ANSI_BOLD "\033[0;31m"
-#define ANSI_ITALIC "\033[0;34m"
-#define ANSI_UNDERLINE "\033[0;32m"
-#define ANSI_DEFAULT "\033[0;37m"
-#define ANSI_BLACK "\033[22;30m"
-#define ANSI_BROWN "\033[22;33m"
-#define ANSI_BLUE "\033[22;34m"
-#define ANSI_PURPLE "\033[22;35m"
-#define ANSI_CYAN "\033[22;36m"
-#define ANSI_GREY "\033[22;37m"
-#define ANSI_DARK_GREY "\033[01;30m"
-#define ANSI_YELLOW "\033[01;33m"
-#define ANSI_WHITE "\033[01;37m"
   if (0 == ret.returncode) {
     secstrcat( res, "", 1024  );
     secstrcat (res, ANSI_GREEN, 1024);
@@ -127,14 +109,15 @@ const char * renderer_ansi ( ret_t ret ) {
   int c = 0;
   while (NULL != startp && c < ret.count) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_DARK_GREY, 1024); break;
-          case rm_tag:        secstrcat( res, ANSI_DARK_GREY , 1024); break;
+          case rm_rule:       secstrcat( res, ANSI_RESET    , 1024); break;
+          case rm_tag:        secstrcat( res, ANSI_BLACK_BOLD, 1024); break;
           case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
           case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
           case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
           case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
           case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
-          default:            secstrcat( res, ANSI_RESET    , 1024);
+          case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, 1024); break;
+          default:            secstrcat( res, ANSI_RESET  , 1024);
         }
         secstrcat(res, startp->rm_msg, 1024);
         startp++;
