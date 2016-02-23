@@ -56,13 +56,7 @@ typedef struct offset_s {
 
 typedef uint16 tag_t;
 
-#define MAXSTRLEN 160
-
-//#define tif_fails(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); printf("\t%s", str); res.returnmsg = str; res.returncode=1; return res;}
-
-//#define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
-
-//#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); res.returnmsg = str; res.returncode=1; return res;}
+#define MAXSTRLEN 1024
 
 void tifp_check( TIFF * tif);
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);
@@ -71,6 +65,7 @@ ret_t tif_fails(const char* fail_message);
 ret_t tif_fails_by_returns( ret_t ret );
 ret_t tif_rules_tag(tag_t tag, const char *msg);
 ret_t tif_rules(const char *msg);
+ret_t tif_files(const char *msg);
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);
