@@ -13,7 +13,8 @@
 
 /* check if offsets are word aligned */
 ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
-  printf("check if all offsets are word aligned\n");
+  //printf("check if all offsets are word aligned\n");
+  tif_rules("all offsets are word aligned");
   int count = TIFFGetRawTagListCount( tif);
   int tagidx;
   for (tagidx = 0; tagidx< count; tagidx++) {

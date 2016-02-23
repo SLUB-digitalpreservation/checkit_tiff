@@ -12,7 +12,8 @@
 
 /*  check if only one IFD exists */
 ret_t check_has_only_one_ifd(TIFF* tif) {
-  printf("check if only one IFD exists\n");
+  //printf("check if only one IFD exists\n");
+  tif_rules("only one IFD exists");
   /* next commented lines, because TIFFNumberOfDirectories are in endless loop,
    * if the TIFF file from https://github.com/EasyinnovaSL/DPFManager/blob/develop/src/test/resources/IFD%20struct/Circular%20E.tif
    * is read:

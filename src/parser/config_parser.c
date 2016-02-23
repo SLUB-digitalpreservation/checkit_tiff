@@ -192,7 +192,8 @@ exitcall:    this_exe_p = this_exe_p->next;
   }
   /* now we know which tags are already checked, we need add a rule to
    * forbidden all other tags */
-  printf("check if forbidden tags are still existing\n");
+  //printf("check if forbidden tags are still existing\n");
+  tif_rules("forbidden tags are still existing");
   int tag;
   for (tag=MINTAGS; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */

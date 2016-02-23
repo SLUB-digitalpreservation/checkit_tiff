@@ -13,7 +13,8 @@
 
 /* check if offsets are used only once */
 ret_t check_all_offsets_are_used_once_only(TIFF * tif) {
-  printf("check if all offsets are used once only\n");
+  //printf("check if all offsets are used once only\n");
+  tif_rules("all offsets are used once only");
   int count = TIFFGetRawTagListCount( tif);
   int tagidx;
   uint32 offsets[ count ];

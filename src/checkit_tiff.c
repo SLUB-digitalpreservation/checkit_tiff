@@ -46,7 +46,8 @@ void help () {
 }
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-	printf("tiff file=%s\n", tiff_file);
+	// printf("tiff file=%s\n", tiff_file);
+        tif_files(tiff_file);
 	/* load tiff file */
 	TIFF* tif = NULL;
 	if (use_memmapped == FLAGGED) {
