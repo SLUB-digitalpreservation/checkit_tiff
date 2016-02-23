@@ -25,7 +25,7 @@ ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
         // FIXME: tif_fails?
         char array[80];
         snprintf(array, sizeof(array), "pointing to 0x%08x and is not word-aligned", offset);
-        return tif_fails_tag( tag2str(tif, tag), "word-aligned", array);
+        return tif_fails_tag( tag, "word-aligned", array);
       }
     }
   }

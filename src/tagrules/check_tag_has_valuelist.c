@@ -16,8 +16,21 @@
 */
 
 ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * values) {
-  printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
+  //printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
   tifp_check( tif);
+  char msg[200];
+  snprintf(msg, sizeof(msg), "has these %i-values: ", count);
+  int i;
+  unsigned int * p = values;
+  for (i=0; i< count; i++) {
+    secstrcat (msg, ", ", 200);
+    secstrcat (msg, int2str(*p), 200);
+    p++;
+  }
+  tif_rules_tag(tag, strdup(msg));
+  ret_t res = check_tag_has_valid_type( tif, tag);
+ if (res.returncode == 0) {
+
   int i;
   unsigned int v[count];
   for (i=0; i< count; i++) {
@@ -32,7 +45,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
     snprintf(expected, sizeof(expected), "list has %u values", count);
     char value[10];
     snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
-    return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+    return tif_fails_tag( tag, strdup(expected), strdup(value));
   }
   ret_t res;
   res.returncode=0;
@@ -47,7 +60,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
                             char value[10];
                             snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data32);
-                            return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                            return tif_fails_tag( tag, strdup(expected), strdup(value));
                             //tif_fails_tag( tag2str(tif, tag), "tag %u (%s), tagvalue[%i]=%u differs from value=%u (long)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data32, v[i]);
                           }
                         }
@@ -68,7 +81,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
                             char value[10];
                             snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
-                            return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                            return tif_fails_tag( tag, strdup(expected), strdup(value));
                           }
                           p++;
                         }
@@ -87,7 +100,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                              snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
                              char value[10];
                              snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data16[i]);
-                             return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                             return tif_fails_tag( tag, strdup(expected), strdup(value));
                              //tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value[%i]=%u (short)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data16[i], i, v[i]);
                            }
                          }
@@ -108,7 +121,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                              snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
                              char value[10];
                              snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
-                             return tif_fails_tag( tag2str(tif, tag), strdup(expected), strdup(value));
+                             return tif_fails_tag( tag, strdup(expected), strdup(value));
                              // tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, pval, v[i]);
                            }
                            p++;
@@ -122,9 +135,10 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                       {
                         char array[10];
                         snprintf(array, sizeof(array), "type:%i", ifd_entry.datatype);
-                        return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
+                        return tif_fails_tag( tag, "of type long, short or float", array);
                       }
 
   }
-
+ }
+  return tif_fails_by_returns( res );
 }

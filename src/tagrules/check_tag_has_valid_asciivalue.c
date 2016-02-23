@@ -23,7 +23,9 @@ ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
   uint32 count=0;
   int r = 0;
   if (datatype == TIFF_ASCII) {
-    printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
+    //printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
+    tif_rules_tag(tag, "has valid asciivalue");
+
     int found=TIFFGetField(tif, tag, &string, &count);
     if (1==found) { /* there exists a tag */
       int i;
@@ -38,7 +40,7 @@ ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {
   if (0 != r) {
     char array[80];
     snprintf(array, sizeof(array), "incorrect asciivalue (\\0 at position %i in %i-len String)", r, count);
-    return tif_fails_tag( tag2str(tif, tag), "", array);
+    return tif_fails_tag( tag, "", array);
   } else {
     ret_t res;
     res.returnmsg=NULL;

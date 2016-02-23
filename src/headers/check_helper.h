@@ -12,11 +12,13 @@
 #include <tiff.h>
 #include <tiffio.h>
 
+typedef enum{ render_default, render_debug, render_ansi} render_type;
+
 /* helper */
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value);
 ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value);
 ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value);
-const char * TIFFTagName (  TIFF * tif, tag_t tag );
+const char * TIFFTagName (tag_t tag);
 uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx );
 tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) ;
 int TIFFGetRawTagListCount (TIFF * tif) ;
@@ -28,5 +30,6 @@ uint32 get_first_IFD(TIFF * tif);
 //int TIFFIsByteSwapped(TIFF * tif);
 void clear_cache();
 const char * renderer ( const ret_t ret );
-
+void set_renderer_to_ansi();
+char * secstrcat (char * dest, const char * src, int maxsize);
 #endif

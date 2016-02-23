@@ -16,7 +16,7 @@ ret_t check_notag(TIFF* tif, tag_t tag) {
   tifp_check( tif);
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
-    return tif_fails_tag( tag2str( tif, tag), "", "which is not whitelisted or rule has no matched dependency");
+    return tif_fails_tag( tag, "", "which is not whitelisted or rule has no matched dependency");
   } else {
     res.returnmsg=NULL;
     res.returncode=0;

@@ -8,6 +8,7 @@
 
 
 #include "config_parser.h"
+#include "check_helper.h"
 #include <unistd.h>
 #include <assert.h>
 #include <dirent.h>
@@ -29,13 +30,15 @@
 void help () {
   printf ("checkit_tiff\n");
   printf ("\tversion: %s\n", VERSION);
+  printf ("\trevision: %s\n", REPO_REVISION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n\n");
   printf ("\tuses libtiff version %s\n\n", TIFFGetVersion());
   printf ("call it with:\n");
-  printf ("\tcheckit_tiff [-h|-m|-d] <tifffile> <configfile>\n");
+  printf ("\tcheckit_tiff [-c|-h|-m|-d] <tifffile> <configfile>\n");
   printf ("\nwhere <tifffile> is the tiff file (or directory) to be validated\n");
   printf ("and <configfile> is the file name of the validation profile\n");
   printf ("\t-h this help\n");
+  printf ("\t-c colorized output using ANSI escape sequences\n");
   printf ("\t-m uses memmapped I/O (faster validation, but needs more RAM)\n");
   printf ("\t-d check all files in that directory\n");
   printf ("example:\n\tcheckit_tiff tiffs_should_pass/minimal_valid.tiff example_configs/baseline_minimal.cfg\n");
@@ -90,17 +93,20 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 /** main */
 int main (int argc, char * argv[]) {
   printf("'%s' version: %s\n", argv[0], VERSION);
+  printf ("\trevision: %s\n", REPO_REVISION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n");
   int c;
   int flag_check_directory=UNFLAGGED;
   int flag_use_memorymapped_io=UNFLAGGED;
-  const char * reportfilename = NULL;
-  while ((c = getopt (argc, argv, "hmd")) != -1) {
+  while ((c = getopt (argc, argv, "chmd")) != -1) {
 	  switch (c)
 	  {
 		  case 'h': /* help */
 			  help();
 			  exit (0);
+                  case 'c': /*  colorize output */
+                          set_renderer_to_ansi();
+                          break;
 		  case 'd': /* check directory */
 			  flag_check_directory = FLAGGED;
 			  printf("\nCheck all files in given directory\n");

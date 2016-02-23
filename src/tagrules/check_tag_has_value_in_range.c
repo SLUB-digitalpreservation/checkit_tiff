@@ -14,8 +14,11 @@
 */
 
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b) {
-  printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
+  //printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
   tifp_check( tif);
+   char msg[200];
+  snprintf(msg, sizeof(msg), "has value in range %u - %u", a, b);
+  tif_rules_tag(tag, strdup(msg));
   ret_t res = check_tag_has_valid_type( tif, tag);
     if (res.returncode == 0) {
 
@@ -33,10 +36,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           return res;
 
                         } else {
-                          return tif_fails_tag( tag2str(tif, tag), range2str(a, b), int2str(val) );
+                          return tif_fails_tag( tag, range2str(a, b), int2str(val) );
                         }
                       } else {
-                        return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");                      }
+                        return tif_fails_tag( tag, "", "was not found, but requested because defined");                      }
 
                       break;
                     }
@@ -51,10 +54,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           return res;
 
                         } else {
-                          return tif_fails_tag( tag2str(tif, tag), range2str(a, b), int2str(val) );
+                          return tif_fails_tag( tag, range2str(a, b), int2str(val) );
                         }
                       } else {
-                       return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");                      }
+                       return tif_fails_tag( tag, "", "was not found, but requested because defined");                      }
 
                       break;
                      }
@@ -70,10 +73,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
 
                         } else {
                           // tif_fails("tag %u (%s) should have value in range %u - %u, but have count/value=%f\n", tag,TIFFTagName(tif, tag),  a, b, val);
-                          return tif_fails_tag( tag2str(tif, tag), range2str(a, b), float2str(val) );
+                          return tif_fails_tag( tag, range2str(a, b), float2str(val) );
                         }
                       } else {
-                        return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");                      }
+                        return tif_fails_tag( tag, "", "was not found, but requested because defined");                      }
 
                       break;
                         }
@@ -82,7 +85,7 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           // tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
                           char array[10];
                           snprintf(array, sizeof(array), "but was:%i", datatype);
-                          return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
+                          return tif_fails_tag( tag, "of type long, short or float", array);
                         }
   }
   }

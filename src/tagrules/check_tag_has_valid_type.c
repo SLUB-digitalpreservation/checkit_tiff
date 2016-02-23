@@ -12,8 +12,9 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
-  printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
+  //printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
   tifp_check( tif);
+  tif_rules_tag(tag, "has valid type");
   TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
@@ -87,7 +88,7 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
   if (!res) {
     char array[40];
     snprintf(array, sizeof(array), "with incorrect type: %i", datatype);
-    return tif_returns( tag2str(tif, tag), "", array);
+    return tif_returns( tag, "", array);
   } else {
     ret_t res;
     res.returnmsg=NULL;

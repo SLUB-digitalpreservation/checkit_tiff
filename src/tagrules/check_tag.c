@@ -12,8 +12,9 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag(TIFF* tif, tag_t tag) {
-  printf("check if tag %u (%s) exists\n", tag, TIFFTagName(tif, tag));
+  //printf("check if tag %u (%s) exists\n", tag, TIFFTagName(tif, tag));
   tifp_check( tif);
+  tif_rules_tag(tag, "exists");
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
     res = check_tag_has_valid_type( tif, tag);
@@ -22,6 +23,6 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
     }
     return tif_fails_by_returns(res);
   } else {
-    return tif_fails_tag( tag2str(tif, tag), "", "was not found, but requested because defined");
+    return tif_fails_tag(tag, "", "was not found, but requested because defined");
   }
 }

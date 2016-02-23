@@ -14,16 +14,18 @@
 */
 
 ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsigned int * values) {
-  printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
-   tifp_check( tif);
-
+  //printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
+  tifp_check( tif);
+  char msg[200];
+  snprintf(msg, sizeof(msg), "has some of these %i-values: ", count);
   int i;
   unsigned int * p = values;
   for (i=0; i< count; i++) {
-    printf (", %u", *p);
+    secstrcat (msg, ", ", 200);
+    secstrcat (msg, int2str(*p), 200);
     p++;
   }
-  printf("\n");
+  tif_rules_tag(tag, strdup(msg));
   ret_t res = check_tag_has_valid_type( tif, tag);
   if (res.returncode == 0) {
 
@@ -44,7 +46,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                       TIFFGetField(tif, tag, &val);
                       char value[40];
                       snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
-                      return tif_fails_tag( tag2str(tif, tag), "", strdup(value));
+                      return tif_fails_tag( tag, "", strdup(value));
                       break;
                     }
     case TIFF_SHORT: {
@@ -62,7 +64,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                        TIFFGetField(tif, tag, &val);
                        char value[40];
                        snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
-                       return tif_fails_tag( tag2str(tif, tag), "", strdup(value));
+                       return tif_fails_tag( tag, "", strdup(value));
                        break;
                      }
     case TIFF_RATIONAL: {
@@ -80,7 +82,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                           TIFFGetField(tif, tag, &val);
                           char value[40];
                           snprintf(value, sizeof(value), "does not have some of expected values (but have:%f)", val);
-                          return tif_fails_tag( tag2str(tif, tag), "", strdup(value));
+                          return tif_fails_tag( tag, "", strdup(value));
                           //tif_fails("tag %u (%s) does not have some of expected values (but have:%f)\n", tag, TIFFTagName(tif, tag), val);
                           break;
                         }
@@ -89,7 +91,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                         // tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
                         char array[10];
                         snprintf(array, sizeof(array), "but was:%i", datatype);
-                        return tif_fails_tag( tag2str(tif, tag), "of type long, short or float", array);
+                        return tif_fails_tag( tag, "of type long, short or float", array);
                         }
   }
   }

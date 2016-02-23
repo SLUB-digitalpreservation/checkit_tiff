@@ -9,9 +9,12 @@
 
 
 ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * regex_string) {
-  printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), regex_string);
+  //printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), regex_string);
   tifp_check( tif);
-    TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  char msg[200];
+  snprintf(msg, sizeof(msg), "has  value matching regex '%s'", regex_string);
+  tif_rules_tag(tag, strdup(msg));
+  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_ASCII: {
                        char * val;
@@ -46,13 +49,13 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                            } else {
                              switch(rc) {
                                case PCRE_ERROR_NOMATCH:
-                                 return tif_fails_tag( tag2str(tif, tag), strdup(regex_string), val);
+                                 return tif_fails_tag( tag, strdup(regex_string), val);
                                  break;
                                  /*
                                     Handle other special cases if you like
                                     */
                                default:
-                                 return tif_fails_tag( tag2str(tif, tag), strdup(regex_string), val);
+                                 return tif_fails_tag( tag, strdup(regex_string), val);
                                  // tif_fails("tag %u with value '%s' called regex '%s' with matching error %d\n", tag, val, regex_string, rc);
                                  break;
                              }
@@ -63,14 +66,14 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                            return tif_fails(array);
                          }
                        } else {
-                         return tif_fails_tag( tag2str(tif, tag), "should exist, because defined", "");
+                         return tif_fails_tag( tag, "should exist, because defined", "");
                        }
                      }
     default:  /*  none */
                      {
-                     char array[10];
-                     snprintf(array, sizeof(array), "but was:%i\n", datatype);
-                     return tif_fails_tag( tag2str(tif, tag), "of type ASCII", array);
+                       char array[10];
+                       snprintf(array, sizeof(array), "but was:%i\n", datatype);
+                       return tif_fails_tag( tag, "of type ASCII", array);
                      }
   }
 }
