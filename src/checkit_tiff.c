@@ -82,6 +82,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 		if (0 != res.returncode) {is_valid++;}
 	}
 	is_valid += execute_plan(tif);
+	/* TODO: colorize? */
 	if (is_valid > 0) {
 		printf("found %i errors\n", is_valid);
 	} else {
