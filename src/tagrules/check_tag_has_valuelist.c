@@ -23,7 +23,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
   int i;
   unsigned int * p = values;
   for (i=0; i< count; i++) {
-    secstrcat (msg, ", ", 200);
+    if (0 < i) secstrcat (msg, ", ", 200);
     secstrcat (msg, int2str(*p), 200);
     p++;
   }
@@ -35,10 +35,8 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
   unsigned int v[count];
   for (i=0; i< count; i++) {
     v[i] = *values;
-    printf (", %i", v[i]);
     values++;
   }
-  printf("\n");
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(tif, tag);
   if (count != ifd_entry.count) {
     char expected[10];
