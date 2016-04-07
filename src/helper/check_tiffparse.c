@@ -112,6 +112,7 @@ const char * TIFFTagName( tag_t tag ) {
     case TIFFTAG_REGIONTACKPOINT: return ("IgRegionTackPoint (Island Graphics)" );
     case TIFFTAG_REGIONWARPCORNERS: return ("IgRegionWarpCorners (Island Graphics)" );
     case TIFFTAG_REGIONAFFINE: return ("IgRegionAffine (Island Graphics)" );
+    case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
     case TIFFTAG_MATTEING: return ("OBSOLETE Matteing (Silicon Graphics)" );
     case TIFFTAG_DATATYPE: return ("OBSOLETE DataType (Silicon Graphics)" );
     case TIFFTAG_IMAGEDEPTH: return ("ImageDepth (Silicon Graphics)" );
