@@ -40,7 +40,9 @@
 render_type render_engine=render_default;
 
 void set_renderer_to_ansi() {
-  render_engine=render_ansi;
+  if (isatty (STDOUT_FILENO)) {
+    render_engine=render_ansi;
+  }
 }
 
 
