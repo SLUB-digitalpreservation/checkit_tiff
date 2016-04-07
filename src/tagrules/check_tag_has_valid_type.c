@@ -40,7 +40,7 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
     case TIFFTAG_GRAYRESPONSEUNIT:  res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_HALFTONEHINTS:     res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_HOSTCOMPUTER:      res=(datatype  ==  TIFF_ASCII); break;
-    case TIFFTAG_ICCPROFILE:        res=(datatype  ==  TIFF_UNDEFINED); break;		
+    case TIFFTAG_ICCPROFILE:        res=(datatype  ==  TIFF_UNDEFINED); break;
     case TIFFTAG_IMAGEDEPTH:        res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_IMAGEDESCRIPTION:  res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_IMAGELENGTH:       res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT);; break;
