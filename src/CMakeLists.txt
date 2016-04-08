@@ -67,3 +67,17 @@ endif(PCRE_FOUND)
 
 
 TARGET_LINK_LIBRARIES(checkit_tiff ${TIFF_LIBRARIES}  ${PCRE_LIBRARIES})
+
+install( TARGETS checkit_tiff
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+)
+install(DIRECTORY 
+  ../example_configs
+  ../tiffs_should_fail
+  ../tiffs_should_pass 
+  DESTINATION share/checkit_tiff/
+)
+
+file( GLOB README_FILES "../README*" "../FAQ" "../LICENSE" "../TODO" "../BUGS")
+install(FILES ${README_FILES} DESTINATION share/checkit_tiff/)
