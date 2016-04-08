@@ -12,6 +12,18 @@
 #include "check.h"
 #include "check_helper.h"
 
+#ifdef WIN32
+static inline char *strndup(const char *s, size_t n)
+{
+    char *result;
+    size_t len = strlen (s);
+    if (n < len) len = n;
+    result = (char *) malloc (len + 1);
+    if (!result) return 0;
+    result[len] = '\0';
+    return (char *) strncpy (result, s, len);
+}
+#endif
 
 ret_t tif_fails(const char* fail_message) {
   ret_t res;

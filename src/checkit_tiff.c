@@ -22,7 +22,8 @@
       #include <sys/stat.h>
       #include <sys/types.h>
 #else
-      #include <sys\stat.h>
+      /* #include <sys\stat.h> */
+      #include <sys/stat.h>
 #endif
 
 #define FLAGGED 1
