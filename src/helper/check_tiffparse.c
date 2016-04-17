@@ -123,10 +123,14 @@ const char * TIFFTagName( tag_t tag ) {
     case TIFFTAG_JBIGOPTIONS: return ("JBIG Options" );
     case TIFFTAG_STONITS: return ("StoNits" );
                           /* next 4 lines  WANG TIFF  */
-    case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm */
+    case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm, for full explanation, see http://web.archive.org/web/20030124024322/http://www5.eistream.com/support_pro/faqs/annospec.htm */
     case 32933: return ("unknown Wang TIFF");
     case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
     case 32935: return ("unknown Wang TIFF");
+    case 32970: return ("temperature (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
+  
+    case 32971: return ("Zoombox (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
+    case 32972: return ("WinTES (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
     case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
 
     case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
