@@ -139,6 +139,9 @@ const char * TIFFTagName( tag_t tag ) {
     /* 32972 */ case 32972: return ("WinTES (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
     /* 33424 */ case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
 
+
+    /* 33434 */ case 33434: return ("EXIF ExposureTime"); /* EXIF, Exposure time, given in seconds. */
+    /* 33437 */ case 33437: return ("EXIF FNumber"); /* EXIF, The F number. */
     /* 33445 */ case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33446 */ case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33447 */ case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
@@ -155,11 +158,64 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
     /* 34732 */ case TIFFTAG_IMAGELAYER: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
     /* 34820 */ case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
-
+    /* 34850 */ case 34850: return ("EXIF ExposureProgram"); /* EXIF, The class of the program used by the camera to set exposure when the picture is taken. */
+    /* 34852 */ case 34852: return ("EXIF SpectralSensitivity"); /* EXIF, Indicates the spectral sensitivity of each channel of the camera used. */
+    /* 34855 */ case 34855: return ("EXIF ISOSpeedRatings"); /* EXIF, Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. */
+    /* 34856 */ case 34856: return ("EXIF OECF"); /* EXIF, Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524. */
     /* 34908 */ case TIFFTAG_FAXRECVPARAMS: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34909 */ case TIFFTAG_FAXSUBADDRESS: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34910 */ case TIFFTAG_FAXRECVTIME: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 36864 */ case 36864: return ("EXIF ExifVersion"); /* EXIF, The version of the supported Exif standard. */
+    /* 36867 */ case 36867: return ("EXIF DateTimeOriginal"); /* EXIF, The date and time when the original image data was generated. */
+    /* 36868 */ case 36868: return ("EXIF DateTimeDigitized"); /* EXIF, The date and time when the image was stored as digital data. */
+    /* 37121 */ case 37121: return ("EXIF ComponentsConfiguration"); /* EXIF, Specific to compressed data; specifies the channels and complements PhotometricInterpretation */
+    /* 37122 */ case 37122: return ("EXIF CompressedBitsPerPixel"); /* EXIF, Specific to compressed data; states the compressed bits per pixel. */
+    /* 37377 */ case 37377: return ("EXIF ShutterSpeedValue"); /* EXIF, Shutter speed. */
+    /* 37378 */ case 37378: return ("EXIF ApertureValue"); /* EXIF, The lens aperture. */
+    /* 37379 */ case 37379: return ("EXIF BrightnessValue"); /* EXIF, The value of brightness. */
+    /* 37380 */ case 37380: return ("EXIF ExposureBiasValue"); /* EXIF, The exposure bias. */
+    /* 37381 */ case 37381: return ("EXIF MaxApertureValue"); /* EXIF, The smallest F number of the lens. */
+    /* 37382 */ case 37382: return ("EXIF SubjectDistance"); /* EXIF, The distance to the subject, given in meters. */
+    /* 37383 */ case 37383: return ("EXIF MeteringMode"); /* EXIF, The metering mode. */
+    /* 37384 */ case 37384: return ("EXIF LightSource"); /* EXIF, The kind of light source. */
+    /* 37385 */ case 37385: return ("EXIF Flash"); /* EXIF, Indicates the status of flash when the image was shot. */
+    /* 37386 */ case 37386: return ("EXIF FocalLength"); /* EXIF, The actual focal length of the lens, in mm. */
+    /* 37396 */ case 37396: return ("EXIF SubjectArea"); /* EXIF, Indicates the location and area of the main subject in the overall scene. */
+    /* 37500 */ case 37500: return ("EXIF MakerNote"); /* EXIF, Manufacturer specific information. */
+    /* 37510 */ case 37510: return ("EXIF UserComment"); /* EXIF, Keywords or comments on the image; complements ImageDescription. */
+    /* 37520 */ case 37520: return ("EXIF SubsecTime"); /* EXIF, A tag used to record fractions of seconds for the DateTime tag. */
+    /* 37521 */ case 37521: return ("EXIF SubsecTimeOriginal"); /* EXIF, A tag used to record fractions of seconds for the DateTimeOriginal tag. */
+    /* 37522 */ case 37522: return ("EXIF SubsecTimeDigitized"); /* EXIF, A tag used to record fractions of seconds for the DateTimeDigitized tag. */
     /* 37724 */ case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
+    /* 40960 */ case 40960: return ("EXIF FlashpixVersion"); /* EXIF, The Flashpix format version supported by a FPXR file. */
+    /* 40961 */ case 40961: return ("EXIF ColorSpace"); /* EXIF, The color space information tag is always recorded as the color space specifier. */
+    /* 40962 */ case 40962: return ("EXIF PixelXDimension"); /* EXIF, Specific to compressed data; the valid width of the meaningful image. */
+    /* 40963 */ case 40963: return ("EXIF PixelYDimension"); /* EXIF, Specific to compressed data; the valid height of the meaningful image. */
+    /* 40964 */ case 40964: return ("EXIF RelatedSoundFile"); /* EXIF, Used to record the name of an audio file related to the image data. */
+    /* 41483 */ case 41483: return ("EXIF FlashEnergy"); /* EXIF, Indicates the strobe energy at the time the image is captured, as measured in Beam Candle Power Seconds */
+    /* 41484 */ case 41484: return ("EXIF SpatialFrequencyResponse"); /* EXIF, Records the camera or input device spatial frequency table and SFR values in the direction of image width, image height, and diagonal direction, as specified in ISO 12233. */
+    /* 41486 */ case 41486: return ("EXIF FocalPlaneXResolution"); /* EXIF, Indicates the number of pixels in the image width (X) direction per FocalPlaneResolutionUnit on the camera focal plane. */
+    /* 41487 */ case 41487: return ("EXIF FocalPlaneYResolution"); /* EXIF, Indicates the number of pixels in the image height (Y) direction per FocalPlaneResolutionUnit on the camera focal plane. */
+    /* 41488 */ case 41488: return ("EXIF FocalPlaneResolutionUnit"); /* EXIF, Indicates the unit for measuring FocalPlaneXResolution and FocalPlaneYResolution. */
+    /* 41492 */ case 41492: return ("EXIF SubjectLocation"); /* EXIF, Indicates the location of the main subject in the scene. */
+    /* 41493 */ case 41493: return ("EXIF ExposureIndex"); /* EXIF, Indicates the exposure index selected on the camera or input device at the time the image is captured. */
+    /* 41495 */ case 41495: return ("EXIF SensingMethod"); /* EXIF, Indicates the image sensor type on the camera or input device. */
+    /* 41728 */ case 41728: return ("EXIF FileSource"); /* EXIF, Indicates the image source. */
+    /* 41729 */ case 41729: return ("EXIF SceneType"); /* EXIF, Indicates the type of scene. */
+    /* 41730 */ case 41730: return ("EXIF CFAPattern"); /* EXIF, Indicates the color filter array (CFA) geometric pattern of the image sensor when a one-chip color area sensor is used. */
+    /* 41985 */ case 41985: return ("EXIF CustomRendered"); /* EXIF, Indicates the use of special processing on image data, such as rendering geared to output. */
+    /* 41986 */ case 41986: return ("EXIF ExposureMode"); /* EXIF, Indicates the exposure mode set when the image was shot. */
+    /* 41987 */ case 41987: return ("EXIF WhiteBalance"); /* EXIF, Indicates the white balance mode set when the image was shot. */
+    /* 41988 */ case 41988: return ("EXIF DigitalZoomRatio"); /* EXIF, Indicates the digital zoom ratio when the image was shot. */
+    /* 41989 */ case 41989: return ("EXIF FocalLengthIn35mmFilm"); /* EXIF, Indicates the equivalent focal length assuming a 35mm film camera, in mm. */
+    /* 41990 */ case 41990: return ("EXIF SceneCaptureType"); /* EXIF, Indicates the type of scene that was shot. */
+    /* 41991 */ case 41991: return ("EXIF GainControl"); /* EXIF, Indicates the degree of overall image gain adjustment. */
+    /* 41992 */ case 41992: return ("EXIF Contrast"); /* EXIF, Indicates the direction of contrast processing applied by the camera when the image was shot. */
+    /* 41993 */ case 41993: return ("EXIF Saturation"); /* EXIF, Indicates the direction of saturation processing applied by the camera when the image was shot. */
+    /* 41994 */ case 41994: return ("EXIF Sharpness"); /* EXIF, Indicates the direction of sharpness processing applied by the camera when the image was shot. */
+    /* 41995 */ case 41995: return ("EXIF DeviceSettingDescription"); /* EXIF, This tag indicates information on the picture-taking conditions of a particular camera model. */
+    /* 41996 */ case 41996: return ("EXIF SubjectDistanceRange"); /* EXIF, Indicates the distance to the subject. */
+    /* 42016 */ case 42016: return ("EXIF ImageUniqueID"); /* EXIF, Indicates an identifier assigned uniquely to each image. */
     /* 42112 */ case 42112: return ("GDAL_Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 42113 */ case 42113: return ("GDAL_nodata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 50215 */ case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
