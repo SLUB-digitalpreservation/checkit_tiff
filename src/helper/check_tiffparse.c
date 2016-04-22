@@ -30,141 +30,148 @@ void clear_cache () {
 const char * TIFFTagName( tag_t tag ) {
   switch (tag) {
     /*  next lines from tiffdump.c */
-    case TIFFTAG_SUBFILETYPE: return ("SubFileType" );
-    case TIFFTAG_OSUBFILETYPE: return ("OldSubFileType" );
-    case TIFFTAG_IMAGEWIDTH: return ("ImageWidth" );
-    case TIFFTAG_IMAGELENGTH: return ("ImageLength" );
-    case TIFFTAG_BITSPERSAMPLE: return ("BitsPerSample" );
-    case TIFFTAG_COMPRESSION: return ("Compression" );
-    case TIFFTAG_PHOTOMETRIC: return ("Photometric" );
-    case TIFFTAG_THRESHHOLDING: return ("Threshholding" );
-    case TIFFTAG_CELLWIDTH: return ("CellWidth" );
-    case TIFFTAG_CELLLENGTH: return ("CellLength" );
-    case TIFFTAG_FILLORDER: return ("FillOrder" );
-    case TIFFTAG_DOCUMENTNAME: return ("DocumentName" );
-    case TIFFTAG_IMAGEDESCRIPTION: return ("ImageDescription" );
-    case TIFFTAG_MAKE: return ("Make" );
-    case TIFFTAG_MODEL: return ("Model" );
-    case TIFFTAG_STRIPOFFSETS: return ("StripOffsets" );
-    case TIFFTAG_ORIENTATION: return ("Orientation" );
-    case TIFFTAG_SAMPLESPERPIXEL: return ("SamplesPerPixel" );
-    case TIFFTAG_ROWSPERSTRIP: return ("RowsPerStrip" );
-    case TIFFTAG_STRIPBYTECOUNTS: return ("StripByteCounts" );
-    case TIFFTAG_MINSAMPLEVALUE: return ("MinSampleValue" );
-    case TIFFTAG_MAXSAMPLEVALUE: return ("MaxSampleValue" );
-    case TIFFTAG_XRESOLUTION: return ("XResolution" );
-    case TIFFTAG_YRESOLUTION: return ("YResolution" );
-    case TIFFTAG_PLANARCONFIG: return ("PlanarConfig" );
-    case TIFFTAG_PAGENAME: return ("PageName" );
-    case TIFFTAG_XPOSITION: return ("XPosition" );
-    case TIFFTAG_YPOSITION: return ("YPosition" );
-    case TIFFTAG_FREEOFFSETS: return ("FreeOffsets" );
-    case TIFFTAG_FREEBYTECOUNTS: return ("FreeByteCounts" );
-    case TIFFTAG_GRAYRESPONSEUNIT: return ("GrayResponseUnit" );
-    case TIFFTAG_GRAYRESPONSECURVE: return ("GrayResponseCurve" );
-    case TIFFTAG_GROUP3OPTIONS: return ("Group3Options" );
-    case TIFFTAG_GROUP4OPTIONS: return ("Group4Options" );
-    case TIFFTAG_RESOLUTIONUNIT: return ("ResolutionUnit" );
-    case TIFFTAG_PAGENUMBER: return ("PageNumber" );
-    case TIFFTAG_COLORRESPONSEUNIT: return ("ColorResponseUnit" );
-    case TIFFTAG_TRANSFERFUNCTION: return ("TransferFunction" );
-    case TIFFTAG_SOFTWARE: return ("Software" );
-    case TIFFTAG_DATETIME: return ("DateTime" );
-    case TIFFTAG_ARTIST: return ("Artist" );
-    case TIFFTAG_HOSTCOMPUTER: return ("HostComputer" );
-    case TIFFTAG_PREDICTOR: return ("Predictor" );
-    case TIFFTAG_WHITEPOINT: return ("Whitepoint" );
-    case TIFFTAG_PRIMARYCHROMATICITIES: return ("PrimaryChromaticities" );
-    case TIFFTAG_COLORMAP: return ("Colormap" );
-    case TIFFTAG_HALFTONEHINTS: return ("HalftoneHints" );
-    case TIFFTAG_TILEWIDTH: return ("TileWidth" );
-    case TIFFTAG_TILELENGTH: return ("TileLength" );
-    case TIFFTAG_TILEOFFSETS: return ("TileOffsets" );
-    case TIFFTAG_TILEBYTECOUNTS: return ("TileByteCounts" );
-    case TIFFTAG_BADFAXLINES: return ("BadFaxLines" );
-    case TIFFTAG_CLEANFAXDATA: return ("CleanFaxData" );
-    case TIFFTAG_CONSECUTIVEBADFAXLINES: return ("ConsecutiveBadFaxLines" );
-    case TIFFTAG_SUBIFD: return ("SubIFD" );
-    case TIFFTAG_INKSET: return ("InkSet" );
-    case TIFFTAG_INKNAMES: return ("InkNames" );
-    case TIFFTAG_NUMBEROFINKS: return ("NumberOfInks" );
-    case TIFFTAG_DOTRANGE: return ("DotRange" );
-    case TIFFTAG_TARGETPRINTER: return ("TargetPrinter" );
-    case TIFFTAG_EXTRASAMPLES: return ("ExtraSamples" );
-    case TIFFTAG_SAMPLEFORMAT: return ("SampleFormat" );
-    case TIFFTAG_SMINSAMPLEVALUE: return ("SMinSampleValue" );
-    case TIFFTAG_SMAXSAMPLEVALUE: return ("SMaxSampleValue" );
-    case TIFFTAG_JPEGPROC: return ("JPEGProcessingMode" );
-    case TIFFTAG_JPEGIFOFFSET: return ("JPEGInterchangeFormat" );
-    case TIFFTAG_JPEGIFBYTECOUNT: return ("JPEGInterchangeFormatLength" );
-    case TIFFTAG_JPEGRESTARTINTERVAL: return ("JPEGRestartInterval" );
-    case TIFFTAG_JPEGLOSSLESSPREDICTORS: return ("JPEGLosslessPredictors" );
-    case TIFFTAG_JPEGPOINTTRANSFORM: return ("JPEGPointTransform" );
-    case TIFFTAG_JPEGTABLES: return ("JPEGTables" );
-    case TIFFTAG_JPEGQTABLES: return ("JPEGQTables" );
-    case TIFFTAG_JPEGDCTABLES: return ("JPEGDCTables" );
-    case TIFFTAG_JPEGACTABLES: return ("JPEGACTables" );
-    case TIFFTAG_YCBCRCOEFFICIENTS: return ("YCbCrCoefficients" );
-    case TIFFTAG_YCBCRSUBSAMPLING: return ("YCbCrSubsampling" );
-    case TIFFTAG_YCBCRPOSITIONING: return ("YCbCrPositioning" );
-    case TIFFTAG_REFERENCEBLACKWHITE: return ("ReferenceBlackWhite" );
-    case TIFFTAG_REFPTS: return ("IgReferencePoints (Island Graphics)" );
-    case TIFFTAG_REGIONTACKPOINT: return ("IgRegionTackPoint (Island Graphics)" );
-    case TIFFTAG_REGIONWARPCORNERS: return ("IgRegionWarpCorners (Island Graphics)" );
-    case TIFFTAG_REGIONAFFINE: return ("IgRegionAffine (Island Graphics)" );
-    case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
-    case TIFFTAG_MATTEING: return ("OBSOLETE Matteing (Silicon Graphics)" );
-    case TIFFTAG_DATATYPE: return ("OBSOLETE DataType (Silicon Graphics)" );
-    case TIFFTAG_IMAGEDEPTH: return ("ImageDepth (Silicon Graphics)" );
-    case TIFFTAG_TILEDEPTH: return ("TileDepth (Silicon Graphics)" );
-    case 32768: return ("OLD BOGUS Matteing tag" );
-    case TIFFTAG_COPYRIGHT: return ("Copyright" );
-    case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
-    case TIFFTAG_JBIGOPTIONS: return ("JBIG Options" );
-    case TIFFTAG_STONITS: return ("StoNits" );
-                          /* next 4 lines  WANG TIFF  */
-    case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm, for full explanation, see http://web.archive.org/web/20030124024322/http://www5.eistream.com/support_pro/faqs/annospec.htm */
-    case 32933: return ("unknown Wang TIFF");
-    case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
-    case 32935: return ("unknown Wang TIFF");
-    case 32970: return ("temperature (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
-  
-    case 32971: return ("Zoombox (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
-    case 32972: return ("WinTES (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
-    case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+    /*  254 - 255, 0xfe - 0xff */
+    /* 254 */ case TIFFTAG_SUBFILETYPE: return ("SubFileType" );
+    /* 255 */ case TIFFTAG_OSUBFILETYPE: return ("OldSubFileType" );
+    /*  256 - 511, 0x100 - 0x1ff */
+    /* 256 */ case TIFFTAG_IMAGEWIDTH: return ("ImageWidth" );
+    /* 257 */ case TIFFTAG_IMAGELENGTH: return ("ImageLength" );
+    /* 258 */ case TIFFTAG_BITSPERSAMPLE: return ("BitsPerSample" );
+    /* 259 */ case TIFFTAG_COMPRESSION: return ("Compression" );
+    /* 262 */ case TIFFTAG_PHOTOMETRIC: return ("Photometric" );
+    /* 263 */ case TIFFTAG_THRESHHOLDING: return ("Threshholding" );
+    /* 264 */ case TIFFTAG_CELLWIDTH: return ("CellWidth" );
+    /* 265 */ case TIFFTAG_CELLLENGTH: return ("CellLength" );
+    /* 266 */ case TIFFTAG_FILLORDER: return ("FillOrder" );
+    /* 269 */ case TIFFTAG_DOCUMENTNAME: return ("DocumentName" );
+    /* 270 */ case TIFFTAG_IMAGEDESCRIPTION: return ("ImageDescription" );
+    /* 271 */ case TIFFTAG_MAKE: return ("Make" );
+    /* 272 */ case TIFFTAG_MODEL: return ("Model" );
+    /* 273 */ case TIFFTAG_STRIPOFFSETS: return ("StripOffsets" );
+    /* 274 */ case TIFFTAG_ORIENTATION: return ("Orientation" );
+    /* 277 */ case TIFFTAG_SAMPLESPERPIXEL: return ("SamplesPerPixel" );
+    /* 278 */ case TIFFTAG_ROWSPERSTRIP: return ("RowsPerStrip" );
+    /* 279 */ case TIFFTAG_STRIPBYTECOUNTS: return ("StripByteCounts" );
+    /* 280 */ case TIFFTAG_MINSAMPLEVALUE: return ("MinSampleValue" );
+    /* 281 */ case TIFFTAG_MAXSAMPLEVALUE: return ("MaxSampleValue" );
+    /* 282 */ case TIFFTAG_XRESOLUTION: return ("XResolution" );
+    /* 283 */ case TIFFTAG_YRESOLUTION: return ("YResolution" );
+    /* 284 */ case TIFFTAG_PLANARCONFIG: return ("PlanarConfig" );
+    /* 285 */ case TIFFTAG_PAGENAME: return ("PageName" );
+    /* 286 */ case TIFFTAG_XPOSITION: return ("XPosition" );
+    /* 287 */ case TIFFTAG_YPOSITION: return ("YPosition" );
+    /* 288 */ case TIFFTAG_FREEOFFSETS: return ("FreeOffsets" );
+    /* 289 */ case TIFFTAG_FREEBYTECOUNTS: return ("FreeByteCounts" );
+    /* 290 */ case TIFFTAG_GRAYRESPONSEUNIT: return ("GrayResponseUnit" );
+    /* 291 */ case TIFFTAG_GRAYRESPONSECURVE: return ("GrayResponseCurve" );
+    /* 292 */ case TIFFTAG_GROUP3OPTIONS: return ("Group3Options" );
+    /* 293 */ case TIFFTAG_GROUP4OPTIONS: return ("Group4Options" );
+    /* 296 */ case TIFFTAG_RESOLUTIONUNIT: return ("ResolutionUnit" );
+    /* 297 */ case TIFFTAG_PAGENUMBER: return ("PageNumber" );
+    /* 300 */ case TIFFTAG_COLORRESPONSEUNIT: return ("ColorResponseUnit" );
+    /* 301 */ case TIFFTAG_TRANSFERFUNCTION: return ("TransferFunction" );
+    /* 305 */ case TIFFTAG_SOFTWARE: return ("Software" );
+    /* 306 */ case TIFFTAG_DATETIME: return ("DateTime" );
+    /* 315 */ case TIFFTAG_ARTIST: return ("Artist" );
+    /* 316 */ case TIFFTAG_HOSTCOMPUTER: return ("HostComputer" );
+    /* 317 */ case TIFFTAG_PREDICTOR: return ("Predictor" );
+    /* 318 */ case TIFFTAG_WHITEPOINT: return ("Whitepoint" );
+    /* 319 */ case TIFFTAG_PRIMARYCHROMATICITIES: return ("PrimaryChromaticities" );
+    /* 320 */ case TIFFTAG_COLORMAP: return ("Colormap" );
+    /* 321 */ case TIFFTAG_HALFTONEHINTS: return ("HalftoneHints" );
+    /* 322 */ case TIFFTAG_TILEWIDTH: return ("TileWidth" );
+    /* 323 */ case TIFFTAG_TILELENGTH: return ("TileLength" );
+    /* 324 */ case TIFFTAG_TILEOFFSETS: return ("TileOffsets" );
+    /* 325 */ case TIFFTAG_TILEBYTECOUNTS: return ("TileByteCounts" );
+    /* 326 */ case TIFFTAG_BADFAXLINES: return ("BadFaxLines" );
+    /* 327 */ case TIFFTAG_CLEANFAXDATA: return ("CleanFaxData" );
+    /* 328 */ case TIFFTAG_CONSECUTIVEBADFAXLINES: return ("ConsecutiveBadFaxLines" );
+    /* 330 */ case TIFFTAG_SUBIFD: return ("SubIFD" );
+    /* 332 */ case TIFFTAG_INKSET: return ("InkSet" );
+    /* 333 */ case TIFFTAG_INKNAMES: return ("InkNames" );
+    /* 334 */ case TIFFTAG_NUMBEROFINKS: return ("NumberOfInks" );
+    /* 336 */ case TIFFTAG_DOTRANGE: return ("DotRange" );
+    /* 337 */ case TIFFTAG_TARGETPRINTER: return ("TargetPrinter" );
+    /* 338 */ case TIFFTAG_EXTRASAMPLES: return ("ExtraSamples" );
+    /* 339 */ case TIFFTAG_SAMPLEFORMAT: return ("SampleFormat" );
+    /* 340 */ case TIFFTAG_SMINSAMPLEVALUE: return ("SMinSampleValue" );
+    /* 341 */ case TIFFTAG_SMAXSAMPLEVALUE: return ("SMaxSampleValue" );
+    /* 512 - 767, 0x200 - 0x2ff */
+    /* 512 */ case TIFFTAG_JPEGPROC: return ("JPEGProcessingMode" );
+    /* 513 */ case TIFFTAG_JPEGIFOFFSET: return ("JPEGInterchangeFormat" );
+    /* 514 */ case TIFFTAG_JPEGIFBYTECOUNT: return ("JPEGInterchangeFormatLength" );
+    /* 515 */ case TIFFTAG_JPEGRESTARTINTERVAL: return ("JPEGRestartInterval" );
+    /* 517 */ case TIFFTAG_JPEGLOSSLESSPREDICTORS: return ("JPEGLosslessPredictors" );
+    /* 518 */ case TIFFTAG_JPEGPOINTTRANSFORM: return ("JPEGPointTransform" );
+    /* 347 */ case TIFFTAG_JPEGTABLES: return ("JPEGTables" );
+    /* 519 */ case TIFFTAG_JPEGQTABLES: return ("JPEGQTables" );
+    /* 520 */ case TIFFTAG_JPEGDCTABLES: return ("JPEGDCTables" );
+    /* 521 */ case TIFFTAG_JPEGACTABLES: return ("JPEGACTables" );
+    /* 529 */ case TIFFTAG_YCBCRCOEFFICIENTS: return ("YCbCrCoefficients" );
+    /* 530 */ case TIFFTAG_YCBCRSUBSAMPLING: return ("YCbCrSubsampling" );
+    /* 531 */ case TIFFTAG_YCBCRPOSITIONING: return ("YCbCrPositioning" );
+    /* 532 */ case TIFFTAG_REFERENCEBLACKWHITE: return ("ReferenceBlackWhite" );
+    /* 700 */ case TIFFTAG_XMLPACKET: return ("XMP");
+    /* 32768 -,  0x8000 -  */
+    /* 32768 */ case 32768: return ("OLD BOGUS Matteing tag" );
+    /* 32953 */ case TIFFTAG_REFPTS: return ("IgReferencePoints (Island Graphics)" );
+    /* 32954 */ case TIFFTAG_REGIONTACKPOINT: return ("IgRegionTackPoint (Island Graphics)" );
+    /* 32955 */ case TIFFTAG_REGIONWARPCORNERS: return ("IgRegionWarpCorners (Island Graphics)" );
+    /* 32956 */ case TIFFTAG_REGIONAFFINE: return ("IgRegionAffine (Island Graphics)" );
+    /* 32995 */ case TIFFTAG_MATTEING: return ("OBSOLETE Matteing (Silicon Graphics)" );
+    /* 32996 */ case TIFFTAG_DATATYPE: return ("OBSOLETE DataType (Silicon Graphics)" );
+    /* 32997 */ case TIFFTAG_IMAGEDEPTH: return ("ImageDepth (Silicon Graphics)" );
+    /* 32998 */ case TIFFTAG_TILEDEPTH: return ("TileDepth (Silicon Graphics)" );
+    /* 33432 */ case TIFFTAG_COPYRIGHT: return ("Copyright" );
+    /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
+    /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
+    /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
+    /* 34750 */ case TIFFTAG_JBIGOPTIONS: return ("JBIG Options" );
+    /* 37439 */ case TIFFTAG_STONITS: return ("StoNits" );
+                                      /* next 4 lines  WANG TIFF  */
+    /* 32932 */ case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm, for full explanation, see http://web.archive.org/web/20030124024322/http://www5.eistream.com/support_pro/faqs/annospec.htm */
+    /* 32933 */ case 32933: return ("unknown Wang TIFF");
+    /* 32934 */ case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
+    /* 32935 */ case 32935: return ("unknown Wang TIFF");
+    /* 32970 */ case 32970: return ("temperature (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
 
-    case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33448: return ("MD_LabName"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33449: return ("MD_SampleInfo"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
-    case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 34377: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
-    case 34732: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
-    case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
-    case 34908: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 34909: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 34910: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
-    case 42112: return ("GDAL_Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 42113: return ("GDAL_nodata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50255: return ("Photoshop Annotations"); /* http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_17312  */
-    case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
-    case 59932: return ("Padding/ Exif MS HDPhoto"); /* see exiftool, http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html, 
-                                                                 also check https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftHdPhotoTagConstants.html 
-                                                                 it is around 2kB and used for Windows Vista */
+    /* 32971 */ case 32971: return ("Zoombox (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
+    /* 32972 */ case 32972: return ("WinTES (COMPIX)"); /* http://www.compix.com/fileformattif.htm */
+    /* 33424 */ case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
+
+    /* 33445 */ case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33446 */ case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33447 */ case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33448 */ case 33448: return ("MD_LabName"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33449 */ case 33449: return ("MD_SampleInfo"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33450 */ case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33451 */ case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33452 */ case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33919 */ case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33920 */ case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33922 */ case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34264 */ case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
+    /* 34732 */ case TIFFTAG_IMAGELAYER: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
+    /* 34820 */ case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
+
+    /* 34908 */ case TIFFTAG_FAXRECVPARAMS: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34909 */ case TIFFTAG_FAXSUBADDRESS: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34910 */ case TIFFTAG_FAXRECVTIME: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 37724 */ case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
+    /* 42112 */ case 42112: return ("GDAL_Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 42113 */ case 42113: return ("GDAL_nodata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50215 */ case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50216 */ case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50217 */ case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50218 */ case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50255 */ case 50255: return ("Photoshop Annotations"); /* http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_17312  */
+    /* 50784 */ case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50933 */ case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
+    /* 59932 */ case 59932: return ("Padding/ Exif MS HDPhoto"); /* see exiftool, http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html, 
+                                                                    also check https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftHdPhotoTagConstants.html 
+                                                                    it is around 2kB and used for Windows Vista */
     default: return ("undefined tag");
   }
 }
