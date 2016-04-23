@@ -448,6 +448,7 @@ int TIFFGetRawTagListCount (TIFF * tif) {
 
 /* scans first IDF and returns the n-th tag */
 tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
+	int byteswapped = TIFFIsByteSwapped(tif);
 	int count = TIFFGetRawTagListCount( tif);
 	thandle_t client = TIFFClientdata(tif);
 	TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
@@ -482,11 +483,11 @@ tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
 		uint8 lo = *e;
 		e++;
 		uint8 hi = *e;
-		uint16 tagid = (hi << 8) + lo;
 		e++;
-		if (TIFFIsByteSwapped(tif))
-			TIFFSwabShort(&tagid);
 		if (i == tagidx) {
+			uint16 tagid = (hi << 8) + lo;
+			if (byteswapped)
+				TIFFSwabShort(&tagid);
 			// printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
 			ret = tagid;
 			goto LABEL1;
@@ -604,6 +605,7 @@ offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datat
 /* scans first IDF and returns the type of the n-th tag */
 ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
   int count = TIFFGetRawTagListCount( tif);
+  int byteswapped = TIFFIsByteSwapped(tif);
 #ifdef DEBUG
   printf(" count of tags = %i\n", count);
 #endif
@@ -611,12 +613,12 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
   thandle_t client = TIFFClientdata(tif);
   TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
   TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
-  if (! seekproc) {
-	  perror ("could not get TIFFGetSeekProc");
-  }
-  if (! readproc) {
-	perror ("could not get TIFFGetReadProc");
-  }
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
+	}
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
 
 
   //printf("count %i\n", count);
@@ -644,21 +646,21 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
     uint8 hi = *e;
     uint16 tagid = (hi << 8) + lo;
     e++;
-    if (TIFFIsByteSwapped(tif))
+    if (byteswapped)
       TIFFSwabShort(&tagid);
     if (i == tagidx) {
       // tag type check
       lo = *e; e++;
       hi = *e; e++;
       uint16 tagtype = (hi << 8) + lo;
-      if (TIFFIsByteSwapped(tif))
+      if (byteswapped)
         TIFFSwabShort(&tagtype);
 
       uint32 count = (*(e++));
       count += (*(e++) << 8);
       count += (*(e++) << 16);
       count += (*(e++) << 24);
-      if (TIFFIsByteSwapped(tif))
+      if (byteswapped)
         TIFFSwabLong( &count);
 #ifdef DEBUG
 printf("\ncount=%0x\n\n", count);
@@ -672,15 +674,15 @@ printf("\ncount=%0x\n\n", count);
       data[0] = *(e++);
       data[1] = *(e++);
       data[2] = *(e++);
-      data[3] = *(e++);
-      uint32 value_or_offset = (data[0]);
-            value_or_offset += (data[1] << 8);
-            value_or_offset += (data[2] << 16);
-            value_or_offset += (data[3] << 24);
-            if (TIFFIsByteSwapped(tif))
-              TIFFSwabLong( &value_or_offset);
-      switch( tagtype) {
-        case 1: /* 8-bit unsigned integer */
+			data[3] = *(e++);
+			uint32 value_or_offset = (data[0]);
+			value_or_offset += (data[1] << 8);
+			value_or_offset += (data[2] << 16);
+			value_or_offset += (data[3] << 24);
+			if (byteswapped)
+							TIFFSwabLong( &value_or_offset);
+			switch( tagtype) {
+							case 1: /* 8-bit unsigned integer */
         case 2: /* 8-bit bytes w/ last byte null */
         case 6: /* !8-bit signed integer */
         case 7: /* !8-bit untyped data */
@@ -709,7 +711,7 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.value_or_offset=is_value;
             uint16 w0 = (data[0]) + (data[1]<<8);
             uint16 w1 = (data[2]) + (data[3]<<8);
-            if (TIFFIsByteSwapped(tif)) {
+            if (byteswapped) {
               TIFFSwabShort( &w0 );
               TIFFSwabShort( &w1 );
             }
@@ -735,13 +737,13 @@ printf("\ncount=%0x\n\n", count);
         case 5: /* 64-bit unsigned fraction */
         case 10: /* !64-bit signed fraction */
         case 11: /* !32-bit IEEE floating point */
-        case 12: /* !64-bit IEEE floating point */
-	case 13: /* %32-bit unsigned integer (offset) */
-	case 16: /* BigTIFF 64-bit unsigned integer */
-	case 17: /* BigTIFF 64-bit signed integer */
-	case 18: /* BigTIFF 64-bit unsigned integer (offset) */
-          ifd_entry.value_or_offset=is_offset;
-          ifd_entry.data32offset=value_or_offset;
+				case 12: /* !64-bit IEEE floating point */
+				case 13: /* %32-bit unsigned integer (offset) */
+				case 16: /* BigTIFF 64-bit unsigned integer */
+				case 17: /* BigTIFF 64-bit signed integer */
+				case 18: /* BigTIFF 64-bit unsigned integer (offset) */
+					ifd_entry.value_or_offset=is_offset;
+					ifd_entry.data32offset=value_or_offset;
 
       }
       free( ifdentries );
@@ -762,7 +764,7 @@ ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag) {
   int tagidx = -1;
   int i;
   for (i= 0; i < TIFFGetRawTagListCount( tif ); i++) {
-    if (tag == TIFFGetRawTagListEntry( tif, i ) && tag > 253) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( tif, i )) {
       tagidx= i;
       break;
     };
@@ -801,7 +803,7 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
   int tagidx = -1;
   int i;
   for (i= 0; i < TIFFGetRawTagListCount( tif ); i++) {
-    if (tag == TIFFGetRawTagListEntry( tif, i ) && tag > 253) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( tif, i )) {
       tagidx= i;
       break;
     };
@@ -814,10 +816,10 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
     return datatype;
   } else { /* tag not defined */
 	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tag));
-          return -1;
+	  return -1;
   }
 }
 
-
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
 
 
