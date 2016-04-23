@@ -13,3 +13,11 @@ make
 #cd build
 #cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchain-mingw32.cmake -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ ../src/
 #make
+#
+########################################################
+# examples/options to set specific C-compiler or Flags
+########################################################
+# cmake ../src/ -DCMAKE_C_COMPILER=$(which gcc)
+# cmake ../src/ -DCMAKE_C_FLAGS="-O0 -p -g"
+# cmake ../src/ -DCMAKE_C_COMPILER=$(which clang-3.5) -DCMAKE_C_FLAGS="-Oz -pedantic"
+#
