@@ -15,25 +15,31 @@ Q: My C-compiler reports error-messages like "cc: error: unrecognized command
    line option '-fsanitze=undefined'"
 A: You use an older GCC variant. Try 'SANITIZE="" make'
 
-Q: The compiler reports, that the function TIFFFiledName does not exists. What
-   is the reason?
+Q: The compiler reports, that the TIFFTAG_IMAGELAYER is undeclared, why?
 A: You use an older version of the libtiff. If you cannot update, try this:
-'CFLAGS="-DOLDTIFF" make', this enables an alternative in check_helper.c
+   'CFLAGS="-DTIFFTAG_IMAGELAYER=34732" make', alternatively use the cmake.
 
 Q: How can I compile a windows version of your program?
 A: I have only tested creating Windows executables using the crosscompiler
    minGW under Debian Jessie, please see the instructions in 
    the ../README.windows file.
 
-Q: I tried to compile with 'SANITIZE="-DOLDTIFF" make' under Debian Wheezy,
+Q: I tried to compile with 'CFLAGS="-DOLDTIFF" make' under Debian Wheezy,
    but I got the message "error: expected specifier-qualifier-list before
    'uint64'", why?
 A: You are using the Debian-package libtiff4-dev, but at least libtiff5-dev is
    expected. The reason for the error was that the uint64 type is only defined
-   in newer tiff.h files.
+   in newer tiff.h files. Alternatively, use cmake.
 
 Q: Where are older TIFF specs?
-A: take a look to: 
+A: take a look to:
   TIFF 4: https://web.archive.org/web/20050323073243/http://palimpsest.stanford.edu/bytopic/imaging/std/tiff4.html
   TIFF 5: https://web.archive.org/web/20050323073243/http://palimpsest.stanford.edu/bytopic/imaging/std/tiff5.html
+
+Q: I am using cmake, but it fails with "CMake Error: your CXX compiler:
+   "CMAKE_CXX_COMPILER-NOTFOUND" was not found.   Please set CMAKE_CXX_COMPILER
+   to a valid compiler path or name". But your program is C only, why I need a
+   C++compiler then?
+A: cmake uses C++-compiler for its checks. Sorry, you need a C++ then.
+
 
