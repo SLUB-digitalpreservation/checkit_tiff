@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 2.6)
 project (checkit_tiff)
 include_directories("${PROJECT_SOURCE_DIR}/headers")
 include (CheckSymbolExists)
-include (CheckTypeSize)
 
 file( GLOB checkit_tiff_SOURCES 
   "${PROJECT_SOURCE_DIR}/tagrules/*.c"
@@ -31,28 +30,10 @@ if(WIN32)
 endif(WIN32)
 
 add_executable(checkit_tiff checkit_tiff.c ${checkit_tiff_SOURCES})
-set(CMAKE_EXTRA_INCLUDE_FILES stdint.h)
-check_type_size(uint64 SIZEOF_UINT64)
-set(CMAKE_EXTRA_INCLUDE_FILES)
-if (SIZEOF_UINT64)
-    message(STATUS "size of 'uint64' is ${SIZEOF_UINT64}")
-else ()
-  message(STATUS "size of 'uint64' NOT FOUND, setting -Duint64='unsigned long long'")
-  add_definitions(-Duint64=unsigned\ long\ long)
-
-endif()
-
-check_type_size(int64 SIZEOF_INT64)
-set(CMAKE_EXTRA_INCLUDE_FILES)
-if (SIZEOF_INT64)
-    message(STATUS "size of 'int64' is ${SIZEOF_INT64}")
-else ()
-  message(STATUS "size of 'int64' NOT FOUND, setting -Dint64='long long'")
-  add_definitions(-Dint64=long\ long)
-endif()
+set(CMAKE_EXTRA_INCLUDE_FILES tiff.h)
 
 
-## libtiff 4
+## libtiff5
 find_package(TIFF REQUIRED)
 if(TIFF_FOUND)
   # Confirm required API is available
@@ -77,6 +58,19 @@ if(TIFF_FOUND)
     MESSAGE(STATUS "old tiff library detected, -DTIFFTAG_IMAGELAYER=34732 added")
     ADD_DEFINITIONS(-DTIFFTAG_IMAGELAYER=34732)
   ENDIF()
+
+  CHECK_SYMBOL_EXISTS(TIFF_UINT64_T "tiff.h" HAVE_TIFF_UINT64_T)
+  IF(NOT HAVE_TIFF_UINT64_T)
+    MESSAGE(STATUS "old tiff library detected, -Duint64='unsigned long long' added")
+    ADD_DEFINITIONS(-Duint64=unsigned\ long\ long)
+  ENDIF()
+
+  CHECK_SYMBOL_EXISTS(TIFF_INT64_T "tiff.h" HAVE_TIFF_INT64_T)
+  IF(NOT HAVE_TIFF_INT64_T)
+    MESSAGE(STATUS "old tiff library detected, -Dint64='long long' added")
+    ADD_DEFINITIONS(-Dint64=long\ long)
+  ENDIF()
+
 else(TIFF_FOUND)
   MESSAGE(FATAL_ERROR "No TIFF library found, add $TIFF_INCLUDE_DIR manually")
 endif(TIFF_FOUND)
