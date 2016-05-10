@@ -11,11 +11,11 @@
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
-ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
+ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
   //printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
-  tifp_check( tif);
+  tifp_check( ctif);
   tif_rules_tag(tag, "has valid type");
-  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
 #endif

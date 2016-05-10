@@ -13,9 +13,9 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsigned int * values) {
+ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
   //printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
-  tifp_check( tif);
+  tifp_check( ctif);
   char msg[200];
   snprintf(msg, sizeof(msg), "has some of these %i-values: ", count);
   int i;
@@ -26,10 +26,10 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
     p++;
   }
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( tif, tag);
+  ret_t res = check_tag_has_valid_type( ctif, tag);
   if (res.returncode == 0) {
 
-  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
                       p = values;
@@ -38,12 +38,12 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
 #ifdef DEBUG
                         printf("### value = %u", *p);
 #endif
-                        res = check_tag_has_u32value(tif, tag, *p);
+                        res = check_tag_has_u32value(ctif, tag, *p);
                         if (res.returncode == 0) return res;
                         p++;
                       }
                       uint32 val;
-                      TIFFGetField(tif, tag, &val);
+                      TIFFGetField(ctif->tif, tag, &val);
                       char value[40];
                       snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
                       return tif_fails_tag( tag, "", strdup(value));
@@ -56,12 +56,12 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
 #ifdef DEBUG
                          printf("### value = %u", *p);
 #endif
-                         res = check_tag_has_u16value(tif, tag, *p);
+                         res = check_tag_has_u16value(ctif, tag, *p);
                          if (res.returncode == 0) return res;
                          p++;
                        }
                        uint16 val;
-                       TIFFGetField(tif, tag, &val);
+                       TIFFGetField(ctif->tif, tag, &val);
                        char value[40];
                        snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
                        return tif_fails_tag( tag, "", strdup(value));
@@ -74,12 +74,12 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
 #ifdef DEBUG
                             printf("### value = %u", *p);
 #endif
-                            res = check_tag_has_fvalue(tif, tag, *p);
+                            res = check_tag_has_fvalue(ctif, tag, *p);
                             if (res.returncode == 0) return res;
                             p++;
                           }
                           float val;
-                          TIFFGetField(tif, tag, &val);
+                          TIFFGetField(ctif->tif, tag, &val);
                           char value[40];
                           snprintf(value, sizeof(value), "does not have some of expected values (but have:%f)", val);
                           return tif_fails_tag( tag, "", strdup(value));

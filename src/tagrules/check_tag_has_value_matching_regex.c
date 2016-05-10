@@ -8,18 +8,18 @@
 */
 
 
-ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * regex_string) {
+ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char * regex_string) {
   //printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), regex_string);
-  tifp_check( tif);
+  tifp_check( ctif);
   char msg[200];
   snprintf(msg, sizeof(msg), "has  value matching regex '%s'", regex_string);
   tif_rules_tag(tag, strdup(msg));
-  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_ASCII: {
                        char * val;
                        uint32 count;
-                       int found=TIFFGetField(tif, tag, &val, &count);
+                       int found=TIFFGetField(ctif->tif, tag, &val, &count);
                        if (1 == found) {
                          count = strlen( val);
 #define OVECCOUNT 30    /* should be a multiple of 3 */
@@ -38,7 +38,7 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                            /*  PCRE_NOTEMPTY: An empty string is not a valid match */
                            int rc = pcre_exec( re, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
 #ifdef DEBUG
-                           printf("tag %s with count=%d and value='%s' -> rc=%d\n", TIFFTagName(tif, tag), count, val, rc);
+                           printf("tag %s with count=%d and value='%s' -> rc=%d\n", TIFFTagName(tag), count, val, rc);
 #endif
                            pcre_free( re );
                            if (rc >= 0 ) {

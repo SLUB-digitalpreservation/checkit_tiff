@@ -154,8 +154,9 @@ ret_t tif_files(const char *msg) {
   return res;
 }
 
-void tifp_check( TIFF * tif) {
-  if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); };
+void tifp_check( ctiff_t * ctif) {
+  if (NULL == ctif) { tif_fails("ctif_t pointer is empty\n"); };
+  if (NULL == ctif->tif) { tif_fails("TIFF pointer is empty\n"); };
 }
 
 /* TODO: add tif_returns specialized for types */

@@ -12,13 +12,13 @@
 
 
 /* checks if TIF has a specified tag */
-ret_t check_tag_quiet(TIFF* tif, tag_t tag) {
-  tifp_check( tif);
+ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
+  tifp_check( ctif);
     int i;
   ret_t res;
   res.returnmsg=NULL;
-  for (i= 0; i < TIFFGetRawTagListCount( tif ); i++) {
-    if (tag == TIFFGetRawTagListEntry( tif, i ) && tag > 253) {
+  for (i= 0; i < get_ifd0_count( ctif ); i++) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
       res.returncode=0;
       return res;
     };

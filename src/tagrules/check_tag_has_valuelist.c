@@ -15,9 +15,9 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * values) {
+ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
   //printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
-  tifp_check( tif);
+  tifp_check( ctif);
   char msg[200];
   snprintf(msg, sizeof(msg), "has these %i-values: ", count);
   int i;
@@ -28,7 +28,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
     p++;
   }
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( tif, tag);
+  ret_t res = check_tag_has_valid_type( ctif, tag);
  if (res.returncode == 0) {
 
   int i;
@@ -37,7 +37,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
     v[i] = *values;
     values++;
   }
-  ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(tif, tag);
+  ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (count != ifd_entry.count) {
     char expected[10];
     snprintf(expected, sizeof(expected), "list has %u values", count);
@@ -65,11 +65,11 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                       }
                       /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
-                        offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
+                        offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
                         uint32 * p = offset.data32p;
                         for (i=0; i< count; i++) {
                           uint32 pval = *p;
-                          if (TIFFIsByteSwapped(tif))
+                          if (is_byteswapped(ctif))
                             TIFFSwabLong(&pval);
 #ifdef DEBUG
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
@@ -105,11 +105,11 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                        }
                        /*  offset */
                        if (ifd_entry.value_or_offset == is_offset) {
-                         offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
+                         offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
                          uint16 * p = offset.data16p;
                          for (i=0; i< count; i++) {
                            uint16 pval = *p;
-                           if (TIFFIsByteSwapped(tif))
+                           if (is_byteswapped(ctif))
                              TIFFSwabShort(&pval);
 #ifdef DEBUG
                            printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);

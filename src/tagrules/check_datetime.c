@@ -46,14 +46,14 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
 /** loads a tiff, fix it if needed, stores tiff
  * @param filename filename which should be processed, repaired
  */
-ret_t check_datetime(TIFF* tif ) {
-  tifp_check( tif);
+ret_t check_datetime(ctiff_t * ctif ) {
+  tifp_check( ctif);
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
   char *datetime=NULL;
   uint32 count=0;
-  int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
+  int found=TIFFGetField(ctif->tif, TIFFTAG_DATETIME, &datetime, &count);
   if (1==found) { /* there exists a datetime field */
     int day=0;
     int month=0;

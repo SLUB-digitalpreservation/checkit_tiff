@@ -40,7 +40,7 @@ executionplan_t plan;
  * @param fp pointer to funcu structure to hold function and its parameters
  * @return ret_t structure for results of called function
  */
-ret_t call_fp(TIFF* tif, funcp fp) {
+ret_t call_fp(ctiff_t * ctif, funcp fp) {
   ret_t ret;
   ret.returncode=1;
   ret.returnmsg=NULL; /*@null@*/
@@ -53,7 +53,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       function = fp->fu.ftifp;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
-                      ret = (function->functionp)(tif);
+                      ret = (function->functionp)(ctif);
                       break;
                     }
       case f_tifp_tag:
@@ -62,7 +62,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       function = fp->fu.ftifp_tag;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
-                      ret = (function->functionp)(tif, function->a); 
+                      ret = (function->functionp)(ctif, function->a); 
                       break;
                     }
       case f_tifp_tag_uint:
@@ -74,7 +74,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
 #ifdef DEBUG
                       printf("debug: found a=%i b=%u\n", function->a, function->b);
 #endif
-                      ret = (function->functionp)(tif, function->a, function->b); 
+                      ret = (function->functionp)(ctif, function->a, function->b); 
                       break;
                     }
       case f_tifp_tag_uint_uint:
@@ -86,7 +86,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
 #ifdef DEBUG
                       printf("debug: found a=%i b=%u c=%u\n", function->a, function->b, function->c);
 #endif
-                      ret = (function->functionp)(tif, function->a, function->b, function->c); 
+                      ret = (function->functionp)(ctif, function->a, function->b, function->c); 
                       break;
                     }
       case f_tifp_tag_int_uintp:
@@ -98,7 +98,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
 #ifdef DEBUG
                       printf("debug: found a=%i b=%i c=%p\n", function->a, function->b, function->c);
 #endif
-                      ret = (function->functionp)(tif, function->a, function->b, function->c); 
+                      ret = (function->functionp)(ctif, function->a, function->b, function->c); 
                       break;
                     }
       case f_tifp_tag_charp:
@@ -110,7 +110,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
 #ifdef DEBUG
                       printf("debug: found a=%i b=%s\n", function->a, function->b);
 #endif
-                      ret = (function->functionp)(tif, function->a, function->b); 
+                      ret = (function->functionp)(ctif, function->a, function->b); 
                       break;
                     }
 
@@ -127,7 +127,7 @@ ret_t call_fp(TIFF* tif, funcp fp) {
  * @param tif pointer to TIFF structure
  * @return return-code is 0 if all called functions are succeed 
  */
-int execute_plan (TIFF * tif) {
+int execute_plan (ctiff_t * ctif) {
   executionentry_t * this_exe_p = plan.start;
   int is_valid = 0; /* 0 means valid, >0 invalid */
   while (NULL != this_exe_p) {
@@ -151,7 +151,7 @@ int execute_plan (TIFF * tif) {
           #ifdef DEBUG
           printf("execute: we have a predicate predicate... ");
 #endif
-          res =  call_fp(tif, fp->pred->pred);
+          res =  call_fp(ctif, fp->pred->pred);
           if (0 != res.returncode ) {
 #ifdef DEBUG
             printf("execute: predicate predicate was not successfull, skipped check\n");
@@ -167,7 +167,7 @@ int execute_plan (TIFF * tif) {
           }
         };
         /* no predicate predicate or predicate predicate successfull*/
-          res =  call_fp(tif, fp->pred);
+          res =  call_fp(ctif, fp->pred);
           if (0 != res.returncode ) {
 #ifdef DEBUG
             printf("execute: predicate was not successfull, skipped check\n");
@@ -185,7 +185,7 @@ int execute_plan (TIFF * tif) {
      }
         /* no predicate or predicate successfull*/
       parser_state.called_tags[fp->tag]++;
-      this_exe_p->result= call_fp (tif, fp );
+      this_exe_p->result= call_fp (ctif, fp );
       if (0 != this_exe_p->result.returncode) { is_valid++; }
      }
 exitcall:    this_exe_p = this_exe_p->next;
@@ -197,7 +197,7 @@ exitcall:    this_exe_p = this_exe_p->next;
   int tag;
   for (tag=MINTAGS; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
-      ret_t res = check_notag( tif, tag);
+      ret_t res = check_notag( ctif, tag);
       if (0 != res.returncode) { /* check if tag is not part of tif */
         /* tag does not exist */
         is_valid++;
@@ -302,7 +302,7 @@ int append_function_to_plan (funcp fp, const char * name ) {
  * @param function adress of function
  * @param fname name of function as combined message (already allocated)
  */
-void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(TIFF *), char * fname) {
+void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(ctiff_t *), char * fname) {
 /* create datastruct for fp */
   struct f_tifp_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_s ));
@@ -323,7 +323,7 @@ void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(TIFF *), char * f
  * @param fname name of function as combined message (already allocated)
  * @param tag tag
  */
-void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag) {
+void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t), char * fname, tag_t tag) {
   struct f_tifp_tag_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_s ));
   if (NULL == fsp) {
@@ -344,7 +344,7 @@ void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(TIFF *, tag_t
  * @param tag tag
  * @param v param a for function
  */
-void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
+void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
   /* create datastruct for fp */
   struct f_tifp_tag_uint_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_uint_s ));
@@ -366,7 +366,7 @@ void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, 
  * @param tag tag
  * @param v param a for function
  */
-void _helper_add_fsp_tifp_tag_charp(struct funcu * f, ret_t (* function)(TIFF *, tag_t, const char *), char * fname, tag_t tag, const char * v) {
+void _helper_add_fsp_tifp_tag_charp(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t, const char *), char * fname, tag_t tag, const char * v) {
   /* create datastruct for fp */
   struct f_tifp_tag_charp_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_charp_s ));
@@ -390,7 +390,7 @@ void _helper_add_fsp_tifp_tag_charp(struct funcu * f, ret_t (* function)(TIFF *,
  * @param count_of_values count of parameters for function
  * @param rp pointer to parameter values
  */
-void _helper_add_fsp_tifp_tag_uint_uintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
+void _helper_add_fsp_tifp_tag_uint_uintp(struct funcu * f,  ret_t (* function)(ctiff_t *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
   /* create datastruct for fp */
 #ifdef DEBUG
   printf("count of values = %i\n", count_of_values);
@@ -417,7 +417,7 @@ void _helper_add_fsp_tifp_tag_uint_uintp(struct funcu * f,  ret_t (* function)(T
  * @param l param a for function
  * @param r param b for function
  */
-void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
+void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
   /* create datastruct for fp */
   struct f_tifp_tag_uint_uint_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_uint_uint_s ));
@@ -876,7 +876,6 @@ void parse_plan () {
 /* function to parse a config file from file stream */
 void parse_plan_via_stream( FILE * file ) {
   reset_parser_state();
-  clear_cache();
   yycontext ctx;
   memset(&ctx, 0, sizeof(yycontext));
   parser_state.stream=file;

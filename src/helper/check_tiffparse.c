@@ -19,12 +19,17 @@
 */
 
 
+/* TODO:
+ * initialize_ctif()
+ * free_ctif()
+ *
+ * get_ifd0_pos()
+ * get_ifd0_count()
+ * get_ifd0_stream()
+ * ...
+ */
 
-static int enabled_cache = 0;
 
-void clear_cache () {
-  enabled_cache = 0;
-}
 
 
 const char * TIFFTagName( tag_t tag ) {
@@ -232,10 +237,10 @@ const char * TIFFTagName( tag_t tag ) {
   }
 }
 //------------------------------------------------------------------------------
-ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
+ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
 {
   float val;
-  int found=TIFFGetField(tif, tag, &val);
+  int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( fabs(val - value) < 0.01 ) {
       ret_t res;
@@ -255,10 +260,10 @@ ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
 }
 
 //------------------------------------------------------------------------------
-ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value)
+ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
 {
   uint16 val;
-  int found=TIFFGetField(tif, tag, &val);
+  int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( val == value ) {
       ret_t res;
@@ -279,10 +284,10 @@ ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value)
 
 
 //------------------------------------------------------------------------------
-ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
+ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
 {
   uint32 val;
-  int found=TIFFGetField(tif, tag, &val);
+  int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( val == value )  {
       ret_t res;
@@ -302,10 +307,10 @@ ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
 }
 
 
-int parse_header_and_endianess(TIFF * tif) {
-  thandle_t client = TIFFClientdata(tif);
-  TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-  TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+int parse_header_and_endianess(ctiff_t * ctif) {
+  thandle_t client = TIFFClientdata(ctif->tif);
+  TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+  TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
   if (! seekproc) {
 	  perror ("could not get TIFFGetSeekProc");
   }
@@ -337,6 +342,7 @@ int parse_header_and_endianess(TIFF * tif) {
     if (header == 0x4550) fprintf( stderr, "could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00\n");
     exit(EXIT_FAILURE);
   }
+  ctif->isbyteswapped = ret;
   /*
   if (read(fd, &magic, 2) != 2) {
     perror ("TIFF Header read error");
@@ -364,55 +370,64 @@ int parse_header_and_endianess(TIFF * tif) {
   }
 }
 
-uint32 get_first_IFD(TIFF * tif) {
-	/* memoize it */
-	static uint32 memoized_offset = 0;
-	static int is_memoized = 0;
-	static TIFF * memoized_tif = NULL;
-	//printf("get_first_IFD is memoized? %s\n", is_memoized ? "true" : "false");
-	if (! is_memoized || (memoized_tif != tif) || (!enabled_cache)) {
-		int isByteSwapped = parse_header_and_endianess(tif);
-		/* seek the image file directory (bytes 4-7) */
-		thandle_t client = TIFFClientdata(tif);
-		TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
-		TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-		if (! seekproc) {
-			perror ("could not get TIFFGetSeekProc");
-		}
-		if (! readproc) {
-			perror ("could not get TIFFGetReadProc");
-		}
-		/*lseek(fd, (off_t) 4, SEEK_SET); */
-		seekproc(client, 4, SEEK_SET);
-		uint32 offset;
-		/*if (read(fd, &offset, 4) != 4) {
-		  perror ("TIFF Header read error");
-		  exit( EXIT_FAILURE );
-		  }
-		  */
-		if ( readproc( client, &offset, 4) != 4 ) {
-			perror ("TIFF Header read error");
-			exit( EXIT_FAILURE );
-		}
-		if (isByteSwapped) {
-			TIFFSwabLong (&offset);
-		}
-		memoized_offset = offset;
-		memoized_tif = tif;
-		is_memoized = 1;
-		enabled_cache = 1;
-
+uint32 get_first_IFD(ctiff_t * ctif) {
+	int isByteSwapped = parse_header_and_endianess(ctif);
+	assert( NULL == ctif->ifd0p);
+	/* seek the image file directory (bytes 4-7) */
+	thandle_t client = TIFFClientdata(ctif->tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
 	}
-	return memoized_offset;
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
+	/*lseek(fd, (off_t) 4, SEEK_SET); */
+	seekproc(client, 4, SEEK_SET);
+	uint32 offset;
+	/*if (read(fd, &offset, 4) != 4) {
+	  perror ("TIFF Header read error");
+	  exit( EXIT_FAILURE );
+	  }
+	  */
+	if ( readproc( client, &offset, 4) != 4 ) {
+		perror ("TIFF Header read error");
+		exit( EXIT_FAILURE );
+	}
+	if (isByteSwapped) {
+		TIFFSwabLong (&offset);
+	}
+	ctif->ifd0pos=offset;
+	ctif->ifd0p=malloc( sizeof(char) * offset );
+	if (NULL == ctif->ifd0p) {
+		fprintf (stderr, "could not allocate memory for ifd0p\n");
+		exit( EXIT_FAILURE );
+	}
+	seekproc(client, offset, SEEK_SET);
+
+	uint16 count;
+	if ( readproc( client, &count, 2) != 2 ) {
+		perror ("TIFF Header read error2");
+		exit( EXIT_FAILURE );
+	}
+
+	if (is_byteswapped(ctif))
+		TIFFSwabShort(&count);
+	ctif->ifd0c = count;
+	assert(0 != ctif->ifd0c);
+
+	return offset;
 }
 
 /* scans first IDF and returns count of tags
  * Hint: sideeffect, if succeed the seek points to beginning of the first
  * IFD-entry */
-int TIFFGetRawTagListCount (TIFF * tif) {
-	thandle_t client = TIFFClientdata(tif);
-	TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-	TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
+	/* parse TIF */
+	thandle_t client = TIFFClientdata(ctif->tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
 	if (! seekproc) {
 		perror ("could not get TIFFGetSeekProc");
 	}
@@ -422,7 +437,7 @@ int TIFFGetRawTagListCount (TIFF * tif) {
 
 	//int fd = TIFFFileno( tif);
 	/* seek the image file directory (bytes 4-7) */
-	uint32 offset = get_first_IFD( tif );
+	uint32 offset = ifdpos;
 
 	// printf("diroffset to %i (0x%04lx)\n", offset, offset);
 	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
@@ -441,18 +456,18 @@ int TIFFGetRawTagListCount (TIFF * tif) {
 		exit( EXIT_FAILURE );
 	}
 
-	if (TIFFIsByteSwapped(tif))
+	if (is_byteswapped(ctif))
 		TIFFSwabShort(&count);
 	return count;
 }
 
 /* scans first IDF and returns the n-th tag */
-tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
-	int byteswapped = TIFFIsByteSwapped(tif);
-	int count = TIFFGetRawTagListCount( tif);
-	thandle_t client = TIFFClientdata(tif);
-	TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-	TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
+	int byteswapped = is_byteswapped(ctif);
+	int count = get_ifd0_count( ctif);
+	thandle_t client = TIFFClientdata(ctif->tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
 	if (! seekproc) {
 		perror ("could not get TIFFGetSeekProc");
 	}
@@ -472,6 +487,7 @@ tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
 	   exit(EXIT_FAILURE);
 	   }
 	   */
+	seekproc(client, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
 	if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
 		perror ("TIFF Header read error3");
 		exit( EXIT_FAILURE );
@@ -517,11 +533,11 @@ LABEL1:
 
 
 /*  get count-data datastream from offset-address */
-offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datatype) {
+offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype) {
   //int fd = TIFFFileno( tif);
-  thandle_t client = TIFFClientdata(tif);
-  TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-  TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+  thandle_t client = TIFFClientdata(ctif->tif);
+  TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+  TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
   if (! seekproc) {
 	  perror ("could not get TIFFGetSeekProc");
   }
@@ -603,16 +619,17 @@ offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datat
 }
 
 /* scans first IDF and returns the type of the n-th tag */
-ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
-  int count = TIFFGetRawTagListCount( tif);
-  int byteswapped = TIFFIsByteSwapped(tif);
+ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
+  int count = get_ifd0_count( ctif);
+  assert( count > 0);
+  int byteswapped = is_byteswapped(ctif);
 #ifdef DEBUG
   printf(" count of tags = %i\n", count);
 #endif
   // int fd = TIFFFileno( tif);
-  thandle_t client = TIFFClientdata(tif);
-  TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-  TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+  thandle_t client = TIFFClientdata(ctif->tif);
+  TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+  TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
 	if (! seekproc) {
 		perror ("could not get TIFFGetSeekProc");
 	}
@@ -635,6 +652,8 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
     exit(EXIT_FAILURE);
   }
   */
+  seekproc(client, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
+
   if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
 	  perror ("TIFF Header read error4");
 	  exit( EXIT_FAILURE );
@@ -760,18 +779,18 @@ printf("\ncount=%0x\n\n", count);
 }
 
 /*  TODO */
-ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag) {
+ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag) {
   int tagidx = -1;
   int i;
-  for (i= 0; i < TIFFGetRawTagListCount( tif ); i++) {
-    if (tag > 253 && tag == TIFFGetRawTagListEntry( tif, i )) {
+  for (i= 0; i < get_ifd0_count( ctif ); i++) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
       tagidx= i;
       break;
     };
   };
   ifd_entry_t ifd_entry;
   if (tagidx >= 0) {
-    ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
+    ifd_entry =  TIFFGetRawTagIFDListEntry( ctif, tagidx );
   } else { /* tag not defined */
 	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tag));
 	  ifd_entry.value_or_offset = is_error;
@@ -780,10 +799,10 @@ ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag) {
   return ifd_entry;
 }
 /* scans first IDF and returns the type of the n-th tag */
-uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx ) {
+uint32 TIFFGetRawTagTypeListEntry( ctiff_t * ctif, int tagidx ) {
 if (tagidx >= 0) {
     ifd_entry_t ifd_entry;
-    ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
+    ifd_entry =  TIFFGetRawTagIFDListEntry( ctif, tagidx );
     return ifd_entry.datatype;
   } else { /* tag not defined */
     fprintf(stderr, "tagidx should be greater equal 0");
@@ -799,17 +818,17 @@ if (tagidx >= 0) {
  * @return datatype of given tag
  * if tag does not exists the function aborts with an error
  */
-TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
+TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag) {
   int tagidx = -1;
   int i;
-  for (i= 0; i < TIFFGetRawTagListCount( tif ); i++) {
-    if (tag > 253 && tag == TIFFGetRawTagListEntry( tif, i )) {
+  for (i= 0; i < get_ifd0_count( ctif ); i++) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
       tagidx= i;
       break;
     };
   };
   if (tagidx >= 0) {
-    TIFFDataType datatype =  TIFFGetRawTagTypeListEntry( tif, tagidx );
+    TIFFDataType datatype =  TIFFGetRawTagTypeListEntry( ctif, tagidx );
 #ifdef DEBUG
     printf("### datatype=%i \n", datatype);
 #endif
@@ -819,6 +838,96 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
 	  return -1;
   }
 }
+
+ctiff_t * initialize_ctif(const char * tiff_file) {
+	/* load tiff file */
+	TIFF* tif = NULL;
+	tif = TIFFOpen( tiff_file, "rm");
+	if (NULL == tif) {
+		fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
+		exit (EXIT_FAILURE);
+	};
+	ctiff_t * ctif = malloc ( sizeof( ctiff_t) );
+	if (NULL == ctif) {
+		fprintf( stderr, "could not allocate memory for ctiff_t\n");
+		exit (EXIT_FAILURE);
+	}
+	ctif->tif = tif;
+	ctif->filename = strdup(tiff_file);
+	ctif->ifd0p=NULL;
+	ctif->ifd0pos= 0;
+	ctif->ifd0c= 0;
+	parse_header_and_endianess( ctif );
+	get_first_IFD( ctif );
+	return ctif;
+}
+
+void free_ctif( ctiff_t * ctif) {
+	assert( NULL != ctif);
+	TIFFClose(ctif->tif);
+	free (ctif);
+	ctif = NULL;
+}
+
+uint32 get_ifd0_pos( ctiff_t * ctif ) {
+	assert( NULL != ctif);
+	assert( NULL != ctif->ifd0p);
+	return ctif->ifd0pos;
+}
+
+uint16 get_ifd0_count( ctiff_t * ctif ) {
+	assert( NULL != ctif);
+	assert( NULL != ctif->ifd0p);
+	return ctif->ifd0c;
+}
+
+char is_byteswapped( ctiff_t * ctif ) {
+	assert( NULL != ctif);
+	return ctif->isbyteswapped;
+}
+
+uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
+	assert( NULL != ctif);
+	assert( NULL != ctif->ifd0p);
+	thandle_t client = TIFFClientdata(ctif->tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
+	}
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
+
+	seekproc(client, actual_pos, SEEK_SET);
+	uint16 count;
+	/*if (read(fd, &count, 2) != 2) {
+	  perror ("TIFF Header read error2");
+	  exit(EXIT_FAILURE);
+	  }
+	  */
+	if ( readproc( client, &count, 2) != 2 ) {
+		perror ("TIFF Header read error2");
+		exit( EXIT_FAILURE );
+	}
+
+	if (ctif->isbyteswapped)
+		TIFFSwabShort(&count);
+	seekproc(client, 12 * count, SEEK_CUR);
+	uint32 offset;
+	if ( readproc( client, &offset, 4) != 4 ) {
+		perror ("TIFF Header read error3");
+		exit( EXIT_FAILURE );
+	}
+	if (ctif->isbyteswapped)
+		TIFFSwabLong(&offset);
+	return offset;
+}
+
+
+
+
+	
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
 

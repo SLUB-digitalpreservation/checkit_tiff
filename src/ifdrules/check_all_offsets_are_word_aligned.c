@@ -12,17 +12,17 @@
 
 
 /* check if offsets are word aligned */
-ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
+ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
   //printf("check if all offsets are word aligned\n");
   tif_rules("all offsets are word aligned");
-  int count = TIFFGetRawTagListCount( tif);
+  int count = get_ifd0_count( ctif);
   int tagidx;
   for (tagidx = 0; tagidx< count; tagidx++) {
-    ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( tif, tagidx );
+    ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
     if (ifd_entry.value_or_offset==is_offset) {
       uint32 offset = ifd_entry.data32offset;
       if ( 0 != (offset & 1)) {
-        uint32 tag = TIFFGetRawTagListEntry( tif, tagidx);
+        uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
         // FIXME: tif_fails?
         char array[80];
         snprintf(array, sizeof(array), "pointing to 0x%08x and is not word-aligned", offset);

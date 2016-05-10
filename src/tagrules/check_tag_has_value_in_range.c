@@ -17,21 +17,21 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b) {
+ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b) {
   //printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
-  tifp_check( tif);
+  tifp_check( ctif);
    char msg[200];
   snprintf(msg, sizeof(msg), "has value in range %u - %u", a, b);
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( tif, tag);
+  ret_t res = check_tag_has_valid_type( ctif, tag);
     if (res.returncode == 0) {
 
   if (a > b) { unsigned int c=a; a=b; b=c; }
-  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: {
                       uint32 val;
-                      int found=TIFFGetField(tif, tag, &val);
+                      int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
                           ret_t res;
@@ -49,7 +49,7 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                     }
     case TIFF_SHORT: {
                        uint16 val;
-                      int found=TIFFGetField(tif, tag, &val);
+                      int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
                           ret_t res;
@@ -67,7 +67,7 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                      }
     case TIFF_RATIONAL: {
                        float val;
-                      int found=TIFFGetField(tif, tag, &val);
+                      int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
                           ret_t res;

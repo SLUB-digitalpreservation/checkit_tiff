@@ -51,38 +51,28 @@ void help () {
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 	// printf("tiff file=%s\n", tiff_file);
         tif_files(tiff_file);
-	/* load tiff file */
-	TIFF* tif = NULL;
-	if (use_memmapped == FLAGGED) {
-		tif = TIFFOpen(tiff_file, "rM");
-	} else { /* slow */
-		tif = TIFFOpen( tiff_file, "rm");
-	}
-	if (NULL == tif) {
-		fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
-		return (EXIT_FAILURE);
-	};
-	int is_valid = 0;
 	ret_t res;
+	ctiff_t * ctif = initialize_ctif( tiff_file );
+	int is_valid = 0;
 	/* special checks */
-	res = check_all_IFDs_are_word_aligned( tif); if (0 != res.returncode) {is_valid++;}
+	res = check_all_IFDs_are_word_aligned( ctif); if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
-	res = check_has_only_one_ifd( tif); if (0 != res.returncode) {is_valid++;}
+	res = check_has_only_one_ifd( ctif); if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
-	res = check_tagorder( tif); if (0 != res.returncode) {is_valid++;}
+	res = check_tagorder( ctif); if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
-	res = check_all_offsets_are_used_once_only( tif ); if (0 != res.returncode) {is_valid++;}
+	res = check_all_offsets_are_used_once_only( ctif ); if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
-	res = check_all_offsets_are_word_aligned( tif );  if (0 != res.returncode) {is_valid++;}
+	res = check_all_offsets_are_word_aligned( ctif );  if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
-	res = check_tag_quiet( tif, TIFFTAG_DATETIME);
+	res = check_tag_quiet( ctif, TIFFTAG_DATETIME);
 	free (res.returnmsg);
 	if (res.returncode == 0) { 
-		res = check_datetime( tif );
+		res = check_datetime( ctif );
 		free (res.returnmsg);
 		if (0 != res.returncode) {is_valid++;}
 	}
-	is_valid += execute_plan(tif);
+	is_valid += execute_plan(ctif);
 	/* TODO: colorize? */
 	if (is_valid > 0) {
 		printf("found %i errors\n", is_valid);
@@ -90,7 +80,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 		printf("the given tif is valid\n");
 	}
 	//print_plan_results();
-	TIFFClose(tif);
+	free_ctif( ctif );
 	return is_valid;
 }
 

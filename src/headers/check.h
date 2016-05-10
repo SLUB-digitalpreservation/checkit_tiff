@@ -12,6 +12,18 @@
 #include <tiff.h>
 #include <tiffio.h>
 
+typedef struct ctiff_s {
+	void * streamp; /* TODO: adress of memory-mapped tif stream */
+	uint32 streamlen; /* TODO: length of memory-mapped tif stream (in bytes) */
+	TIFF * tif;
+	void * ifd0p; /* adress of first ifd in memory-mapped tif stream */
+	uint32 ifd0pos; /* offset in tif stream (in bytes) */
+	uint16 ifd0c; /* count if tags in first ifd */
+	char isbyteswapped; /* true if BigEndian */
+	char *filename; /* filename */
+	/* TODO: add file size */
+} ctiff_t;
+
 typedef struct retmsg_s {
   enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning } rm_type;
   char * rm_msg;
@@ -58,7 +70,7 @@ typedef uint16 tag_t;
 
 #define MAXSTRLEN 1024
 
-void tifp_check( TIFF * tif);
+void tifp_check( ctiff_t * ctif);
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails(const char* fail_message);
@@ -73,22 +85,22 @@ const char* int2str(int v);
 const char* frac2str(int d, int n);
 const char* range2str(int d, int n);
 
-ret_t check_tag_has_some_of_these_values( TIFF* tif, tag_t tag, int count, unsigned int * values);
-ret_t check_tag_has_valuelist( TIFF* tif, tag_t tag, int count, unsigned int * values);
-ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b);
-ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value);
-ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value);
-ret_t check_tag(TIFF* tif, tag_t tag);
-ret_t check_tag_quiet(TIFF* tif, tag_t tag);
-ret_t check_notag(TIFF* tif, tag_t tag);
-ret_t check_tag_has_valid_type(TIFF* tiff, tag_t tag);
-ret_t check_datetime(TIFF* tif);
-ret_t check_has_only_one_ifd(TIFF* tif);
-ret_t check_tagorder(TIFF* tif);
-ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag); 
-ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char* value);
-ret_t check_all_offsets_are_word_aligned(TIFF * tif);
-ret_t check_all_offsets_are_used_once_only(TIFF * tif);
-ret_t check_all_IFDs_are_word_aligned(TIFF * tif);
+ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
+ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
+ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
+ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
+ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value);
+ret_t check_tag(ctiff_t * ctif, tag_t tag);
+ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag);
+ret_t check_notag(ctiff_t * ctif, tag_t tag);
+ret_t check_tag_has_valid_type(ctiff_t * ctiff, tag_t tag);
+ret_t check_datetime(ctiff_t * ctif);
+ret_t check_has_only_one_ifd(ctiff_t * ctif);
+ret_t check_tagorder(ctiff_t * ctif);
+ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag); 
+ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char* value);
+ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif);
+ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif);
+ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
 #endif
 /* _FIXIT_TIFF_CHECK */

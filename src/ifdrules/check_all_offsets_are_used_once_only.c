@@ -12,10 +12,10 @@
 
 
 /* check if offsets are used only once */
-ret_t check_all_offsets_are_used_once_only(TIFF * tif) {
+ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
   //printf("check if all offsets are used once only\n");
   tif_rules("all offsets are used once only");
-  int count = TIFFGetRawTagListCount( tif);
+  int count = get_ifd0_count( ctif);
   int tagidx;
   uint32 offsets[ count ];
   uint32 tags[ count ];
@@ -27,10 +27,10 @@ ret_t check_all_offsets_are_used_once_only(TIFF * tif) {
     tags[ tagidx ] = 0;
   }
   for (tagidx = 0; tagidx< count; tagidx++) {
-    ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( tif, tagidx );
+    ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
     if (ifd_entry.value_or_offset==is_offset) {
       uint32 offset = ifd_entry.data32offset;
-      uint32 tag = TIFFGetRawTagListEntry( tif, tagidx);
+      uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
       for (i=0; i< count_of_offsets; i++) {
         if (offsets[ i ] == offset) {
           // FIXME: tif_fails?

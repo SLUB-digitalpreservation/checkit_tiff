@@ -10,14 +10,11 @@
 #include "check_helper.h"
 #include <unistd.h>
 
-ret_t check_tagorder(TIFF* tif) {
-  //printf("check if tags are in ascending order\n");
+ret_t check_tagorder(ctiff_t * ctif) {
   tif_rules("tags are in ascending order");
-  int count = TIFFGetRawTagListCount( tif);
-  //int fd = TIFFFileno( tif);
-  thandle_t client = TIFFClientdata(tif);
-  TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-  TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+  thandle_t client = TIFFClientdata(ctif->tif);
+  TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+  TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
   if (! seekproc) {
     perror ("could not get TIFFGetSeekProc");
   }
@@ -25,8 +22,9 @@ ret_t check_tagorder(TIFF* tif) {
     perror ("could not get TIFFGetReadProc");
   }
 
+  uint32 offset = get_ifd0_pos(ctif);
+  int count = get_ifd0_count(ctif);
 
-  //printf("count %i\n", count);
   /* read count of tags (2 Bytes) */
   int i;
   /* replace i/o operatrions with in-memory-operations */
@@ -38,6 +36,8 @@ ret_t check_tagorder(TIFF* tif) {
      exit(EXIT_FAILURE);
      }
      */
+  seekproc(client, offset+2, SEEK_SET);
+
   if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
     perror ("TIFF Header read error5");
     exit( EXIT_FAILURE );
@@ -51,13 +51,13 @@ ret_t check_tagorder(TIFF* tif) {
     uint8 hi = *e;
     uint16 tag = (hi << 8) + lo;
     e++;
-    if (TIFFIsByteSwapped(tif))
+    if (is_byteswapped(ctif))
       TIFFSwabShort(&tag);
     if (i>0 && lasttag >= tag) {
       // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tag, tag, hi, lo);
       free( ifdentries );
       // FIXME: tif_fails?
-      char array[80];
+      char array[160];
       snprintf(array, sizeof(array), "Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(lasttag),  tag,  TIFFTagName(tag), i, count);
       return tif_fails(array);
     }

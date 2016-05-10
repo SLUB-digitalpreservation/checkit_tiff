@@ -9,13 +9,15 @@
 #include "check.h"
 #include "check_helper.h"
 #include <unistd.h>
+#include <assert.h>
 
 
 /* check if IFDs are word aligned */
-ret_t check_all_IFDs_are_word_aligned(TIFF * tif) {
+ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif) {
   //printf("check if all IFDs are word aligned\n");
   tif_rules("all IFDs are word aligned");
-  uint32 ifd = get_first_IFD( tif ); /*  TODO: check all other IFDs, too */
+  // assert( NULL != ctif->ifd0p );
+  uint32 ifd = get_ifd0_pos( ctif ); /*  TODO: check all other IFDs, too */
   if ( 0 != (ifd & 1)) {
     // FIXME: tif_fails?
     char array[80];

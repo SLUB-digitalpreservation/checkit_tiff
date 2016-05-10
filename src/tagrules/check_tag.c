@@ -11,15 +11,15 @@
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
-ret_t check_tag(TIFF* tif, tag_t tag) {
+ret_t check_tag(ctiff_t * ctif, tag_t tag) {
   //printf("check if tag %u (%s) exists\n", tag, TIFFTagName(tif, tag));
-  tifp_check( tif);
+  tifp_check( ctif);
   tif_rules_tag(tag, "exists");
-    ret_t res = check_tag_quiet( tif, tag);
+    ret_t res = check_tag_quiet( ctif, tag);
   if (res.returncode == 0) {
-    res = check_tag_has_valid_type( tif, tag);
+    res = check_tag_has_valid_type( ctif, tag);
     if (res.returncode == 0) {
-      return check_tag_has_valid_asciivalue(tif, tag);
+      return check_tag_has_valid_asciivalue(ctif, tag);
     }
     return tif_fails_by_returns(res);
   } else {

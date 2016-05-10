@@ -32,38 +32,38 @@ typedef enum { range, logical_or, any, only, regex } values_t;
 /* definitions of structs of function pointers to hold type information for "lazy evaluation" */
 
 typedef struct f_tifp_s {
-  ret_t (*functionp)(TIFF *);
+  ret_t (*functionp)(ctiff_t *);
 } f_tifp_t;
 
 typedef struct f_tifp_tag_s {
   int a;
-  ret_t (*functionp)(TIFF *, tag_t a);
+  ret_t (*functionp)(ctiff_t *, tag_t a);
 } f_tifp_tag_t;
 
 typedef struct f_tifp_tag_uint_s {
   int a;
   unsigned int b;
-  ret_t (*functionp)(TIFF*, tag_t a, unsigned int b);
+  ret_t (*functionp)(ctiff_t *, tag_t a, unsigned int b);
 } f_tifp_tag_uint_t;
 
 typedef struct f_tifp_tag_uint_uint_s {
   int a;
   unsigned int b;
   unsigned int c;
-  ret_t (*functionp)(TIFF*, tag_t a, unsigned int b, unsigned int c);
+  ret_t (*functionp)(ctiff_t *, tag_t a, unsigned int b, unsigned int c);
 } f_tifp_tag_uint_uint_t;
 
 typedef struct f_tifp_tag_int_uintp_s {
   int a;
   int b;
   unsigned int * c;
-  ret_t (*functionp)(TIFF*, tag_t a, int b, unsigned int * c);
+  ret_t (*functionp)(ctiff_t *, tag_t a, int b, unsigned int * c);
 } f_tifp_tag_int_uintp_t;
 
 typedef struct f_tifp_tag_charp_s {
   int a;
   const char * b;
-  ret_t (*functionp)(TIFF*, tag_t a, const char * b);
+  ret_t (*functionp)(ctiff_t *, tag_t a, const char * b);
 } f_tifp_tag_charp_t;
 
 
@@ -103,7 +103,7 @@ typedef struct parser_state_s {
 } parser_state_t;
 
 void set_parse_error(char * msg, char * yytext);
-int execute_plan (TIFF * tif) ;
+int execute_plan (ctiff_t * ctif) ;
 void print_plan ();
 void print_plan_results ();
 void clean_plan ();
@@ -113,11 +113,11 @@ void parse_plan_via_file (const char * filename);
 void add_default_rules_to_plan();
 
 /* helper */
-void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(TIFF *), char * fname);
-void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag);
-void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v);
-void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r);
-void _helper_add_fsp_tifp_tag_int_uintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp);
+void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(ctiff_t *), char * fname);
+void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t), char * fname, tag_t tag);
+void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v);
+void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r);
+void _helper_add_fsp_tifp_tag_int_uintp(struct funcu * f,  ret_t (* function)(ctiff_t *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp);
 
 #endif
 /* _FIXIT_TIFF_CONFIG_PARSER */
