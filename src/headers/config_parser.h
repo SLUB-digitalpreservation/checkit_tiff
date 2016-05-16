@@ -87,6 +87,8 @@ struct funcu {
 #define MINTAGS 254
 #define MAXTAGS 65536
 
+#define MAXINCLUDEDEPTH 1
+
 
 typedef struct parser_state_s {
   int lineno;
@@ -100,6 +102,7 @@ typedef struct parser_state_s {
   FILE * stream;
   int any_reference;
   const char * regex_string;
+  int includedepth;
 } parser_state_t;
 
 void set_parse_error(char * msg, char * yytext);
@@ -111,7 +114,7 @@ void parse_plan ();
 void parse_plan_via_stream (FILE * stream);
 void parse_plan_via_file (const char * filename);
 void add_default_rules_to_plan();
-
+void set_include( const char * );
 /* helper */
 void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(ctiff_t *), char * fname);
 void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(ctiff_t *, tag_t), char * fname, tag_t tag);
