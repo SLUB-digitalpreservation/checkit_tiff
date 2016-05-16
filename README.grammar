@@ -17,11 +17,15 @@ Users
 to define your own config-file to check TIFFs, please use this simplified
 syntax:
 
-* each line is either a tagline, a comment or empty
+
+* each line is either a modeline, a include line, a tagline, a comment or empty
+* a modeline uses "mode(MODE)", MODE could be:
+** "baseline", if no modeline is defined, it defaults to "mode(baseline)", too
+** "extended"
+* to include a configfile, use this command: "include(FILENAME)" where FILENAME is a correct path
 * a comment starts with # first
 * a tagline is built via "TAG ; REQUIREMENTS ; VALUES", where
-* a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF
-definition)
+* a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF definition)
 * REQUIREMENTS could be 
 ** 'mandatory' - a tag must exist in TIFF
 ** 'optional' - a tag could exist in TIFF, if so it will be checked 
