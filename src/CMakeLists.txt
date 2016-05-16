@@ -30,6 +30,7 @@ if(WIN32)
 endif(WIN32)
 
 add_executable(checkit_tiff checkit_tiff.c ${checkit_tiff_SOURCES})
+add_executable(checkit_check_config checkit_check_config.c ${checkit_tiff_SOURCES})
 set(CMAKE_EXTRA_INCLUDE_FILES tiff.h)
 
 
@@ -89,6 +90,7 @@ endif(PCRE_FOUND)
 
 
 TARGET_LINK_LIBRARIES(checkit_tiff ${TIFF_LIBRARIES}  ${PCRE_LIBRARIES})
+TARGET_LINK_LIBRARIES(checkit_check_config ${TIFF_LIBRARIES}  ${PCRE_LIBRARIES})
 
 install( TARGETS checkit_tiff
   RUNTIME DESTINATION bin
