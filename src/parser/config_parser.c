@@ -16,10 +16,6 @@
 #include "check_helper.h"
 #include <pcre.h>
 
-/*
-#define DEBUG
-*/
-
 #define YY_CTX_LOCAL
 
 /* global vars */
@@ -561,13 +557,13 @@ int rule_tagorder_in_dsl( int tag ) {
 /* helper function for parser */
 void tagline() {  
 #ifdef DEBUG
-  printf("tagline\n");
+  printf("tagline, %i\n", parser_state.lineno);
 #endif
 }
 /* helper function for parser */
 void commentline() { 
 #ifdef DEBUG
-  printf("commentline\n");
+  printf("commentline, %i\n", parser_state.lineno);
 #endif
 }
 /* helper function for parser */
@@ -841,6 +837,12 @@ void rule_addtag_config() {
   parser_state.any_reference = 0;
 }
 
+/* set_mode */
+void set_mode(const char * mode) {
+	printf("Mode=%s at line=%i (needs to be implemented)\n", mode, parser_state.lineno );
+	/* TODO: Implement mode setting */
+}
+
 
 /* reset the parser state */
 void reset_parser_state() {
@@ -851,6 +853,7 @@ void reset_parser_state() {
   parser_state.val=0;
   parser_state.i_stackp=0;
   parser_state.any_reference=0;
+  parser_state.includedepth=0;
   int i;
   for (i=0; i<MAXTAGS; i++) {
         parser_state.called_tags[i]= 0;
@@ -859,6 +862,38 @@ void reset_parser_state() {
 
 /* include the PEG generated parser, see "man peg" for details */
 #include "config_dsl.grammar.c"   /* yyparse() */
+
+/* set_include */
+void set_include( const char * include_file ) {
+	if (parser_state.includedepth >= 1) {
+		fprintf( stderr, "only include depth of %i is supported\n", MAXINCLUDEDEPTH);
+		exit (EXIT_FAILURE);
+	}
+	parser_state.includedepth++;
+	printf("Include=%s\n", include_file);
+	FILE * cfg = fopen(include_file, "r");
+	if (NULL == cfg) {
+		fprintf( stderr, "file '%s' could not be opened\n", include_file);
+		exit (EXIT_FAILURE);
+	};
+	clean_plan();
+	yycontext ctx2;
+	memset(&ctx2, 0, sizeof(yycontext));
+	FILE * old_stream = parser_state.stream;
+	int old_lineno = parser_state.lineno;
+	printf("At lineno %i, file %s, switching to include file %s\n", old_lineno, "", include_file);
+	parser_state.lineno=1;
+	parser_state.stream=cfg;
+	while (yyparse(&ctx2))     /* repeat until EOF */
+		;
+	yyrelease(&ctx2);
+	parser_state.includedepth--;
+	printf("End of Include=%s\n", include_file);
+	parser_state.stream = old_stream;
+	parser_state.lineno = old_lineno;
+	fclose(cfg);
+}
+
 
 /* function to parse a config file from STDIN */
 void parse_plan () {
