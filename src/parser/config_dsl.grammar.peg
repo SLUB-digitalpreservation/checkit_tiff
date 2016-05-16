@@ -1,18 +1,29 @@
 # rule based checks if given TIFF is a specific baseline TIFF
-# 
-# author: Andreas Romeyke, 2015
-# licensed under conditions of libtiff 
+#
+# author: Andreas Romeyke, 2015/2016
+# licensed under conditions of libtiff
 # (see http://libtiff.maptools.org/misc.html)
 #
 
-start           <- ( Line )+ EndOfFile
-Line            <- Comment                                    { incrlineno(); commentline(); }
-                / SpaceLine                                   { incrlineno(); }
-                / Tagline                                     { incrlineno(); tagline(); }
+start       	<- ( Line )+ EndOfFile
+Line		<- CommentLine EndOfLine
+                / SpaceLine EndOfLine
+		/ ModeLine EndOfLine
+		/ IncludeLine EndOfLine
+                / TagLine EndOfLine
                 / < MiscUntilEOL >                            { set_parse_error("wrong line entry",yytext); }
-Comment         <- '#' ( !EndOfLine . )* EndOfLine
-Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { rule_addtag_config(); }
-                / Tag Semicolon Requirements Semicolon Values { set_parse_error( "tagline requires EOL", yytext); }
+CommentLine     <- '#' ( !EndOfLine . )* 		      { commentline(); }
+IncludeLine     <- 'include' OpenBracket < ( [A-Za-z0-9_./\-]+ ) > ClosingBracket { set_include ( yytext );  }
+ModeLine        <- 'mode' OpenBracket < Mode > ClosingBracket { set_mode( yytext );  }
+		/ 'mode' OpenBracket Mode 		      { set_parse_error( "modeline expects a closing bracket", yytext); }
+		/ 'mode' OpenBracket      		      { set_parse_error( "modeline requires a mode", yytext); }
+		/ 'mode' 				      { set_parse_error( "modeline requires an open bracket", yytext); }
+
+
+Mode		<- 'baseline'
+		/ 'enhanced'
+		/ MiscUntilEOL				      { set_parse_error("mode expects either 'baseline' or 'enhanced'", yytext); }
+TagLine         <- Tag Semicolon Requirements Semicolon Values { rule_addtag_config();  }
                 / Tag Semicolon Requirements Semicolon        { set_parse_error("tagline requires values", yytext); }
                 / Tag Semicolon Requirements                  { set_parse_error("tagline expects missed semicolon here", yytext); }
                 / Tag Semicolon                               { set_parse_error("tagline requires a requiemrent-keyword (mandatory, etc.)",yytext); }
@@ -90,17 +101,16 @@ RegEx           <- 'regex' OpenBracket '"' < ( PCRE )* > '"' ClosingBracket { se
                 / 'regex' OpenBracket '"'                     { set_parse_error("expects a PCRE-regex", yytext); }
                 / 'regex' OpenBracket                         { set_parse_error("expects an open '\"'", yytext); }
                 / 'regex'                                     { set_parse_error("expects an open bracket", yytext); }
-SpaceLine       <- Space? EndOfLine
+SpaceLine       <- ( Space )*
 Space           <- ' ' / '\t'
 Any             <- 'any'                                      { set_any(); }
 Digit           <- [0-9]
-#String          <- '"' < ( [A-Za-z0-9- :] )* > '"'  { s_push ( yytext ); }
-EndOfLine       <- '\r\n' / '\n' / '\r'
+EndOfLine       <- [\r\n] 				      {incrlineno(); }
 EndOfFile       <- !.
-MiscUntilEOL    <- ( [^\r\n]+ )
+MiscUntilEOL    <- [^\r\n]+
 PCRE            <- EscapedPCRE
                 / [^"\\]
-# FIXME: unescape char in yybuffer                
+# FIXME: unescape char in yybuffer
 EscapedPCRE     <- '\\' '\\'
                 / '\\' '"'
 
