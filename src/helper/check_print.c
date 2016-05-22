@@ -85,11 +85,6 @@ ret_t tif_rules_tag(tag_t tag, const char *msg) {
   // rule
   p++;
   p->rm_type=rm_rule;
-  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
-  if (NULL==p->rm_msg) {
-    fprintf(stderr, "could not allocate memory for 4tif_fails\n");
-    exit(EXIT_FAILURE);
-  };
   p->rm_msg = strndup( msg, MAXSTRLEN);
   printf( "%s", renderer( res) );
   // free (str);
@@ -114,11 +109,6 @@ ret_t tif_rules(const char *msg) {
   // rule
   p++;
   p->rm_type=rm_rule;
-  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
-  if (NULL==p->rm_msg) {
-    fprintf(stderr, "could not allocate memory for 4tif_fails\n");
-    exit(EXIT_FAILURE);
-  };
   p->rm_msg = strndup( msg, MAXSTRLEN);
   printf( "%s", renderer( res) );
   // free (str);
@@ -142,11 +132,6 @@ ret_t tif_files(const char *msg) {
   // rule
   p++;
   p->rm_type=rm_file;
-  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
-  if (NULL==p->rm_msg) {
-    fprintf(stderr, "could not allocate memory for 4tif_fails\n");
-    exit(EXIT_FAILURE);
-  };
   p->rm_msg = strndup( msg, MAXSTRLEN);
   printf( "%s", renderer( res) );
   // free (str);
