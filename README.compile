@@ -21,3 +21,17 @@ make
 # cmake ../src/ -DCMAKE_C_FLAGS="-O0 -p -g"
 # cmake ../src/ -DCMAKE_C_COMPILER=$(which clang-3.5) -DCMAKE_C_FLAGS="-Oz -pedantic"
 #
+########################################################
+# example SANITIZE options
+########################################################
+#
+# SANITIZE with clang++
+# cmake ../src/ -DCMAKE_C_COMPILER=/usr/bin/clang-3.5 -DCMAKE_C_FLAGS="-O0 -g -fsanitize=address -fno-omit-frame-pointer"
+# make
+# ASAN_OPTIONS=detect_leaks=1 ./checkit_tiff ...
+#
+# SANITIZE with gcc
+# cmake ../src/ -DCMAKE_C_FLAGS="-Og -g -fsanitize=address -fno-omit-frame-pointer"
+# make
+# ASAN_OPTIONS=detect_leaks=1 ./checkit_tiff ...
+
