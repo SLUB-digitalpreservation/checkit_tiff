@@ -92,6 +92,45 @@ ret_t tif_rules_tag(tag_t tag, const char *msg) {
   return res;
 }
 
+ret_t tif_no_tag(tag_t tag, const char *msg) {
+  //printf("DEBUG: %s -> %s\n", tag, msg);
+  ret_t res;
+  res.returnmsg = NULL;
+  res.returncode=1;
+  res.count = 4;
+  res.returnmsg = malloc( sizeof( retmsg_t ) * res.count  );
+  if  (NULL==res.returnmsg) {
+    fprintf(stderr, "could not allocate memory for tif_rules_tag\n");
+    exit(EXIT_FAILURE);
+  };
+  retmsg_t * p =  res.returnmsg;
+  // header
+  p->rm_type=rm_error;
+  p->rm_msg = "";
+  // tag
+  p++;
+  p->rm_type=rm_tag;
+  p->rm_msg = malloc( sizeof(char) *MAXSTRLEN );
+  if (NULL==p->rm_msg) {
+    fprintf(stderr, "could not allocate memory for 3tif_fails\n");
+    exit(EXIT_FAILURE);
+  };
+  snprintf (p->rm_msg, MAXSTRLEN-1, "tag %s ", tag2str(tag));
+  // expected
+  p++;
+  p->rm_type=rm_expected;
+  p->rm_msg = "is_found";
+  // value
+  p++;
+  p->rm_type=rm_value;
+  p->rm_msg = ", but is not whitelisted (or rule has no matched dependency)";
+  // 
+  printf( "%s", renderer( res) );
+  // free (str);
+  // free (res.returnmsg);
+  return res;
+}
+
 ret_t tif_rules(const char *msg) {
   ret_t res;
   res.returnmsg = NULL;

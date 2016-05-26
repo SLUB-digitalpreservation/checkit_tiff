@@ -17,7 +17,7 @@
 
 
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value) {
-  // printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName(tif, tag), value);
+  // printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName( tag), value);
   tifp_check( ctif);
   tif_rules_tag(tag, "has value");
   ret_t ret;

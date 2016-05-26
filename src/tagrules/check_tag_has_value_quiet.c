@@ -16,7 +16,7 @@
 */
 
 
-ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value) {
+ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value) {
   tifp_check( ctif);
     ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (ifd_entry.count > 1) {
@@ -26,23 +26,23 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value) {
   }
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
-                      if (value != ifd_entry.data32) {
-                        return tif_returns( tag, int2str(ifd_entry.data32), int2str(value));
+                      if (expected_value != ifd_entry.data32) {
+                        return tif_returns( tag,  int2str(expected_value),int2str(ifd_entry.data32));
                       }
                       break;
                     }
     case TIFF_SHORT: {
-                       if (value != ifd_entry.data16[0])  {
-                         return tif_returns(  tag, int2str(ifd_entry.data16[0]), int2str(value));
+                       if (expected_value != ifd_entry.data16[0])  {
+                         return tif_returns(  tag,  int2str(expected_value),int2str(ifd_entry.data16[0]));
                        }
                        break;
                      }
     case TIFF_RATIONAL: {
                           if (0 == ifd_entry.data16[1]) {
-                            return tif_returns( tag, frac2str( ifd_entry.data16[0], ifd_entry.data16[1]), float2str(value));
+                            return tif_returns( tag,  float2str(expected_value),frac2str( ifd_entry.data16[0], ifd_entry.data16[1]));
                             break;
-                          } else if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
-                            return tif_returns( tag,  frac2str( ifd_entry.data16[0], ifd_entry.data16[1]), float2str(value));
+                          } else if (expected_value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
+                            return tif_returns( tag,  float2str(expected_value), frac2str( ifd_entry.data16[0], ifd_entry.data16[1]));
                             break;
                           }
                         };

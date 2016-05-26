@@ -17,14 +17,16 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
   //printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
   tifp_check( ctif);
   char msg[EXPECTSTRLEN];
+  char expected[EXPECTSTRLEN]="";
   snprintf(msg, sizeof(msg), "has some of these %i-values: ", count);
   int i;
   unsigned int * p = values;
   for (i=0; i< count; i++) {
-    secstrcat (msg, ", ", EXPECTSTRLEN);
-    secstrcat (msg, int2str(*p), EXPECTSTRLEN);
+    if( i>= 1) secstrcat (expected, ", ", EXPECTSTRLEN);
+    secstrcat (expected, int2str(*p), EXPECTSTRLEN);
     p++;
   }
+  secstrcat (msg, expected, EXPECTSTRLEN);
   tif_rules_tag(tag, strdup(msg));
   ret_t res = check_tag_has_valid_type( ctif, tag);
   if (res.returncode == 0) {
@@ -45,8 +47,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                       uint32 val;
                       TIFFGetField(ctif->tif, tag, &val);
                       char value[VALUESTRLEN];
-                      snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
-                      return tif_fails_tag( tag, "", strdup(value));
+                      return tif_fails_tag( tag, strdup(expected), int2str(val));
                       break;
                     }
     case TIFF_SHORT: {
@@ -62,9 +63,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                        }
                        uint16 val;
                        TIFFGetField(ctif->tif, tag, &val);
-                       char value[VALUESTRLEN];
-                       snprintf(value, sizeof(value), "does not have some of expected values (but have:%u)", val);
-                       return tif_fails_tag( tag, "", strdup(value));
+                       return tif_fails_tag( tag, strdup(expected), int2str(val));
                        break;
                      }
     case TIFF_RATIONAL: {
@@ -80,9 +79,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                           }
                           float val;
                           TIFFGetField(ctif->tif, tag, &val);
-                          char value[VALUESTRLEN];
-                          snprintf(value, sizeof(value), "does not have some of expected values (but have:%f)", val);
-                          return tif_fails_tag( tag, "", strdup(value));
+                          return tif_fails_tag( tag, strdup(expected), float2str(val));
                           //tif_fails("tag %u (%s) does not have some of expected values (but have:%f)\n", tag, TIFFTagName(tif, tag), val);
                           break;
                         }
