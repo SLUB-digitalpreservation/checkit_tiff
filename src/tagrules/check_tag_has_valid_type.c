@@ -86,7 +86,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     default: res = 1;
   }
   if (!res) {
-    char array[40];
+    char array[VALUESTRLEN];
     snprintf(array, sizeof(array), "with incorrect type: %i", datatype);
     return tif_returns( tag, "", array);
   } else {

@@ -69,6 +69,9 @@ typedef struct offset_s {
 typedef uint16 tag_t;
 
 #define MAXSTRLEN 1024
+#define EXPECTSTRLEN 40
+#define VALUESTRLEN 40
+#define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
 
 void tifp_check( ctiff_t * ctif);
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);

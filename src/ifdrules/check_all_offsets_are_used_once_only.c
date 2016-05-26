@@ -34,7 +34,7 @@ ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
       for (i=0; i< count_of_offsets; i++) {
         if (offsets[ i ] == offset) {
           // FIXME: tif_fails?
-          char array[80];
+          char array[TIFFAILSTRLEN];
           snprintf(array, sizeof(array), "offset of tag %u (%s) points to %08x, which address is used previously by tag %u (%s)", tag, TIFFTagName(tag), offset, tags[i], TIFFTagName(tags[i]) );
           return tif_fails(array);
         }

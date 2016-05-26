@@ -20,7 +20,7 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value) {
   tifp_check( ctif);
     ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (ifd_entry.count > 1) {
-    char array[40];
+    char array[VALUESTRLEN];
      snprintf(array, sizeof(array), "but has type:%i and count:%i",ifd_entry.datatype, ifd_entry.count);
     return tif_returns( tag, "of type long, short or float", strdup(array));
   }
@@ -47,7 +47,7 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value) {
                           }
                         };
     default: { /*  none */
-               char array[40];
+               char array[VALUESTRLEN];
                snprintf(array, sizeof(array), " but was datatype:%u",  ifd_entry.datatype);
                return tif_returns( tag, "of type long, short or float", array );
                break;

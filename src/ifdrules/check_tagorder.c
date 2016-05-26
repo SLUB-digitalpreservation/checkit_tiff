@@ -57,7 +57,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
       // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tag, tag, hi, lo);
       free( ifdentries );
       // FIXME: tif_fails?
-      char array[160];
+      char array[TIFFAILSTRLEN];
       snprintf(array, sizeof(array), "Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(lasttag),  tag,  TIFFTagName(tag), i, count);
       return tif_fails(array);
     }

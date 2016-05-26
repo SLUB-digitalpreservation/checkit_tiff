@@ -253,7 +253,7 @@ ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
 
   } else {
     // FIXME: tif_fails?
-    char array[40];
+    char array[EXPECTSTRLEN];
     snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
     return tif_fails(array);
   }
@@ -276,7 +276,7 @@ ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
 
   } else {
     // FIXME: tif_fails?
-    char array[40];
+    char array[EXPECTSTRLEN];
     snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
     return tif_fails(array);
   }
@@ -300,7 +300,7 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
 
   } else {
     // FIXME: tif_fails?
-    char array[40];
+    char array[EXPECTSTRLEN];
     snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
     return tif_fails(array);
   }

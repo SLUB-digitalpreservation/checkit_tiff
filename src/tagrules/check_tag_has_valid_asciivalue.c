@@ -38,7 +38,7 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
     }
   }
   if (0 != r) {
-    char array[80];
+    char array[VALUESTRLEN];
     snprintf(array, sizeof(array), "incorrect asciivalue (\\0 at position %i in %i-len String)", r, count);
     return tif_fails_tag( tag, "", array);
   } else {

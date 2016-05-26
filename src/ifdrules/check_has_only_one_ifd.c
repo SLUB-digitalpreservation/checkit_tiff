@@ -27,7 +27,7 @@ ret_t check_has_only_one_ifd(ctiff_t * ctif) {
     return res;
   } else {
     // FIXME: tif_fails?
-      char array[160];
+      char array[TIFFAILSTRLEN];
       snprintf(array, sizeof(array), "baseline TIFF should have only one IFD, but IFD0 at 0x%08x has pointer to IFDn 0x%08x", offset, IFDn );
       return tif_fails( array);
   }

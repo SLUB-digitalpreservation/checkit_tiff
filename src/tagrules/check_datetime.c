@@ -81,19 +81,19 @@ ret_t check_datetime(ctiff_t * ctif ) {
           return res;
 
         } else {
-          char array[80];
+          char array[TIFFAILSTRLEN];
           snprintf(array, sizeof(array), "of datetime not plausible, was \"%s\"", datetime);
           return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
           //tif_fails("tag %u (%s) value of datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
         }
       } else {
-        char array[80];
+        char array[TIFFAILSTRLEN];
         snprintf(array, sizeof(array), "of datetime was \"%s\"", datetime);
         return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
         //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
       }
     } else {
-       char array[80];
+       char array[TIFFAILSTRLEN];
        snprintf(array, sizeof(array), "of datetime was \"%s\" and contains a \\0 at %i (count=%u)", datetime, r, count);
        return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
        //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);

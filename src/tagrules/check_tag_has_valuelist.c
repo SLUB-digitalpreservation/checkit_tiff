@@ -18,13 +18,13 @@
 ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
   //printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
   tifp_check( ctif);
-  char msg[200];
+  char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has these %i-values: ", count);
   int i;
   unsigned int * p = values;
   for (i=0; i< count; i++) {
-    if (0 < i) secstrcat (msg, ", ", 200);
-    secstrcat (msg, int2str(*p), 200);
+    if (0 < i) secstrcat (msg, ", ", EXPECTSTRLEN);
+    secstrcat (msg, int2str(*p), EXPECTSTRLEN);
     p++;
   }
   tif_rules_tag(tag, strdup(msg));
@@ -39,9 +39,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
   }
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (count != ifd_entry.count) {
-    char expected[10];
+    char expected[EXPECTSTRLEN];
     snprintf(expected, sizeof(expected), "list has %u values", count);
-    char value[10];
+    char value[VALUESTRLEN];
     snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
     return tif_fails_tag( tag, strdup(expected), strdup(value));
   }
@@ -54,10 +54,10 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                       if (ifd_entry.value_or_offset == is_value) {
                         for (i=0; i< count; i++) {
                           if (v[i] != ifd_entry.data32) {
-                            char expected[10];
+                            char expected[EXPECTSTRLEN];
                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
-                            char value[10];
-                            snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data32);
+                            char value[VALUESTRLEN];
+                            snprintf(value, sizeof(value), "value[%u]=%u", i,  ifd_entry.data32);
                             return tif_fails_tag( tag, strdup(expected), strdup(value));
                             //tif_fails_tag( tag2str(tif, tag), "tag %u (%s), tagvalue[%i]=%u differs from value=%u (long)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data32, v[i]);
                           }
@@ -75,9 +75,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                           if (v[i] != *p) {
-                            char expected[10];
+                            char expected[EXPECTSTRLEN];
                             snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
-                            char value[10];
+                            char value[VALUESTRLEN];
                             snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
                             return tif_fails_tag( tag, strdup(expected), strdup(value));
                           }
@@ -94,9 +94,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                          for (i=0; i< count; i++) {
                            int c = (v[i]) == (ifd_entry.data16[i]);
                            if (!c) {
-                             char expected[10];
+                             char expected[EXPECTSTRLEN];
                              snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
-                             char value[10];
+                             char value[VALUESTRLEN];
                              snprintf(value, sizeof(value), "has value[%u]=%u", i,  ifd_entry.data16[i]);
                              return tif_fails_tag( tag, strdup(expected), strdup(value));
                              //tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value[%i]=%u (short)\n",  tag, TIFFTagName(tif, tag), i, ifd_entry.data16[i], i, v[i]);
@@ -115,9 +115,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                            printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                            if (v[i] != pval) {
-                             char expected[10];
+                             char expected[EXPECTSTRLEN];
                              snprintf(expected, sizeof(expected), "value[%u]=%u", i, v[i]);
-                             char value[10];
+                             char value[VALUESTRLEN];
                              snprintf(value, sizeof(value), "has value[%u]=%u", i,  pval);
                              return tif_fails_tag( tag, strdup(expected), strdup(value));
                              // tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, pval, v[i]);
@@ -131,7 +131,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                      }
     default: /*  none */
                       {
-                        char array[10];
+                        char array[VALUESTRLEN];
                         snprintf(array, sizeof(array), "type:%i", ifd_entry.datatype);
                         return tif_fails_tag( tag, "of type long, short or float", array);
                       }

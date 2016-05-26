@@ -31,31 +31,31 @@ char * secstrcat (char * dest, const char * src, int maxsize) {
 }
 
 const char * float2str(float v) {
-  char array[10];
+  char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%f", v);
   return strdup(array);
 }
 
 const char* tag2str(tag_t tag) {
- char array[40];
+ char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%u (%s)", tag, TIFFTagName(tag));
   return strdup(array);
 }
 
 const char* int2str(int v) {
- char array[10];
+ char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%u", v);
   return strdup(array);
 }
 
 const char* frac2str(int d, int n) {
-  char array[40];
+  char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%u/%u", d, n);
   return strdup(array);
 }
 
 const char* range2str(int d, int n) {
-  char array[40];
+  char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "<%u-%u>", d, n);
   return strdup(array);
 }

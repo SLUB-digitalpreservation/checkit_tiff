@@ -20,7 +20,7 @@ ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif) {
   uint32 ifd = get_ifd0_pos( ctif ); /*  TODO: check all other IFDs, too */
   if ( 0 != (ifd & 1)) {
     // FIXME: tif_fails?
-    char array[80];
+    char array[VALUESTRLEN];
     snprintf(array, sizeof(array), "offset of first IFD points to 0x%08x and is not word-aligned", ifd);
     return tif_fails(array);
   }

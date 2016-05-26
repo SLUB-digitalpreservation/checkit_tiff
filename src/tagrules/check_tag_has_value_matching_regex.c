@@ -11,7 +11,7 @@
 ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char * regex_string) {
   //printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), regex_string);
   tifp_check( ctif);
-  char msg[200];
+  char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has  value matching regex '%s'", regex_string);
   tif_rules_tag(tag, strdup(msg));
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
@@ -61,7 +61,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                              }
                          }
                          } else {
-                            char array[80];
+                            char array[VALUESTRLEN];
                             snprintf(array, sizeof(array), "regex '%s' compile error: %s at offset: %i\n",regex_string, errorcode, erroffset);
                            return tif_fails(array);
                          }
@@ -71,7 +71,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                      }
     default:  /*  none */
                      {
-                       char array[10];
+                       char array[VALUESTRLEN];
                        snprintf(array, sizeof(array), "but was:%i\n", datatype);
                        return tif_fails_tag( tag, "of type ASCII", array);
                      }
