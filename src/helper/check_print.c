@@ -92,7 +92,7 @@ ret_t tif_rules_tag(tag_t tag, const char *msg) {
   return res;
 }
 
-ret_t tif_no_tag(tag_t tag, const char *msg) {
+ret_t tif_no_tag(tag_t tag) {
   //printf("DEBUG: %s -> %s\n", tag, msg);
   ret_t res;
   res.returnmsg = NULL;

@@ -81,7 +81,7 @@ ret_t tif_fails_by_returns( ret_t ret );
 ret_t tif_rules_tag(tag_t tag, const char *msg);
 ret_t tif_rules(const char *msg);
 ret_t tif_files(const char *msg);
-ret_t tif_no_tag(tag_t tag, const char *msg);
+ret_t tif_no_tag(tag_t tag);
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);
