@@ -46,7 +46,6 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                       }
                       uint32 val;
                       TIFFGetField(ctif->tif, tag, &val);
-                      char value[VALUESTRLEN];
                       return tif_fails_tag( tag, strdup(expected), int2str(val));
                       break;
                     }
