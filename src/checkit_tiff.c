@@ -65,6 +65,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 	free (res.returnmsg);
 	res = check_all_offsets_are_word_aligned( ctif );  if (0 != res.returncode) {is_valid++;}
 	free (res.returnmsg);
+        /*  datetime  */
 	res = check_tag_quiet( ctif, TIFFTAG_DATETIME);
 	free (res.returnmsg);
 	if (res.returncode == 0) { 
@@ -72,6 +73,15 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 		free (res.returnmsg);
 		if (0 != res.returncode) {is_valid++;}
 	}
+        /*  ICC */
+	res = check_tag_quiet( ctif, TIFFTAG_ICCPROFILE);
+	free (res.returnmsg);
+	if (res.returncode == 0) { 
+		res = check_icc( ctif );
+		free (res.returnmsg);
+		if (0 != res.returncode) {is_valid++;}
+	}
+
 	is_valid += execute_plan(ctif);
 	/* TODO: colorize? */
 	if (is_valid > 0) {

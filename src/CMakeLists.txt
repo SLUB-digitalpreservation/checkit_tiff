@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (checkit_tiff)
 include_directories("${PROJECT_SOURCE_DIR}/headers")
+include_directories("${PROJECT_SOURCE_DIR}/validate_icc")
 include (CheckSymbolExists)
 
 file( GLOB checkit_tiff_SOURCES 
@@ -8,6 +9,7 @@ file( GLOB checkit_tiff_SOURCES
   "${PROJECT_SOURCE_DIR}/ifdrules/*.c"
   "${PROJECT_SOURCE_DIR}/helper/*.c"
   "${PROJECT_SOURCE_DIR}/parser/*parser.c"
+  "${PROJECT_SOURCE_DIR}/validate_icc/*.c"
   )
 #
 # Make a version file containing the current version from git.
