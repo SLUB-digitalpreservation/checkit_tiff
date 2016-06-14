@@ -20,7 +20,7 @@ execute_process( COMMAND git rev-parse HEAD OUTPUT_VARIABLE BUILD_REV_ID OUTPUT_
 execute_process( COMMAND git describe --long --tags --dirty --always OUTPUT_VARIABLE BUILD_REV_ID_SHORT OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions(-DVERSION="${BUILD_BRANCH}")
 add_definitions(-DREPO_REVISION="${REPO_REVISION}")
-set(CMAKE_C_FLAGS "-std=gnu99")
+add_definitions(-std=gnu99)
 if(WIN32)
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   SET(BUILD_SHARED_LIBRARIES OFF)
