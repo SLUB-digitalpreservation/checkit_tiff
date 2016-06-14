@@ -22,7 +22,7 @@ ret_t check_icc(ctiff_t * ctif ) {
   // printf("DEBUG: datatype=%i\n", ifd_entry.datatype);
   uint32 icc_profile_size;
   uint32 count;
-  char * icc_profile;
+  char * icc_profile = NULL;
  //uint32 retval = TIFFGetField (ctif->tif, TIFFTAG_ICCPROFILE, &icc_profile_size, &icc_profile);
    switch (ifd_entry.datatype) { /* icc datatype should be undefined (val=7) */
       case TIFF_UNDEFINED: {
@@ -50,8 +50,8 @@ ret_t check_icc(ctiff_t * ctif ) {
 
   //printf("DEBUG: iccprofile_size=%i\n", icc_profile_size);
   // printf("DEBUG: iccprofile='%s'\n", icc_profile);
-  char * p = icc_profile;
   /* DEBUG
+  char * p = icc_profile;
   int i=0;
   for (i = 0; i< icc_profile_size; i++, p++) {
     if (0 == i % 8) printf("|");
