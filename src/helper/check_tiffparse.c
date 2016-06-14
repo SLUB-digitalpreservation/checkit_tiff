@@ -620,11 +620,11 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
 
 /* scans first IDF and returns the type of the n-th tag */
 ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
-  int count = get_ifd0_count( ctif);
-  assert( count > 0);
+  int tagcount = get_ifd0_count( ctif);
+  assert( tagcount > 0);
   int byteswapped = is_byteswapped(ctif);
 #ifdef DEBUG
-  printf(" count of tags = %i\n", count);
+  printf(" count of tags = %i\n", tagcount);
 #endif
   // int fd = TIFFFileno( tif);
   thandle_t client = TIFFClientdata(ctif->tif);
@@ -645,7 +645,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   ifd_entry.value_or_offset = is_error;
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
-  ifdentries = malloc ( sizeof(uint8) * 12 * count);
+  ifdentries = malloc ( sizeof(uint8) * 12 * tagcount);
   /*
   if (read(fd, ifdentries, 12 * count) != 12*count) {
     perror ("TIFF Header read error4");
@@ -654,12 +654,12 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   */
   seekproc(client, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
 
-  if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
+  if ( readproc( client, ifdentries, 12 * tagcount) != 12*tagcount ) {
 	  perror ("TIFF Header read error4");
 	  exit( EXIT_FAILURE );
   }
   uint8 * e = ifdentries;
-  for (i = 0; i<count; i++) {
+  for (i = 0; i<tagcount; i++) {
     uint8 lo = *e;
     e++;
     uint8 hi = *e;

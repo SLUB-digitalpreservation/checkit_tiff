@@ -34,10 +34,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                       int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
-                          ret_t res;
-                          res.returnmsg=NULL;
-                          res.returncode=0;
-                          return res;
+                          ret_t tmp_res;
+                          tmp_res.returnmsg=NULL;
+                          tmp_res.returncode=0;
+                          return tmp_res;
 
                         } else {
                           return tif_fails_tag( tag, range2str(a, b), int2str(val) );
@@ -52,10 +52,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                       int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
-                          ret_t res;
-                          res.returnmsg=NULL;
-                          res.returncode=0;
-                          return res;
+                          ret_t tmp_res;
+                          tmp_res.returnmsg=NULL;
+                          tmp_res.returncode=0;
+                          return tmp_res;
 
                         } else {
                           return tif_fails_tag( tag, range2str(a, b), int2str(val) );
@@ -70,10 +70,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                       int found=TIFFGetField(ctif->tif, tag, &val);
                       if (1 == found) {
                         if ((val >= a && val <= b )) { 
-                          ret_t res;
-                          res.returnmsg=NULL;
-                          res.returncode=0;
-                          return res;
+                          ret_t tmp_res;
+                          tmp_res.returnmsg=NULL;
+                          tmp_res.returncode=0;
+                          return tmp_res;
 
                         } else {
                           // tif_fails("tag %u (%s) should have value in range %u - %u, but have count/value=%f\n", tag,TIFFTagName(tif, tag),  a, b, val);

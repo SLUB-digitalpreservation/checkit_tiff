@@ -177,7 +177,7 @@ int main (int argc, char * argv[]) {
 		  /* print all the files and directories within directory */
 		  while ((ent = readdir (dir)) != NULL) {
 			  struct stat attribute;
-			  int len = strlen( tiff_dir ) + strlen( ent->d_name ) + 2;
+			  len = strlen( tiff_dir ) + strlen( ent->d_name ) + 2;
 			  char fqname [ len ];
 			  snprintf( fqname, len, "%s/%s", tiff_dir, ent->d_name);
 			  if (stat( fqname, &attribute) == -1) {

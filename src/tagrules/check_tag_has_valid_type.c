@@ -90,10 +90,10 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     snprintf(array, sizeof(array), "with incorrect type: %i", datatype);
     return tif_returns( tag, "", array);
   } else {
-    ret_t res;
-    res.returnmsg=NULL;
-    res.returncode=0;
-    return res;
+    ret_t tmp_res;
+    tmp_res.returnmsg=NULL;
+    tmp_res.returncode=0;
+    return tmp_res;
   }
   /* we check only count, because we evaluate only int-values */
 }

@@ -20,9 +20,8 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
   tifp_check( ctif);
   char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has these %i-values: ", count);
-  int i;
   unsigned int * p = values;
-  for (i=0; i< count; i++) {
+  for (int i=0; i< count; i++) {
     if (0 < i) secstrcat (msg, ", ", EXPECTSTRLEN);
     secstrcat (msg, int2str(*p), EXPECTSTRLEN);
     p++;
@@ -31,9 +30,8 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
   ret_t res = check_tag_has_valid_type( ctif, tag);
  if (res.returncode == 0) {
 
-  int i;
   unsigned int v[count];
-  for (i=0; i< count; i++) {
+  for (int i=0; i< count; i++) {
     v[i] = *values;
     values++;
   }
@@ -45,14 +43,14 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
     snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
     return tif_fails_tag( tag, strdup(expected), strdup(value));
   }
-  ret_t res;
-  res.returncode=0;
-  res.returnmsg=NULL;
+  ret_t tmp_res;
+  tmp_res.returncode=0;
+  tmp_res.returnmsg=NULL;
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
                       /*  value */
                       if (ifd_entry.value_or_offset == is_value) {
-                        for (i=0; i< count; i++) {
+                        for (int i=0; i< count; i++) {
                           if (v[i] != ifd_entry.data32) {
                             char expected[EXPECTSTRLEN];
                             snprintf(expected, sizeof(expected), "at [%u]=%u", i, v[i]);
@@ -67,7 +65,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                       if (ifd_entry.value_or_offset == is_offset) {
                         offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
                         uint32 * p = offset.data32p;
-                        for (i=0; i< count; i++) {
+                        for (int i=0; i< count; i++) {
                           uint32 pval = *p;
                           if (is_byteswapped(ctif))
                             TIFFSwabLong(&pval);
@@ -85,13 +83,13 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                         }
                       }
 
-                      return res;
+                      return tmp_res;
                       break;
                     }
     case TIFF_SHORT: {
                        /*  value */
                        if (ifd_entry.value_or_offset == is_value) {
-                         for (i=0; i< count; i++) {
+                         for (int i=0; i< count; i++) {
                            int c = (v[i]) == (ifd_entry.data16[i]);
                            if (!c) {
                              char expected[EXPECTSTRLEN];
@@ -107,7 +105,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                        if (ifd_entry.value_or_offset == is_offset) {
                          offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
                          uint16 * p = offset.data16p;
-                         for (i=0; i< count; i++) {
+                         for (int i=0; i< count; i++) {
                            uint16 pval = *p;
                            if (is_byteswapped(ctif))
                              TIFFSwabShort(&pval);
@@ -126,7 +124,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                          }
                        }
 
-                       return res;
+                       return tmp_res;
                        break;
                      }
     default: /*  none */

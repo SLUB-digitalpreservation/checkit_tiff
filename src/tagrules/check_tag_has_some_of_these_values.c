@@ -35,13 +35,13 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
   switch (datatype) {
     case TIFF_LONG: { 
                       p = values;
-                      ret_t res;
+                      ret_t tmp_res;
                       for (i=0; i< count; i++) {
 #ifdef DEBUG
                         printf("### value = %u", *p);
 #endif
-                        res = check_tag_has_u32value(ctif, tag, *p);
-                        if (res.returncode == 0) return res;
+                        tmp_res = check_tag_has_u32value(ctif, tag, *p);
+                        if (tmp_res.returncode == 0) return tmp_res;
                         p++;
                       }
                       uint32 val;
@@ -51,13 +51,13 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                     }
     case TIFF_SHORT: {
                        p = values;
-                       ret_t res;
+                       ret_t tmp_res;
                        for (i=0; i< count; i++) {
 #ifdef DEBUG
                          printf("### value = %u", *p);
 #endif
-                         res = check_tag_has_u16value(ctif, tag, *p);
-                         if (res.returncode == 0) return res;
+                         tmp_res = check_tag_has_u16value(ctif, tag, *p);
+                         if (tmp_res.returncode == 0) return tmp_res;
                          p++;
                        }
                        uint16 val;
@@ -67,13 +67,13 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                      }
     case TIFF_RATIONAL: {
                           p = values;
-                          ret_t res;
+                          ret_t tmp_res;
                           for (i=0; i< count; i++) {
 #ifdef DEBUG
                             printf("### value = %u", *p);
 #endif
-                            res = check_tag_has_fvalue(ctif, tag, *p);
-                            if (res.returncode == 0) return res;
+                            tmp_res = check_tag_has_fvalue(ctif, tag, *p);
+                            if (tmp_res.returncode == 0) return tmp_res;
                             p++;
                           }
                           float val;
