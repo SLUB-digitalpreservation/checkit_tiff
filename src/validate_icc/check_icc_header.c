@@ -20,7 +20,12 @@ int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned l
   assert(errmessage != NULL);
   assert(errsize > 0);
   if (iccsize < 128) FAIL("Invalid ICC profile, minimum size is 128 byte");
-  unsigned long profilesize = ((iccdata[0] & 0x00ff) <<24) | ((iccdata[1] & 0x00ff) <<16) | ((iccdata[2] & 0x00ff) <<8) | (iccdata[3] & 0x00ff) & 0xffff;
+  unsigned long profilesize = (
+      ((iccdata[0] & 0x00ff) <<24) |
+      ((iccdata[1] & 0x00ff) <<16) |
+      ((iccdata[2] & 0x00ff) <<8) |
+      (iccdata[3] & 0x00ff)
+      ) & 0xffff;
   INFO("ICC: profilesize=%li %0x\n", profilesize, profilesize);
   if (profilesize != iccsize) FAIL("commited ICC size (%li) differs from encoded profilesize (%li)", iccsize, profilesize);
   /* -- */
