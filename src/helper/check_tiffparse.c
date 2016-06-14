@@ -781,8 +781,7 @@ printf("\ncount=%0x\n\n", count);
 /*  TODO */
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag) {
   int tagidx = -1;
-  int i;
-  for (i= 0; i < get_ifd0_count( ctif ); i++) {
+  for (int i= 0; i < get_ifd0_count( ctif ); i++) {
     if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
       tagidx= i;
       break;
@@ -820,8 +819,7 @@ if (tagidx >= 0) {
  */
 TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag) {
   int tagidx = -1;
-  int i;
-  for (i= 0; i < get_ifd0_count( ctif ); i++) {
+  for (int i= 0; i < get_ifd0_count( ctif ); i++) {
     if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
       tagidx= i;
       break;

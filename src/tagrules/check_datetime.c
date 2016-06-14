@@ -62,8 +62,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     int min=0;
     int sec=0;
     int r = 0;
-    int i;
-    for (i=0; i<count; i++) {
+    for (int i=0; i<count; i++) {
         if (datetime[i] == '\0') {
           r = i+1;
           break;

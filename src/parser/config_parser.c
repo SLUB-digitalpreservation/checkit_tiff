@@ -190,8 +190,7 @@ exitcall:    this_exe_p = this_exe_p->next;
    * forbidden all other tags */
   //printf("check if forbidden tags are still existing\n");
   tif_rules("forbidden tags are still existing");
-  int tag;
-  for (tag=MINTAGS; tag<MAXTAGS; tag++) {
+  for (int tag=MINTAGS; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
       ret_t res = check_notag( ctif, tag);
       if (0 != res.returncode) { /* check if tag is not part of tif */
@@ -665,8 +664,7 @@ void rule_addtag_config() {
   printf( "try to match tagline at line %i\n", getlineno());
 #endif
   char fname[MAXSTRLEN];
-  int i;
-  for (i= 0; i<MAXSTRLEN; i++) { fname[i]='\0'; }
+  for (int i= 0; i<MAXSTRLEN; i++) { fname[i]='\0'; }
   funcp f = NULL;
   f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {
@@ -693,9 +691,8 @@ void rule_addtag_config() {
                          fprintf (stderr, "could not alloc mem for rp\n");
                          exit(EXIT_FAILURE);
                        };
-                       int i;
                        unsigned int * rnp=rp;
-                       for (i=0; i<count_of_values; i++) {
+                       for (int i=0; i<count_of_values; i++) {
                          *(rnp) = i_pop();
                          rnp++;
                        }
@@ -716,10 +713,9 @@ void rule_addtag_config() {
                      fprintf (stderr, "could not alloc mem for rp\n");
                      exit(EXIT_FAILURE);
                    };
-                   int i;
                    unsigned int * rnp=rp;
                    rnp+=(count_of_values-1);
-                   for (i=0; i<count_of_values; i++) {
+                   for (int i=0; i<count_of_values; i++) {
                      *(rnp) = i_pop();
                      rnp--;
                    }
@@ -854,8 +850,7 @@ void reset_parser_state() {
   parser_state.i_stackp=0;
   parser_state.any_reference=0;
   parser_state.includedepth=0;
-  int i;
-  for (i=0; i<MAXTAGS; i++) {
+  for (int i=0; i<MAXTAGS; i++) {
         parser_state.called_tags[i]= 0;
   }
 }

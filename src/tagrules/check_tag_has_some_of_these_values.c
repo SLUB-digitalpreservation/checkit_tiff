@@ -19,9 +19,8 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
   char msg[EXPECTSTRLEN];
   char expected[EXPECTSTRLEN]="";
   snprintf(msg, sizeof(msg), "has some of these %i-values: ", count);
-  int i;
   unsigned int * p = values;
-  for (i=0; i< count; i++) {
+  for (int i=0; i< count; i++) {
     if( i>= 1) secstrcat (expected, ", ", EXPECTSTRLEN);
     secstrcat (expected, int2str(*p), EXPECTSTRLEN);
     p++;
@@ -36,7 +35,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
     case TIFF_LONG: { 
                       p = values;
                       ret_t tmp_res;
-                      for (i=0; i< count; i++) {
+                      for (int i=0; i< count; i++) {
 #ifdef DEBUG
                         printf("### value = %u", *p);
 #endif
@@ -52,7 +51,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
     case TIFF_SHORT: {
                        p = values;
                        ret_t tmp_res;
-                       for (i=0; i< count; i++) {
+                       for (int i=0; i< count; i++) {
 #ifdef DEBUG
                          printf("### value = %u", *p);
 #endif
@@ -68,7 +67,7 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
     case TIFF_RATIONAL: {
                           p = values;
                           ret_t tmp_res;
-                          for (i=0; i< count; i++) {
+                          for (int i=0; i< count; i++) {
 #ifdef DEBUG
                             printf("### value = %u", *p);
 #endif

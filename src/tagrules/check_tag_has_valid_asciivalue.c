@@ -28,8 +28,7 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
 
     int found=TIFFGetField(ctif->tif, tag, &string, &count);
     if (1==found) { /* there exists a tag */
-      int i;
-      for (i=0; i<count; i++) {
+      for (int i=0; i<count; i++) {
         if (string[i] == '\0') {
           r = i+1;
           break;
