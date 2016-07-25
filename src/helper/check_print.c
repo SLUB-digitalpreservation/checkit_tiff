@@ -119,7 +119,7 @@ ret_t tif_no_tag(tag_t tag) {
   // expected
   p++;
   p->rm_type=rm_expected;
-  p->rm_msg = "is_found";
+  p->rm_msg = "is found";
   // value
   p++;
   p->rm_type=rm_value;
