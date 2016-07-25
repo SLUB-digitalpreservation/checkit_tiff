@@ -194,6 +194,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34032 */ case TIFFTAG_IT8CMYKEQUIVALENT: return ("IT8CMYKEQUIVALENT");
     /* 34232 */ case TIFFTAG_FRAMECOUNT: return ("FRAMECOUNT");
     /* 34264 */ case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34310 */ case 34310: return ("Leaf MOS PKTS tag (Raw camera)"); /*  see http://fileformats.archiveteam.org/wiki/Leaf_MOS */
     /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
     /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
     /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
