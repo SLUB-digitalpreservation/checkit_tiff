@@ -12,7 +12,7 @@
 #include <tiff.h>
 #include <tiffio.h>
 
-typedef enum{ render_default, render_debug, render_ansi} render_type;
+typedef enum{ render_default, render_debug, render_ansi, render_xml} render_type;
 
 /* helper */
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value);
@@ -31,6 +31,7 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
 //int TIFFIsByteSwapped(TIFF * tif);
 const char * renderer ( const ret_t ret );
 void set_renderer_to_ansi();
+void set_renderer_to_xml();
 char * secstrcat (char * dest, const char * src, int maxsize);
 ctiff_t * initialize_ctif( const char * filename );
 void free_ctif( ctiff_t * ctif);

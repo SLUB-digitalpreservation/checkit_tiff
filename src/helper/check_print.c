@@ -5,7 +5,7 @@
  * (see http://libtiff.maptools.org/misc.html)
  *
  */
-
+#define DEBUG
 #define _GNU_SOURCE
 
 #include <string.h>
@@ -43,18 +43,14 @@ ret_t tif_fails(const char* fail_message) {
   res.returnmsg->rm_type=rm_hard_error;
   res.count = 1;
   res.returnmsg->rm_msg = str;
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  //printf( "%s", renderer( res) );
   return res;
 }
 
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value) {
   ret_t res = tif_returns( tag, expected, value);
    // call renderer
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  //printf( "%s", renderer( res) );
   return res;
 }
 
@@ -86,9 +82,7 @@ ret_t tif_rules_tag(tag_t tag, const char *msg) {
   p++;
   p->rm_type=rm_rule;
   p->rm_msg = strndup( msg, MAXSTRLEN);
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  // printf( "%s", renderer( res) );
   return res;
 }
 
@@ -124,10 +118,8 @@ ret_t tif_no_tag(tag_t tag) {
   p++;
   p->rm_type=rm_value;
   p->rm_msg = ", but is not whitelisted (or rule has no matched dependency)";
-  // 
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  
+  // printf( "%s", renderer( res) );
   return res;
 }
 
@@ -149,9 +141,7 @@ ret_t tif_rules(const char *msg) {
   p++;
   p->rm_type=rm_rule;
   p->rm_msg = strndup( msg, MAXSTRLEN);
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  //printf( "%s", renderer( res) );
   return res;
 }
 ret_t tif_files(const char *msg) {
@@ -172,9 +162,7 @@ ret_t tif_files(const char *msg) {
   p++;
   p->rm_type=rm_file;
   p->rm_msg = strndup( msg, MAXSTRLEN);
-  printf( "%s", renderer( res) );
-  // free (str);
-  // free (res.returnmsg);
+  // printf( "%s", renderer( res) );
   return res;
 }
 
@@ -239,8 +227,26 @@ ret_t tif_returns(tag_t tag, const char* expected, const char* value) {
 }
 
 ret_t tif_fails_by_returns( ret_t ret ) {
- printf( "%s", renderer( ret) );
+ // printf( "%s", renderer( ret) );
  return ret;
 }
 
+ret_t _empty_result() {
+  ret_t t;
+  t.returncode=0;
+  t.returnmsg=NULL;
+  t.count=1;
+  t.returnmsg = malloc( sizeof( retmsg_t) * t.count );
+  retmsg_t * p =  t.returnmsg;
+  if  (NULL==t.returnmsg) {
+    fprintf(stderr, "could not allocate memory for _empty_result\n");
+    exit(EXIT_FAILURE);
+  };
+
+  // header
+  p->rm_type=rm_default;
+  p->rm_msg = "ok";
+
+  return t;
+}
 

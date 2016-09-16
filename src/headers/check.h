@@ -24,9 +24,11 @@ typedef struct ctiff_s {
 	/* TODO: add file size */
 } ctiff_t;
 
+typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error } rm_type_t;
 typedef struct retmsg_s {
-  enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning } rm_type;
+  rm_type_t rm_type;
   char * rm_msg;
+
 } retmsg_t;
 
 typedef struct ret_s {
@@ -72,7 +74,7 @@ typedef uint16 tag_t;
 #define EXPECTSTRLEN 160
 #define VALUESTRLEN 160
 #define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
-
+#define MAXRESULT 200000
 void tifp_check( ctiff_t * ctif);
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value);
@@ -82,6 +84,8 @@ ret_t tif_rules_tag(tag_t tag, const char *msg);
 ret_t tif_rules(const char *msg);
 ret_t tif_files(const char *msg);
 ret_t tif_no_tag(tag_t tag);
+
+ret_t _empty_result();
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);

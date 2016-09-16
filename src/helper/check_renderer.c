@@ -67,6 +67,9 @@ void set_renderer_to_ansi() {
     render_engine=render_ansi;
   }
 }
+void set_renderer_to_xml() {
+    render_engine=render_xml;
+}
 
 const char * renderer_debug ( ret_t ret ) {
   char res[1024] = "";
@@ -137,7 +140,8 @@ const char * renderer_ansi ( ret_t ret ) {
           case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
           case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
           case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
+          case rm_warning:    secstrcat( res, ANSI_GREY   , 1024); break;
+          case rm_logicalor_error:    secstrcat( res, ANSI_YELLOW   , 1024); break;
           case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, 1024); break;
           default:            secstrcat( res, ANSI_NORMAL   , 1024);
         }
@@ -152,13 +156,60 @@ const char * renderer_ansi ( ret_t ret ) {
   secstrcat(res, "\n", 1024);
   return strdup( res );
 }
+const char * renderer_xml ( ret_t ret ) {
+  char res[1024] = "<checkit_tiff_result>";
+  if (0 == ret.returncode) {
+    secstrcat( res, "<is_valid>true</is_valid>", 1024  );
+  } else {
+    secstrcat( res, "<is_valid>false</is_valid>", 1024  );
+  }
+  retmsg_t * startp = ret.returnmsg;
+  int c = 0;
+  while (NULL != startp && c < ret.count) {
+        switch (startp->rm_type) {
+          case rm_rule:       secstrcat( res, "<rule>"   , 1024); break;
+          case rm_tag:        secstrcat( res, "<tag>"     , 1024); break;
+          case rm_value:      secstrcat( res, "<value>"     , 1024); break;
+          case rm_expected:   secstrcat( res, "<expected>"      , 1024); break;
+          case rm_hard_error: secstrcat( res, "<harderror>" , 1024); break;
+          case rm_error:      secstrcat( res, "<error>"     , 1024); break;
+          case rm_warning:    secstrcat( res, "<warn>"   , 1024); break;
+          case rm_logicalor_error:    secstrcat( res, "<partial_logical_or_error>"   , 1024); break;
+          case rm_file:       secstrcat( res, "<file>", 1024); break;
+          default:            secstrcat( res, ""   , 1024);
+        }
+	/* FIXME: replace all occurrences of a space, backslash, caret,  or
+       any control character anywhere in the string, as well as a hash mark as
+       the first character. */
+        secstrcat(res, startp->rm_msg, 1024);
+ switch (startp->rm_type) {
+          case rm_rule:       secstrcat( res, "</rule>"   , 1024); break;
+          case rm_tag:        secstrcat( res, "</tag>"     , 1024); break;
+          case rm_value:      secstrcat( res, "</value>"     , 1024); break;
+          case rm_expected:   secstrcat( res, "</expected>"      , 1024); break;
+          case rm_hard_error: secstrcat( res, "</harderror>" , 1024); break;
+          case rm_error:      secstrcat( res, "</error>"     , 1024); break;
+          case rm_warning:    secstrcat( res, "</warn>"   , 1024); break;
+          case rm_logicalor_error:    secstrcat( res, "</partial_logical_or_error>"   , 1024); break;
+          case rm_file:       secstrcat( res, "</file>", 1024); break;
+          default:            secstrcat( res, ""   , 1024);
+        }
+
+        startp++;
+        c++;
+  }
+  secstrcat(res, "</checkit_tiff_result>", 1024);
+  secstrcat(res, "\n", 1024);
+  return strdup( res );
+}
 
 const char * renderer ( ret_t ret ) {
   // call debug renderer
   switch (render_engine) {
-        case render_ansi: return renderer_ansi( ret );
-        case render_debug: return renderer_debug( ret );
-        default: return renderer_default( ret );
+    case render_xml: return renderer_xml( ret );
+    case render_ansi: return renderer_ansi( ret );
+    case render_debug: return renderer_debug( ret );
+    default: return renderer_default( ret );
   }
   return "";
 }
