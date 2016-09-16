@@ -1,54 +1,63 @@
 About general function
 ======================
 
-The checkit-tool validates a TIFF-file against a set of rules (see below). The
-set of rules works as a whitelist. This means that if a tag in the TIFF file is
-not explicitely checked by rules (independently if successfully or not) the tag
-is not allowed. In cases where a rule is executed only if a predicate is set,
-the tag is only allowed if the predicate succeeded.
+The checkit-tool validates TIFF-files against a set of rules (see below). The
+set of rules works as a whitelist. This means that TIFF tags that are used in
+the file but not explicitely checked by a specific rule (not considering if
+successful or not) are not allowed. In cases where a rule is executed only
+if a predicate is set, the tag is only allowed if the predicate check succeeded.
 
 
 Developers
 ==========
-to configure the grammar you could use the PEG-extension for gvim from https://github.com/gf3/peg.vim
+to configure the grammar you could use the PEG-extension for gvim from
+https://github.com/gf3/peg.vim
 
 Users
 =====
-to define your own config-file to check TIFFs, please use this simplified
+To define your own config-file for checking TIFFs, please use this simplified
 syntax:
 
 
-* each line is either a modeline, a include line, a tagline, a comment or empty
-* a modeline uses "mode(MODE)", MODE could be:
+* Each line is either a "modeline", an "include" line, a "tag" line, a comment or empty
+* TODO: a modeline uses "mode(MODE)", MODE could be:
 ** "baseline", if no modeline is defined, it defaults to "mode(baseline)", too
 ** "extended"
-* to include a configfile, use this command: "include(FILENAME)" where FILENAME is a correct path
-* a comment starts with # first
-* a tagline is built via "TAG ; REQUIREMENTS ; VALUES", where
-* a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF definition)
-* REQUIREMENTS could be 
+* To include a configfile, use "include(FILENAME)", where FILENAME is a correct path
+* Comments starts with '# '. They are only allowed to start right at the beginning of a new line.
+* A tagline is built as "TAG; REQUIREMENTS; VALUES", where
+* a TAG is an increasing number similar to TIFF-Tag numbers (see TIFF specification)
+* REQUIREMENTS could be
 ** 'mandatory' - a tag must exist in TIFF
-** 'optional' - a tag could exist in TIFF, if so it will be checked 
-** 'depends(REFERENCE)' - a tag must exist in TIFF if reference exists 
-** 'optdepends(REFERENCE)' - a tag could exists in TIFF if reference exists. If it exists it will be checked 
-* REFERENCE will be TAGREFERENCE.VALUEREFERENCE
-** TAGREFERENCE points to a tag number which must be exists,
-** VALUEREFERENCE could be 'any' or a decimal value or a string enclosed in '"'
+** 'optional' - a tag may exist in TIFF, if it does, it will be checked
+** 'depends(REFERENCE)' - a tag must exist in TIFF if reference exists
+** 'optdepends(REFERENCE)' - a tag may exists in TIFF if reference exists. If it exists it will be checked
+* The syntax for a REFERENCE is TAGREFERENCE.VALUEREFERENCE
+** TAGREFERENCE points to a tag number which must be exist,
+** VALUEREFERENCE can be one of:
+*** 'any' (which means any match) or
+*** a decimal value or
+*** 'greater_than(VALUE)', where VALUE is a decimal value or
+*** 'less_than(VALUE)', where VALUE is a decimal value or
+*** 'regex("REGEX")', where REGEX is a Perl compatible regular expression (PCRE) with escaped '"' and '\'. It only works with tags of type ascii
 ** only if REFERENCE exists in TIFF the REQUIREMENTS rule will be checked
-* VALUES could be one of these:
-** 'range(START, END)' where START and END are decimal values
-** 'logical_or( VALUELIST)' where VALUELIST are comma-separated decimale values
-** 'any' which means any match
-** 'only(VALUE)' where VALUE is a decimal value or a string enclosed in ""
-** 'regex("REGEX")' where REGEX is a PCRE-regular expression with escaped '"' and '\', it only works with tags of type ascii
+** The REQUIREMENTS rule will only be checked if REFERENCE exists in the TIF
+file.
+* VALUES can be one of:
+** 'range(START, END)', where START and END are decimal values
+** 'logical_or( VALUELIST)', where VALUELIST are comma-separated decimale values or ntupels
+** 'any', which means any match
+** 'only(VALUE)', where VALUE is a decimal value
+** 'ntupel(VALUE, ..), decimal values as n-tupel enclosed in brackets
+** 'regex("REGEX")', where REGEX is a Perl compatible regular expression (PCRE) with escaped '"' and '\', it only works with tags of type ascii
 * each tagline or comment must be closed with a new line
 
-If multiple rules defined per tag, they will be combined alternatively.
+If multiple rules are defined per tag, they will be combined.
 
-For examples check the 'example_configs/' - directory.
+For examples, please check the 'example_configs/' - directory.
 
 Values
 ======
 
 At the moment, the parser only supports a limited type of values. To make
-handling easier, it uses only the value/offset part of an IFD entry
+handling easier, it uses only the value/offset part of an IFD entry.
