@@ -13,6 +13,11 @@ Developers
 to configure the grammar you could use the PEG-extension for gvim from
 https://github.com/gf3/peg.vim
 
+To visualize the grammar, checkout this tools:
+* http://bottlecaps.de/convert/
+* http://bottlecaps.de/rr/ui
+The actual grammar is visualized in grammar.xhtml
+
 Users
 =====
 To define your own config-file for checking TIFFs, please use this simplified
