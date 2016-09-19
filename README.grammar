@@ -37,9 +37,11 @@ syntax:
 ** VALUEREFERENCE can be one of:
 *** 'any' (which means any match) or
 *** a decimal value or
-*** 'greater_than(VALUE)', where VALUE is a decimal value or
-*** 'less_than(VALUE)', where VALUE is a decimal value or
-*** 'regex("REGEX")', where REGEX is a Perl compatible regular expression (PCRE) with escaped '"' and '\'. It only works with tags of type ascii
+*** 'range(START, END)', where START and END are decimal values
+*** 'any', which means any match
+*** 'only(VALUE)', where VALUE is a decimal value
+*** 'ntupel(VALUE, ..), decimal values as n-tupel enclosed in brackets
+*** 'regex("REGEX")', where REGEX is a Perl compatible regular expression (PCRE) with escaped '"' and '\', it only works with tags of type ascii
 ** only if REFERENCE exists in TIFF the REQUIREMENTS rule will be checked
 ** The REQUIREMENTS rule will only be checked if REFERENCE exists in the TIF
 file.
