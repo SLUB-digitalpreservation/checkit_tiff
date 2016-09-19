@@ -16,6 +16,7 @@
 #include "check_helper.h"
 #include <pcre.h>
 #define YY_CTX_LOCAL
+
 /*
 #define EXE_DEBUG 1
 #define RULE_DEBUG 1
@@ -245,10 +246,26 @@ unsigned int exe_i_pop(internal_entry_t * ep) {
 }
 /* stack function for parser */
 internal_entry_t exe_regex_push (internal_entry_t * ep, const char * s) {
-  PUSH( ep, regex, s)
+#ifdef EXE_DEBUG
+  printf("-------------------\n");
+  printf("\tpush REGEX='%s'\n", s);
+  printf("-------------------\n");
+#endif
+  PUSH( ep, regex, strdup(s))
+#ifdef EXE_DEBUG
+  printf("\ton top='%s'\n", ep->regex_stack[ (ep->regex_stackp)-1 ]);
+#endif
 }
 const char * exe_regex_pop(internal_entry_t * ep) {
-  const char * s; POP( ep, regex, s); return s;
+  const char * s; 
+  POP( ep, regex, s);
+#ifdef EXE_DEBUG
+  printf("-------------------\n");
+  printf("\tpop REGEX='%s'\n", s);
+  printf("-------------------\n");
+  printf("\ton top='%s'\n", ep->regex_stack[ (ep->regex_stackp) ]);
+#endif
+  return s;
 }
 
 
