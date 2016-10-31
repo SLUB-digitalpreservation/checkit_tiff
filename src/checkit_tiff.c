@@ -60,7 +60,7 @@ void simplified_result_push(ret_t res, function_t func) {
 int analyze( const char * tiff_file, int use_memmapped) {
   tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file );
-  uint32 ifd = get_ifd0_pos( ctif );
+  
   scan_mem_map(ctif);
   return 0;
 }
