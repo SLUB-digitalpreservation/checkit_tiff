@@ -57,6 +57,14 @@ void simplified_result_push(ret_t res, function_t func) {
         result_push( full );
 }
 
+int analyze( const char * tiff_file, int use_memmapped) {
+  tif_files(tiff_file);
+  ctiff_t * ctif = initialize_ctif( tiff_file );
+  uint32 ifd = get_ifd0_pos( ctif );
+  scan_mem_map(ctif);
+  return 0;
+}
+
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   // printf("tiff file=%s\n", tiff_file);
   tif_files(tiff_file);
@@ -116,7 +124,8 @@ int main (int argc, char * argv[]) {
   int c;
   int flag_check_directory=UNFLAGGED;
   int flag_use_memorymapped_io=UNFLAGGED;
-  while ((c = getopt (argc, argv, "chmdx")) != -1) {
+  int flag_analyze=UNFLAGGED;
+  while ((c = getopt (argc, argv, "achmdx")) != -1) {
     switch (c)
     {
       case 'h': /* help */
@@ -150,6 +159,9 @@ int main (int argc, char * argv[]) {
              return (-1);
            }
            break;
+      case 'a':
+	   flag_analyze=FLAGGED;
+	   break;
       default:
            abort();
     }
@@ -217,9 +229,16 @@ int main (int argc, char * argv[]) {
     }
   } else {
     /* use tiff_file_or_dir */
+	 if (flag_analyze == FLAGGED) {
+		  tif_files(tiff_file_or_dir);
+		  ctiff_t * ctif = initialize_ctif( tiff_file_or_dir );
+
+		  analyze( tiff_file_or_dir,flag_use_memorymapped_io);
+    } else {
     parse_plan_via_file(cfg_file);
     is_valid = check_specific_tiff_file( tiff_file_or_dir, flag_use_memorymapped_io);
     clean_plan();
+    }
   }
   if (0 == is_valid) {
     exit(EXIT_SUCCESS);

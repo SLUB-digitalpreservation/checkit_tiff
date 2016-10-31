@@ -10,6 +10,7 @@ file( GLOB checkit_tiff_SOURCES
   "${PROJECT_SOURCE_DIR}/helper/*.c"
   "${PROJECT_SOURCE_DIR}/parser/*parser.c"
   "${PROJECT_SOURCE_DIR}/validate_icc/*.c"
+  "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
   )
 #
 # Make a version file containing the current version from git.

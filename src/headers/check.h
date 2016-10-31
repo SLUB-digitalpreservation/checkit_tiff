@@ -70,6 +70,30 @@ typedef struct offset_s {
 
 typedef uint16 tag_t;
 
+typedef enum {
+	unused, /* memory areas, which are not referenced within TIFF file */
+	constant, /* constant values, which are fix part of TIFF file */
+	ifd, /* memory areas, which are parts of the IFD (but no value!) */
+	ifd_offset, /* offset to nex ifd */
+	ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
+	ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
+	ifd_embedded_private_value, /* memory areas, with private values embedded in ifd */
+	ifd_offset_to_standardized_value, /* memory areas, which points to standardized values */
+	ifd_offset_to_registered_value, /* memory areas, which points to registered values */
+	ifd_offset_to_private_value, /* memory areas, which points to private values */
+	standardized_value, /* memory areas, which contains standardized values */
+	registered_value, /* memory areas, which contains registered values */
+	private_value, /* memory areas, which contains private values */
+} memtype_t;
+
+typedef struct mem_map_s {
+	uint32 offset; /* adress within the tiff */
+	uint32 count; /* count of bytes beginning with offset */
+	memtype_t mem_type; /* type of memory */
+} mem_map_t;
+	
+
+
 #define MAXSTRLEN 1024
 #define EXPECTSTRLEN 160
 #define VALUESTRLEN 160
@@ -111,5 +135,8 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char* 
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif);
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif);
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
+
+
+mem_map_t * scan_mem_map(ctiff_t * ctif) ;
 #endif
 /* _FIXIT_TIFF_CHECK */
