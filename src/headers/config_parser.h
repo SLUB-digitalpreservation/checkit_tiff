@@ -107,8 +107,8 @@ void print_plan ();
 int print_plan_results ();
 void clean_plan ();
 void parse_plan ();
-void parse_plan_via_stream (FILE * stream);
-void parse_plan_via_file (const char * filename);
+void parse_plan_via_stream (FILE * file);
+void parse_plan_via_file (const char * cfg_file);
 void add_default_rules_to_plan();
 void set_include( const char * );
 
