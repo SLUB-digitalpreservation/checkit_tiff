@@ -245,7 +245,7 @@ unsigned int exe_i_pop(internal_entry_t * ep) {
   unsigned int i; POP( ep, i, i); return i;
 }
 /* stack function for parser */
-internal_entry_t exe_regex_push (internal_entry_t * ep, const char * s) {
+internal_entry_t * exe_regex_push (internal_entry_t * ep, const char * s) {
 #ifdef EXE_DEBUG
   printf("-------------------\n");
   printf("\tpush REGEX='%s'\n", s);
@@ -255,6 +255,7 @@ internal_entry_t exe_regex_push (internal_entry_t * ep, const char * s) {
 #ifdef EXE_DEBUG
   printf("\ton top='%s'\n", ep->regex_stack[ (ep->regex_stackp)-1 ]);
 #endif
+  return ep;
 }
 const char * exe_regex_pop(internal_entry_t * ep) {
   const char * s; 

@@ -18,11 +18,16 @@
 ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
   //printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
   tifp_check( ctif);
+  if (count < 0) {
+	  perror ("count should be positive!");
+	  exit( EXIT_FAILURE );
+  }
   char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has these %i-values: ", count);
   unsigned int * p = values;
   for (int i=0; i< count; i++) {
-    if (0 < i) secstrcat (msg, ", ", EXPECTSTRLEN);
+    if (0 < i) { secstrcat (msg, ", ", EXPECTSTRLEN);
+}
     secstrcat (msg, int2str(*p), EXPECTSTRLEN);
     p++;
   }
@@ -67,8 +72,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                         uint32 * p = offset.data32p;
                         for (int i=0; i< count; i++) {
                           uint32 pval = *p;
-                          if (is_byteswapped(ctif))
+                          if (is_byteswapped(ctif)) {
                             TIFFSwabLong(&pval);
+}
 #ifdef DEBUG
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
@@ -107,8 +113,9 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                          uint16 * p = offset.data16p;
                          for (int i=0; i< count; i++) {
                            uint16 pval = *p;
-                           if (is_byteswapped(ctif))
+                           if (is_byteswapped(ctif)) {
                              TIFFSwabShort(&pval);
+}
 #ifdef DEBUG
                            printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif

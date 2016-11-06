@@ -34,4 +34,12 @@ make
 # cmake ../src/ -DCMAKE_C_FLAGS="-Og -g -fsanitize=address -fno-omit-frame-pointer"
 # make
 # ASAN_OPTIONS=detect_leaks=1 ./checkit_tiff ...
-
+#
+#
+########################################################
+# example CLANG-TIDY
+########################################################
+# cmake ../src/ -DCMAKE_C_CLANG_TIDY:STRING="clang-tidy;-checks=-*,readability-*" -DCMAKE_EXPORT_COMPILE_COMMANDS=On -DCMAKE_C_COMPILER=/usr/bin/clang-3.8 -DCMAKE_C_FLAGS="-O0 -g -fsanitize=address -fno-omit-frame-pointer"
+# make
+# run-clang-tidy-3.8.py -clang-tidy-binary /usr/bin/clang-tidy-3.8
+#

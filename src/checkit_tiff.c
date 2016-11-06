@@ -60,10 +60,10 @@ void simplified_result_push(ret_t res, function_t func) {
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   // printf("tiff file=%s\n", tiff_file);
-  tif_files(tiff_file);
+  ret_t res = _empty_result();
+  res = tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file );
   int is_valid = 0;
-  ret_t res = _empty_result();
   /* special checks */
   res = check_all_IFDs_are_word_aligned( ctif);
   if (0 != res.returncode) is_valid++;
