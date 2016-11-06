@@ -64,8 +64,9 @@ ret_t check_icc(ctiff_t * ctif ) {
   unsigned long errsize = ERRSIZE;
   int ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
   if (0 != ret) {
-    return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to valid ICC profile", strdup(errmessage));
+    return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to valid ICC profile", errmessage);
   }
+  free (errmessage);
   ret_t res;
   res.returnmsg=NULL;
   res.returncode=0;
