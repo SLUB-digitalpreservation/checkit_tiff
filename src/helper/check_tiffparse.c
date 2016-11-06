@@ -342,13 +342,14 @@ const char * TIFFTagName( tag_t tag ) {
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
 {
-  float val;
+  float val=0.0f;
   int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( fabs(val - value) < 0.01 ) {
       ret_t res;
       res.returnmsg=NULL;
       res.returncode=0;
+      res.count=0;
       return res;
     } else {
       return tif_returns( tag, float2str(value), float2str(val));
@@ -357,7 +358,11 @@ ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
   } else {
     // FIXME: tif_fails?
     char array[EXPECTSTRLEN];
-    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    if (written <0) {
+	    perror ("could not write string in buffer");
+	    exit( EXIT_FAILURE );
+    }
     return tif_fails(array);
   }
 }
@@ -365,13 +370,14 @@ ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
 {
-  uint16 val;
+  uint16 val=0;
   int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( val == value ) {
       ret_t res;
       res.returnmsg=NULL;
       res.returncode=0;
+      res.count = 0;
       return res;
     } else {
       return tif_returns( tag, int2str(value), int2str(val));
@@ -380,7 +386,11 @@ ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
   } else {
     // FIXME: tif_fails?
     char array[EXPECTSTRLEN];
-    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    if (written <0) {
+	    perror ("could not write string in buffer");
+	    exit( EXIT_FAILURE );
+    }
     return tif_fails(array);
   }
 }
@@ -389,13 +399,14 @@ ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
 {
-  uint32 val;
+  uint32 val=0;
   int found=TIFFGetField(ctif->tif, tag, &val);
   if (1 == found) {
     if ( val == value )  {
       ret_t res;
       res.returnmsg=NULL;
       res.returncode=0;
+      res.count = 0;
       return res;
     } else {
       return tif_returns( tag, int2str(value), int2str(val));
@@ -404,7 +415,11 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
   } else {
     // FIXME: tif_fails?
     char array[EXPECTSTRLEN];
-    snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
+    if (written <0) {
+	    perror ("could not write string in buffer");
+	    exit( EXIT_FAILURE );
+    }
     return tif_fails(array);
   }
 }
@@ -416,15 +431,20 @@ int parse_header_and_endianess(ctiff_t * ctif) {
   TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
   if (! seekproc) {
 	  perror ("could not get TIFFGetSeekProc");
+	  exit (EXIT_FAILURE);
   }
   if (! readproc) {
 	perror ("could not get TIFFGetReadProc");
+	exit (EXIT_FAILURE);
   }
 
    /* seek the image file directory (bytes 4-7) */
 
   //lseek(fd, (off_t) 0, SEEK_SET);
-  seekproc(client, 0, SEEK_SET);
+  if ( seekproc(client, 0, SEEK_SET) != 0)  {
+	  perror ("TIFF header seek error");
+	  exit( EXIT_FAILURE );
+  }
   uint16 header;
   uint16 magic;
   int ret;
@@ -487,7 +507,10 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 		perror ("could not get TIFFGetReadProc");
 	}
 	/*lseek(fd, (off_t) 4, SEEK_SET); */
-	seekproc(client, 4, SEEK_SET);
+	if (seekproc(client, 4, SEEK_SET) != 4 ) {
+		perror ("TIFF Header seak error");
+		exit (EXIT_FAILURE);
+	}
 	uint32 offset;
 	/*if (read(fd, &offset, 4) != 4) {
 	  perror ("TIFF Header read error");
