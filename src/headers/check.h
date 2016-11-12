@@ -71,20 +71,38 @@ typedef struct offset_s {
 typedef uint16 tag_t;
 
 typedef enum {
-	unused, /* memory areas, which are not referenced within TIFF file */
-	constant, /* constant values, which are fix part of TIFF file */
-	ifd, /* memory areas, which are parts of the IFD (but no value!) */
-	ifd_offset, /* offset to nex ifd */
-	ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
-	ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
-	ifd_embedded_private_value, /* memory areas, with private values embedded in ifd */
-	ifd_offset_to_standardized_value, /* memory areas, which points to standardized values */
-	ifd_offset_to_registered_value, /* memory areas, which points to registered values */
-	ifd_offset_to_private_value, /* memory areas, which points to private values */
-	standardized_value, /* memory areas, which contains standardized values */
-	registered_value, /* memory areas, which contains registered values */
-	private_value, /* memory areas, which contains private values */
+	mt_unused, /* memory areas, which are not referenced within TIFF file */
+	mt_constant, /* constant values, which are fix part of TIFF file */
+	mt_ifd, /* memory areas, which are parts of the IFD (but no value!) */
+	mt_ifd_offset, /* offset to nex ifd */
+	mt_ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
+	mt_ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
+	mt_ifd_embedded_private_value, /* memory areas, with private values embedded in ifd */
+	mt_ifd_offset_to_standardized_value, /* memory areas, which points to standardized values */
+	mt_ifd_offset_to_registered_value, /* memory areas, which points to registered values */
+	mt_ifd_offset_to_private_value, /* memory areas, which points to private values */
+	mt_standardized_value, /* memory areas, which contains standardized values */
+	mt_registered_value, /* memory areas, which contains registered values */
+	mt_private_value, /* memory areas, which contains private values */
+	mt_END_marker
 } memtype_t;
+
+static const char* memtype_string[] = {
+	"unused", /* memory areas", which are not referenced within TIFF file */
+	"constant", /* constant values", which are fix part of TIFF file */
+	"ifd", /* memory areas", which are parts of the IFD (but no value!) */
+	"ifd_offset", /* offset to nex ifd */
+	"ifd_embedded_standardized_value", /* memory areas", with standardized values embedded in ifd */
+	"ifd_embedded_registered_value", /* memory areas", with registered values embedded in ifd */
+	"ifd_embedded_private_value", /* memory areas", with private values embedded in ifd */
+	"ifd_offset_to_standardized_value", /* memory areas", which points to standardized values */
+	"ifd_offset_to_registered_value", /* memory areas", which points to registered values */
+	"ifd_offset_to_private_value", /* memory areas", which points to private values */
+	"standardized_value", /* memory areas", which contains standardized values */
+	"registered_value", /* memory areas", which contains registered values */
+	"private_value", /* memory areas", which contains private values */
+
+};
 
 typedef struct mem_map_entry_s {
 	uint32 offset; /* adress within the tiff */
@@ -144,5 +162,6 @@ ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
 
 
 mem_map_t * scan_mem_map(ctiff_t * ctif) ;
+void print_mem_map( mem_map_t * memmap_p);
 #endif
 /* _FIXIT_TIFF_CHECK */
