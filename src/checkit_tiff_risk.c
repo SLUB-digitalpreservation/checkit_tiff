@@ -17,7 +17,9 @@ int main(int argc, char * argv[]) {
 	const char *tiff_file=argv[1];
 	tif_files(tiff_file);
 	ctiff_t * ctif = initialize_ctif( tiff_file );
-	scan_mem_map(ctif);
+	mem_map_t * memmap_p = scan_mem_map(ctif);
+	print_mem_map ( memmap_p );
+	print_mem_stats( memmap_p );
 	return 0;
 }
 

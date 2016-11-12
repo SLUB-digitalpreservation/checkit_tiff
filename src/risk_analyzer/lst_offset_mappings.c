@@ -18,6 +18,7 @@ void add_mem_entry(mem_map_t * memmap_p, uint32 offset, uint32 count, memtype_t 
   assert(0 < memmap.max_entries);
   assert(count < memmap.max_entries);
   assert(offset + count <= memmap.max_len);
+  assert(type < mt_END_marker);
   mem_map_entry_t * memmap_it_p = memmap.base_p;
   memmap_it_p = memmap.base_p + memmap.count;
   memmap_it_p->offset=offset;
@@ -38,7 +39,7 @@ int compare_memmap(void const * lhs, void const * rhs) {
 
 mem_map_t * scan_mem_map(ctiff_t * ctif) {
   assert( NULL != ctif);
-  mem_map_t memmap;
+  static mem_map_t memmap;
   memmap.count = 0;
   memmap.base_p = NULL;
   memmap.max_entries = 128;
@@ -48,23 +49,22 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   }
   /* size of tiff file in bytes */
   memmap.max_len = ctif->streamlen;
-  printf("size of file is %lu bytes\n", memmap.max_len);
   /* header */
-  add_mem_entry( &memmap, 0, 4, constant);
+  add_mem_entry( &memmap, 0, 4, mt_constant);
   /* IFD0 Offset */
-  add_mem_entry( &memmap, 4, 4, ifd_offset);
+  add_mem_entry( &memmap, 4, 4, mt_ifd_offset);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
   uint32 count = get_ifd0_count( ctif);
 
-  add_mem_entry( &memmap, 8, 2, ifd); /* count of tags in ifd */
+  add_mem_entry( &memmap, 8, 2, mt_ifd); /* count of tags in ifd */
   int ifdbase=8+2;
   /* iterate through IFD0 entries */
   int tagidx;
   
 
   for (tagidx = 0; tagidx< count; tagidx++) {
-	  add_mem_entry( &memmap, ifdbase+(tagidx*12), 8, ifd); /* tagid, field type, count */
+	  add_mem_entry( &memmap, ifdbase+(tagidx*12), 8, mt_ifd); /* tagid, field type, count */
 	  ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
 	  uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
 	  TIFFDataType datatype = TIFFGetRawTagType( ctif, tag);
@@ -90,22 +90,22 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 
 
 		  if (tag < 32768) { /* standard tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_offset_to_standardized_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, standardized_value );
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_standardized_value ); 
+			  add_mem_entry( &memmap, offset, count*datasize, mt_standardized_value );
 		  } else if (tag < 65000) { /* registered tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_offset_to_registered_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, registered_value );
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_registered_value ); 
+			  add_mem_entry( &memmap, offset, count*datasize, mt_registered_value );
 		  } else { /* private tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_offset_to_private_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, private_value );
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_private_value ); 
+			  add_mem_entry( &memmap, offset, count*datasize, mt_private_value );
 		  }
 	  } else if (ifd_entry.value_or_offset==is_value) { /* embedded value */
 		  if (tag < 32768) { /* standard tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_embedded_standardized_value ); 
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_embedded_standardized_value ); 
 		  } else if (tag < 65000) { /* registered tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_embedded_registered_value ); 
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_embedded_registered_value ); 
 		  } else { /* private tag */
-			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,ifd_embedded_private_value ); 
+			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_embedded_private_value ); 
 		  }
 
 	  }
@@ -113,22 +113,41 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   /* check next IFD mark */
   uint32 offset = get_ifd0_pos(ctif );
   uint32 IFDn = get_next_ifd_pos( ctif, offset );
-  add_mem_entry( &memmap, offset, 4, ifd_offset);
+  add_mem_entry( &memmap, offset, 4, mt_ifd_offset);
 
-  /* TODO */
-  int j=0;
-  for (j=0; j< memmap.count; j++) {
-	  mem_map_entry_t * i=memmap.base_p+j;
-	  printf ("j=%i, offset=%i count=%i, (end=%i) type=%i\n", j, i->offset, i->count, (i->offset + i->count), i->mem_type);
-  }
-  printf("%i entries\n", memmap.count);
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
+  return &memmap;
+}
 
-  printf("---------------------------\n");
-  /* TODO */
-  for (j=0; j< memmap.count; j++) {
-	  mem_map_entry_t * i=memmap.base_p+j;
-	  printf ("j=%i,offset=%i count=%i, (end=%i) type=%i\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type);
-  }
+
+
+void print_mem_map( mem_map_t * memmap_p ) {
+	assert(NULL != memmap_p);
+	mem_map_t memmap = *( memmap_p );
+	printf("size of file is %u bytes\n", memmap.max_len);
+	for (int j=0; j< memmap.count; j++) {
+		mem_map_entry_t * i=memmap.base_p+j;
+		printf ("j=%03i,offset=%06i count=%06i, (end=%06i) [%02i] type=%s\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type, memtype_string[i->mem_type]);
+	}
+}
+
+void print_mem_stats( mem_map_t * memmap_p) {
+	uint32 size = memmap_p->max_len;
+	uint32 stat[ mt_END_marker ];
+	uint32 counted=0;
+	for (int i=0; i< mt_END_marker; i++) {
+		stat[i]=0;
+	}
+
+	for (int j=0; j< memmap_p->count; j++) {
+		mem_map_entry_t * i=memmap_p->base_p+j;
+		stat[i->mem_type]+= i->count;
+		counted+=i->count;
+	}
+	for (int i=0; i<mt_END_marker; i++) {
+		float ratio = ((float) (stat[i])) / ((float) size);
+		printf("[%02i] type=%32s bytes=%6i ratio=%0.3f\n", i, memtype_string[i], stat[i], ratio);
+	}
+	printf("counted: %i bytes, size: %i bytes\n", counted, size);
 }
