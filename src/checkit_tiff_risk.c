@@ -7,7 +7,7 @@
  */
 
 #include "check.h"
-
+#include "check_helper.h"
 /* *********** main ************* */
 int main(int argc, char * argv[]) {
 	if (argc != 2) {

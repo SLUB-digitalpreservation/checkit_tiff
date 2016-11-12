@@ -86,12 +86,18 @@ typedef enum {
 	private_value, /* memory areas, which contains private values */
 } memtype_t;
 
-typedef struct mem_map_s {
+typedef struct mem_map_entry_s {
 	uint32 offset; /* adress within the tiff */
 	uint32 count; /* count of bytes beginning with offset */
 	memtype_t mem_type; /* type of memory */
+} mem_map_entry_t;
+
+typedef struct mem_map_s {
+	int count;
+	mem_map_entry_t * base_p;
+	uint32 max_len; /* TIFF length */
+	int max_entries;
 } mem_map_t;
-	
 
 
 #define MAXSTRLEN 1024
