@@ -74,6 +74,7 @@ typedef enum {
 	mt_unused, /* memory areas, which are not referenced within TIFF file */
 	mt_constant, /* constant values, which are fix part of TIFF file */
 	mt_ifd, /* memory areas, which are parts of the IFD (but no value!) */
+	mt_ifd0_offset,
 	mt_ifd_offset, /* offset to nex ifd */
 	mt_ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
 	mt_ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
@@ -88,9 +89,10 @@ typedef enum {
 } memtype_t;
 
 static const char* memtype_string[] = {
-	"unused", /* memory areas", which are not referenced within TIFF file */
+	"unused/unknown", /* memory areas", which are not referenced within TIFF file */
 	"constant", /* constant values", which are fix part of TIFF file */
 	"ifd", /* memory areas", which are parts of the IFD (but no value!) */
+	"ifd0_offset", /* offset to nex ifd */
 	"ifd_offset", /* offset to nex ifd */
 	"ifd_embedded_standardized_value", /* memory areas", with standardized values embedded in ifd */
 	"ifd_embedded_registered_value", /* memory areas", with registered values embedded in ifd */

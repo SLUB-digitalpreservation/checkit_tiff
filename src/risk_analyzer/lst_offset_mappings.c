@@ -16,7 +16,8 @@ void add_mem_entry(mem_map_t * memmap_p, uint32 offset, uint32 count, memtype_t 
   mem_map_t memmap = *( memmap_p );
   assert(NULL != memmap.base_p);
   assert(0 < memmap.max_entries);
-  assert(count < memmap.max_entries);
+  printf("### count=%i\n", count);
+  assert(memmap.count < memmap.max_entries);
   assert(offset + count <= memmap.max_len);
   assert(type < mt_END_marker);
   mem_map_entry_t * memmap_it_p = memmap.base_p;
@@ -36,7 +37,7 @@ int compare_memmap(void const * lhs, void const * rhs) {
 	return ((left.offset) - (right.offset));
 }
 
-
+/* TODO: add support for StripOffsets and StripByteCounts */
 mem_map_t * scan_mem_map(ctiff_t * ctif) {
   assert( NULL != ctif);
   static mem_map_t memmap;
@@ -52,7 +53,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   /* header */
   add_mem_entry( &memmap, 0, 4, mt_constant);
   /* IFD0 Offset */
-  add_mem_entry( &memmap, 4, 4, mt_ifd_offset);
+  add_mem_entry( &memmap, 4, 4, mt_ifd0_offset);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
   uint32 count = get_ifd0_count( ctif);
@@ -89,15 +90,16 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 		  uint16 count = ifd_entry.count;
 
 
+
 		  if (tag < 32768) { /* standard tag */
 			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_standardized_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, mt_standardized_value );
+			  add_mem_entry( &memmap, offset, ((uint32) count)*datasize, mt_standardized_value );
 		  } else if (tag < 65000) { /* registered tag */
 			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_registered_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, mt_registered_value );
+			  add_mem_entry( &memmap, offset, ((uint32) count)*datasize, mt_registered_value );
 		  } else { /* private tag */
 			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_private_value ); 
-			  add_mem_entry( &memmap, offset, count*datasize, mt_private_value );
+			  add_mem_entry( &memmap, offset, ((uint32) count)*datasize, mt_private_value );
 		  }
 	  } else if (ifd_entry.value_or_offset==is_value) { /* embedded value */
 		  if (tag < 32768) { /* standard tag */
@@ -110,6 +112,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 
 	  }
   }
+ 
   /* check next IFD mark */
   uint32 offset = get_ifd0_pos(ctif );
   uint32 IFDn = get_next_ifd_pos( ctif, offset );
@@ -117,6 +120,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
+  /* TODO: add all unused areas */
   return &memmap;
 }
 
@@ -128,7 +132,7 @@ void print_mem_map( mem_map_t * memmap_p ) {
 	printf("size of file is %u bytes\n", memmap.max_len);
 	for (int j=0; j< memmap.count; j++) {
 		mem_map_entry_t * i=memmap.base_p+j;
-		printf ("j=%03i,offset=%06i count=%06i, (end=%06i) [%02i] type=%s\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type, memtype_string[i->mem_type]);
+		printf ("entry=%03i, offset_start=%10i, count=%10i, offset_next=%10i, [%02i], type=%s\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type, memtype_string[i->mem_type]);
 	}
 }
 
@@ -147,7 +151,7 @@ void print_mem_stats( mem_map_t * memmap_p) {
 	}
 	for (int i=0; i<mt_END_marker; i++) {
 		float ratio = ((float) (stat[i])) / ((float) size);
-		printf("[%02i] type=%32s bytes=%6i ratio=%0.3f\n", i, memtype_string[i], stat[i], ratio);
+		printf("[%02i], type=%32s, bytes=%10i, ratio=%0.5f\n", i, memtype_string[i], stat[i], ratio);
 	}
 	printf("counted: %i bytes, size: %i bytes\n", counted, size);
 }
