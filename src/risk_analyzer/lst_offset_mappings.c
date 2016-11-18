@@ -16,7 +16,6 @@ void add_mem_entry(mem_map_t * memmap_p, uint32 offset, uint32 count, memtype_t 
   mem_map_t memmap = *( memmap_p );
   assert(NULL != memmap.base_p);
   assert(0 < memmap.max_entries);
-  printf("### count=%i\n", count);
   assert(memmap.count < memmap.max_entries);
   assert(offset + count <= memmap.max_len);
   assert(type < mt_END_marker);
@@ -120,7 +119,18 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
-  /* TODO: add all unused areas */
+  /* add all unused areas */
+  for (int j=1; j< memmap.count; j++) {
+    mem_map_entry_t * prev=memmap.base_p+j-1;
+    mem_map_entry_t * act =memmap.base_p+j;
+    uint32 estimated_offset = (prev->offset + prev->count);
+    if (estimated_offset < act->offset) { /*  found a hole */
+      printf("HOLE FOUND at %i\n", estimated_offset);
+      add_mem_entry( &memmap, estimated_offset, (act->offset -estimated_offset), mt_unused);
+    }
+  }
+  /* sort entries by offset again */
+  qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
   return &memmap;
 }
 
