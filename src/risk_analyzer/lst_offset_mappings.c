@@ -17,7 +17,6 @@ void add_mem_entry(mem_map_t * memmap_p, uint32 offset, uint32 count, memtype_t 
   assert(NULL != memmap.base_p);
   assert(0 < memmap.max_entries);
   assert(memmap.count < memmap.max_entries);
-  assert(offset + count <= memmap.max_len);
   assert(type < mt_END_marker);
   mem_map_entry_t * memmap_it_p = memmap.base_p;
   memmap_it_p = memmap.base_p + memmap.count;
@@ -42,7 +41,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   static mem_map_t memmap;
   memmap.count = 0;
   memmap.base_p = NULL;
-  memmap.max_entries = 128;
+  memmap.max_entries = 2048;
   memmap.base_p = malloc (sizeof(mem_map_entry_t) * memmap.max_entries);
   if (NULL == memmap.base_p) {
 	  perror ("could not allocate mem for memmap, abort");
@@ -52,16 +51,16 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   /* header */
   add_mem_entry( &memmap, 0, 4, mt_constant);
   /* IFD0 Offset */
-  add_mem_entry( &memmap, 4, 4, mt_ifd0_offset);
+  add_mem_entry( &memmap, 4, 4, mt_offset_to_ifd0);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
   uint32 count = get_ifd0_count( ctif);
 
-  add_mem_entry( &memmap, 8, 2, mt_ifd); /* count of tags in ifd */
-  int ifdbase=8+2;
+  add_mem_entry( &memmap, ifd, 2, mt_ifd); /* count of tags in ifd */
+  int ifdbase=2+ifd;
   /* iterate through IFD0 entries */
   int tagidx;
-  
+  ifd_entry_t stripoffset_entry; 
 
   for (tagidx = 0; tagidx< count; tagidx++) {
 	  add_mem_entry( &memmap, ifdbase+(tagidx*12), 8, mt_ifd); /* tagid, field type, count */
@@ -83,13 +82,18 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 		  case TIFF_FLOAT: datasize =  4; break;
 		  case TIFF_DOUBLE: datasize =  8; break;
 	  }
+          uint32 offset = ifd_entry.data32offset;
+          uint16 count = ifd_entry.count;
 
-	  if (ifd_entry.value_or_offset==is_offset) { /* offset */
-		  uint32 offset = ifd_entry.data32offset;
-		  uint16 count = ifd_entry.count;
-
-
-
+          if (tag == TIFFTAG_STRIPOFFSETS) {
+                  if (ifd_entry.value_or_offset == is_offset) {
+                  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8,4,mt_ifd_offset_to_standardized_value ); 
+                  add_mem_entry( &memmap, offset, ((uint32) count)*datasize, mt_ifd_offset_to_stripoffsets );
+                  } else if (ifd_entry.value_or_offset==is_value) {
+                        add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_embedded_standardized_value );
+                  }
+                  stripoffset_entry=ifd_entry;
+          } else if (ifd_entry.value_or_offset==is_offset) { /* offset */
 		  if (tag < 32768) { /* standard tag */
 			  add_mem_entry( &memmap, ifdbase+(tagidx*12)+8, 4,mt_ifd_offset_to_standardized_value ); 
 			  add_mem_entry( &memmap, offset, ((uint32) count)*datasize, mt_standardized_value );
@@ -113,21 +117,98 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   }
  
   /* check next IFD mark */
-  uint32 offset = get_ifd0_pos(ctif );
-  uint32 IFDn = get_next_ifd_pos( ctif, offset );
-  add_mem_entry( &memmap, offset, 4, mt_ifd_offset);
+  // uint32 offset = get_ifd0_pos(ctif );
+  // uint32 IFDn = get_next_ifd_pos( ctif, offset );
+  // printf("IFD: offset=%i, IFD0=%i IFDn=%i ifd+count=%i\n", offset, ifd, IFDn, ifdbase+12*count);
+  add_mem_entry( &memmap, ifdbase+12*count, 4, mt_offset_to_ifd);
+
+  /* handle stripoffset data */
+  //printf("ifd_count=%i, stripoffset_count=%i\n", stripoffset_entry.count, stripoffset_count);
+  uint32 stripoffset_values[stripoffset_entry.count];
+  switch (stripoffset_entry.datatype) {
+    case TIFF_LONG: {
+                      /*  value */
+                      if (stripoffset_entry.value_or_offset == is_value) {
+                        for (int i=0; i< stripoffset_entry.count; i++) {
+                          stripoffset_values[i] = stripoffset_entry.data32;
+                        }
+                      }
+                      /*  offset */
+                      if (stripoffset_entry.value_or_offset == is_offset) {
+                        offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                        uint32 * p = offset.data32p;
+                        for (int i=0; i< stripoffset_entry.count; i++) {
+                          uint32 pval = *p;
+                          if (is_byteswapped(ctif)) {
+                            TIFFSwabLong(&pval);
+                          }
+                          stripoffset_values[i]=pval;
+                          p++;
+                        }
+                      }
+                      break;
+                    }
+    case TIFF_SHORT: {
+                       /*  value */
+                       if (stripoffset_entry.value_or_offset == is_value) {
+                         for (int i=0; i< stripoffset_entry.count; i++) {
+                           stripoffset_values[i]= stripoffset_entry.data16[i];
+                         }
+                       }
+                       /*  offset */
+                       if (stripoffset_entry.value_or_offset == is_offset) {
+                         offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                         uint16 * p = offset.data16p;
+                         for (int i=0; i< count; i++) {
+                           uint16 pval = *p;
+                           if (is_byteswapped(ctif)) {
+                             TIFFSwabShort(&pval);
+                           }
+                           stripoffset_values[i]=pval;
+                           p++;
+                         }
+                       }
+                       break;
+                     }
+  }
+  //printf("count=%i\n", stripoffset_entry.count);
+  for (int i=0; i< stripoffset_entry.count; i++) {
+    tsize_t rawstriplen = TIFFRawStripSize(ctif->tif, i);
+    //printf("OFFSET: p[%i]=%u len=%i\n", i,stripoffset_values[i], rawstriplen);
+    add_mem_entry( &memmap, stripoffset_values[i], rawstriplen, mt_stripoffset_value);
+  }
 
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
+  /*
+  printf("memmap before HOLE detection\n");
+  print_mem_map( &memmap );
+  printf("----------------------------\n");
+  */
+
   /* add all unused areas */
-  for (int j=1; j< memmap.count; j++) {
+  int memmap_orig_count = memmap.count;
+  for (int j=1; j< memmap_orig_count; j++) {
     mem_map_entry_t * prev=memmap.base_p+j-1;
     mem_map_entry_t * act =memmap.base_p+j;
     uint32 estimated_offset = (prev->offset + prev->count);
     if (estimated_offset < act->offset) { /*  found a hole */
       printf("HOLE FOUND at %i\n", estimated_offset);
+      
+      printf("\tprev->offset=%i prev->count=%i estimated=%i\n", prev->offset, prev->count, estimated_offset);
+      printf("\tact->offset=%i act->count=%i\n", act->offset, act->count);
+      
       add_mem_entry( &memmap, estimated_offset, (act->offset -estimated_offset), mt_unused);
     }
+  }
+  /* sort entries by offset again */
+  qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
+  /*  add unused area at end */
+  mem_map_entry_t * last = memmap.base_p + memmap.count-1;
+  uint32 estimated_offset = (last->offset + last->count);
+  if (memmap.max_len > estimated_offset) {
+      printf("HOLE (at end) FOUND at %i\n", estimated_offset);
+      add_mem_entry( &memmap, estimated_offset, (memmap.max_len -estimated_offset), mt_unused);
   }
   /* sort entries by offset again */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);

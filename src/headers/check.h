@@ -74,14 +74,16 @@ typedef enum {
 	mt_unused, /* memory areas, which are not referenced within TIFF file */
 	mt_constant, /* constant values, which are fix part of TIFF file */
 	mt_ifd, /* memory areas, which are parts of the IFD (but no value!) */
-	mt_ifd0_offset,
-	mt_ifd_offset, /* offset to nex ifd */
+	mt_offset_to_ifd0,
+	mt_offset_to_ifd, /* offset to nex ifd */
 	mt_ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
 	mt_ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
 	mt_ifd_embedded_private_value, /* memory areas, with private values embedded in ifd */
 	mt_ifd_offset_to_standardized_value, /* memory areas, which points to standardized values */
 	mt_ifd_offset_to_registered_value, /* memory areas, which points to registered values */
 	mt_ifd_offset_to_private_value, /* memory areas, which points to private values */
+        mt_ifd_offset_to_stripoffsets, /* offsets which points to stripoffsets */
+        mt_stripoffset_value, /* offsets which points to stripoffset values, hint: if compression is used stripbytecounts holds only decompressed values! */
 	mt_standardized_value, /* memory areas, which contains standardized values */
 	mt_registered_value, /* memory areas, which contains registered values */
 	mt_private_value, /* memory areas, which contains private values */
@@ -92,18 +94,19 @@ static const char* memtype_string[] = {
 	"unused/unknown", /* memory areas", which are not referenced within TIFF file */
 	"constant", /* constant values", which are fix part of TIFF file */
 	"ifd", /* memory areas", which are parts of the IFD (but no value!) */
-	"ifd0_offset", /* offset to nex ifd */
-	"ifd_offset", /* offset to nex ifd */
+	"offset_to_ifd0", /* offset to nex ifd */
+	"offset_to_ifd", /* offset to nex ifd */
 	"ifd_embedded_standardized_value", /* memory areas", with standardized values embedded in ifd */
 	"ifd_embedded_registered_value", /* memory areas", with registered values embedded in ifd */
 	"ifd_embedded_private_value", /* memory areas", with private values embedded in ifd */
 	"ifd_offset_to_standardized_value", /* memory areas", which points to standardized values */
 	"ifd_offset_to_registered_value", /* memory areas", which points to registered values */
 	"ifd_offset_to_private_value", /* memory areas", which points to private values */
+        "ifd_offset_to_stripoffsets", /* offsets which points to stripoffsets */
+        "stripoffset_value", /* stripoffset values, hint: if compression is used stripbytecounts holds only decompressed values! */
 	"standardized_value", /* memory areas", which contains standardized values */
 	"registered_value", /* memory areas", which contains registered values */
 	"private_value", /* memory areas", which contains private values */
-
 };
 
 typedef struct mem_map_entry_s {
