@@ -139,11 +139,19 @@ const char * TIFFTagName( tag_t tag ) {
     /* 32768 -,  0x8000 -  */
     /* 32768 */ case 32768: return ("OLD BOGUS Matteing tag" );
     /* 32781 */ case TIFFTAG_OPIIMAGEID: return ("OpiImageId");
-    /* next 4 lines  WANG TIFF  */
+
+    /* 32835 */ case 32835: return ("XIS private compression scheme tag"); /* see code line 97ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 32836 */ case 32836: return ("XIS private compression scheme tag"); /* see code line 97ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 32837 */ case 32837: return ("XIS private compression scheme tag"); /* see code line 97ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 32838 */ case 32838: return ("XIS private compression scheme tag"); /* see code line 97ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 32839 */ case 32839: return ("XIS private compression scheme tag"); /* see code line 97ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+
+    /* next 5 lines  WANG TIFF  */
+    /* 32931 */ case 32931: return ("TIFF HiTIFF / Wang TIFF"); /* https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/oiwh/include/tifftags.h */
     /* 32932 */ case 32932: return ("TIFF annotation data / Wang TIFF"); /* http://web.archive.org/web/20050309141348/http://www.kofile.com/support%20pro/faqs/annospec.htm, for full explanation, see http://web.archive.org/web/20030124024322/http://www5.eistream.com/support_pro/faqs/annospec.htm */
     /* 32933 */ case 32933: return ("unknown Wang TIFF");
     /* 32934 */ case 32934: return ("Offset to Page Control Structure / Wang TIFF"); /* https://groups.yahoo.com/neo/groups/tiff/conversations/messages/1968 */
-    /* 32935 */ case 32935: return ("unknown Wang TIFF");
+    /* 32935 */ case 32935: return ("TOC / Wang TIFF"); /* https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/oiwh/include/tifftags.h */
     /* 32952 */ case 32952: return ("unknown Ig (Island Graphics)" ); /* http://fileformats.archiveteam.org/wiki/Island_Graphics_TIFF */
     /* 32953 */ case TIFFTAG_REFPTS: return ("IgReferencePoints (Island Graphics)" );
     /* 32954 */ case TIFFTAG_REGIONTACKPOINT: return ("IgRegionTackPoint (Island Graphics)" );
@@ -178,6 +186,8 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33450 */ case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33451 */ case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33452 */ case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33550 */ case 33550: return ("GeoTIFF ModelPixelScale"); /* http://www.awaresystems.be/imaging/tiff/tifftags/modelpixelscaletag.html */
+    /* 33609 */ case 33609: return ("Component subsample CMYK/YCBCR (WangTIFF)"); /* line 182, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h  */
     /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
@@ -187,6 +197,14 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33919 */ case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33920 */ case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33922 */ case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+
+
+    /* 33979 */ case 33979: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 33980 */ case 33980: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 33981 */ case 33981: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 33982 */ case 33982: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+    /* 33983 */ case 33983: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
+
     /* 34016 */ case TIFFTAG_IT8SITE: return ("IT8SITE");
     /* 34017 */ case TIFFTAG_IT8COLORSEQUENCE: return ("IT8COLORSEQUENCE");
     /* 34018 */ case TIFFTAG_IT8HEADER: return ("IT8HEADER");
@@ -210,6 +228,8 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
     /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
     /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
+    /* 34730 */ case 34730: return ("Annotation Offsets (Wang TIFF)"); /* line 134, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
+    /* 34731 */ case 34731: return ("Mask SUBIFDs (Wang TIFF)"); /* line 135, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
     /* 34732 */ case TIFFTAG_IMAGELAYER: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
     /* 34750 */ case TIFFTAG_JBIGOPTIONS: return ("JBIG Options" );
     /* 34820 */ case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
@@ -251,13 +271,35 @@ const char * TIFFTagName( tag_t tag ) {
 
     /* 37724 */ case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
 
+    /* 40001 */ case 40001: return ("SatelliteName (NinjoSat)");   /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.  */
+    /* 40002 */ case 40002: return ("DateID (NinjoSat)");          /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40003 */ case 40003: return ("CreationDateID (NinjoSat)");  /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40004 */ case 40004: return ("ChannelID (NinjoSat)");       /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40005 */ case 40005: return ("HeaderVersion (NinjoSat)");   /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40006 */ case 40006: return ("FileName (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40007 */ case 40007: return ("DataType (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40008 */ case 40008: return ("SatelliteNumber (NinjoSat)"); /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40009 */ case 40009: return ("ColorDepth (NinjoSat)");      /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40011 */ case 40011: return ("XMinimum (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40012 */ case 40012: return ("XMaximum (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40013 */ case 40013: return ("YMinimum (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40014 */ case 40014: return ("YMaximum (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40015 */ case 40015: return ("code (NinjoSat)");            /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40024 */ case 40024: return ("PhysicValue (NinjoSat)");     /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40025 */ case 40025: return ("PhysicUnit (NinjoSat)");      /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40026 */ case 40026: return ("MinGrayValue (NinjoSat)");    /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40027 */ case 40027: return ("MaxGrayValue (NinjoSat)");    /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40028 */ case 40028: return ("Gradient (NinjoSat)");        /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+    /* 40029 */ case 40029: return ("AxisIntercept (NinjoSat)");   /* see http://www.ssec.wisc.edu/meetings/cspp/2013/presentations/CSPPUserMeetHungershoeferDWD2013.pdf, slide 16ff.*/
+
+
+
+
     /* 40091 */ case 40091: return ("XPTitle (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html and https://msdn.microsoft.com/de-de/library/windows/desktop/ms630819%28v=vs.85%29.aspx */
     /* 40092 */ case 40092: return ("XPComment (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html and http://metadatadeluxe.pbworks.com/w/page/34452007/Windows%207%20Explorer */
     /* 40093 */ case 40093: return ("XPAuthor (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
     /* 40094 */ case 40094: return ("XPKeywords (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
     /* 40095 */ case 40095: return ("XPSubject (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
-
-
 
 
     /* 40960 */ case 40960: return ("EXIF FlashpixVersion"); /* EXIF, The Flashpix format version supported by a FPXR file. */
