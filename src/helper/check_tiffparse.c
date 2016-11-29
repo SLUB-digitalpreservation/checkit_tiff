@@ -128,6 +128,14 @@ const char * TIFFTagName( tag_t tag ) {
     /* 559 */ case TIFFTAG_STRIPROWCOUNTS: return ("StripRowCounts");
     /* 700 */ case TIFFTAG_XMLPACKET: return ("XMP");
 
+    /* 20507 */ case 20507: return ("inofficial EXIF ThumbnailData (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20515 */ case 20515: return ("inofficial EXIF ThumbnailCompression (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20525 */ case 20525: return ("inofficial EXIF ThumbnailResolutionX (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20526 */ case 20526: return ("inofficial EXIF ThumbnailResolutionY (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20528 */ case 20528: return ("inofficial EXIF ThumbnailResolutionUnit (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20624 */ case 20624: return ("inofficial EXIF LuminanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20625 */ case 20625: return ("inofficial EXIF ChrominanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+
     /* 32768 -,  0x8000 -  */
     /* 32768 */ case 32768: return ("OLD BOGUS Matteing tag" );
     /* 32781 */ case TIFFTAG_OPIIMAGEID: return ("OpiImageId");
@@ -237,7 +245,20 @@ const char * TIFFTagName( tag_t tag ) {
     /* 37520 */ case 37520: return ("EXIF SubsecTime"); /* EXIF, A tag used to record fractions of seconds for the DateTime tag. */
     /* 37521 */ case 37521: return ("EXIF SubsecTimeOriginal"); /* EXIF, A tag used to record fractions of seconds for the DateTimeOriginal tag. */
     /* 37522 */ case 37522: return ("EXIF SubsecTimeDigitized"); /* EXIF, A tag used to record fractions of seconds for the DateTimeDigitized tag. */
+    /* 37679 */ case 37679: return ("Plain Text (Microsoft Office Document Image Writer)"); /* see https://blogs.msdn.microsoft.com/openspecification/2009/12/08/details-of-three-tiff-tag-extensions-that-microsoft-office-document-imaging-modi-software-may-write-into-the-tiff-files-it-generates/ */
+    /* 37680 */ case 37680: return ("OLE Property Set Storage (Microsoft Office Document Image Writer)"); /* see https://blogs.msdn.microsoft.com/openspecification/2009/12/08/details-of-three-tiff-tag-extensions-that-microsoft-office-document-imaging-modi-software-may-write-into-the-tiff-files-it-generates/ */
+    /* 37681 */ case 37681: return ("Plain Text Positioning Information (Microsoft Office Document Image Writer)"); /* see https://blogs.msdn.microsoft.com/openspecification/2009/12/08/details-of-three-tiff-tag-extensions-that-microsoft-office-document-imaging-modi-software-may-write-into-the-tiff-files-it-generates/ */
+
     /* 37724 */ case 37724: return ("ImageSourceData"); /* http://justsolve.archiveteam.org/wiki/PSD, http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/ */
+
+    /* 40091 */ case 40091: return ("XPTitle (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html and https://msdn.microsoft.com/de-de/library/windows/desktop/ms630819%28v=vs.85%29.aspx */
+    /* 40092 */ case 40092: return ("XPComment (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html and http://metadatadeluxe.pbworks.com/w/page/34452007/Windows%207%20Explorer */
+    /* 40093 */ case 40093: return ("XPAuthor (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
+    /* 40094 */ case 40094: return ("XPKeywords (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
+    /* 40095 */ case 40095: return ("XPSubject (Microsoft)"); /* see https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftTagConstants.html */
+
+
+
 
     /* 40960 */ case 40960: return ("EXIF FlashpixVersion"); /* EXIF, The Flashpix format version supported by a FPXR file. */
     /* 40961 */ case 40961: return ("EXIF ColorSpace"); /* EXIF, The color space information tag is always recorded as the color space specifier. */
@@ -279,6 +300,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 50217 */ case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 50218 */ case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 50255 */ case 50255: return ("Photoshop Annotations"); /* http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_17312  */
+    /* 50341 */ case 50341: return ("inofficial EXIF PrintImageMatching (poss. Olympus)"); /* see http://www.exiv2.org/tags.html, but not in Exif2.3 standard */
     /* 50454 */ case 50454: return ("unknown Sinar tag"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 50455 */ case 50455: return ("unknown Sinar tag"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 50459 */ case 50459: return ("Hasselblad IFD"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
@@ -336,7 +358,10 @@ const char * TIFFTagName( tag_t tag ) {
                                                                     it is around 2kB and used for Windows Vista */
     /* 64772 */ case 64772: return ("Kodak P-Series"); /* see http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
 
-    default: return ("undefined tag");
+    default: 
+                if (tag < 32768) return ("undefined official tag");
+                else if (tag < 65000) return ("undefined private tag");
+                else return ("undefined reusable tag");
   }
 }
 //------------------------------------------------------------------------------
