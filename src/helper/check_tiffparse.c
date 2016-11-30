@@ -186,11 +186,18 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33450 */ case 33450: return ("MD_PrepDate"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33451 */ case 33451: return ("MD_PrepTime"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33452 */ case 33452: return ("MD_FileUnits"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+
+    /* 33471 */ case 33471: return ("SIS Init Standard Metadata (Olympus)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
+
     /* 33550 */ case 33550: return ("GeoTIFF ModelPixelScale"); /* http://www.awaresystems.be/imaging/tiff/tifftags/modelpixelscaletag.html */
+    
+    /* 33560 */ case 33560: return ("SIS Offset Metadata (Olympus)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
+
+
     /* 33609 */ case 33609: return ("Component subsample CMYK/YCBCR (WangTIFF)"); /* line 182, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h  */
-    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
-    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
-    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
+    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33631 */ case 33631: return ("MetaMorph Stack Image UIC4"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
     /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -198,6 +205,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33920 */ case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33922 */ case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
 
+    /* 33923 */ case 33923: return ("Leica Magic Tag"); /* see https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/LeicaReader.java */
 
     /* 33979 */ case 33979: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
     /* 33980 */ case 33980: return ("XIS private tag"); /* see code line 89ff. at https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h */
@@ -225,6 +233,10 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34232 */ case TIFFTAG_FRAMECOUNT: return ("FRAMECOUNT");
     /* 34264 */ case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34310 */ case 34310: return ("Leaf MOS PKTS tag (Raw camera)"); /*  see http://fileformats.archiveteam.org/wiki/Leaf_MOS */
+
+    /* 34361 */ case 34361: return ("MMHeader (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
+    /* 34362 */ case 34362: return ("MMStamp (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
+
     /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
     /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
     /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
@@ -235,7 +247,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34820 */ case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
     /* 34850 */ case 34850: return ("EXIF ExposureProgram"); /* EXIF, The class of the program used by the camera to set exposure when the picture is taken. */
     /* 34852 */ case 34852: return ("EXIF SpectralSensitivity"); /* EXIF, Indicates the spectral sensitivity of each channel of the camera used. */
-    /* 34853 */ case TIFFTAG_GPSIFD: return ("GPSIFD");
+    /* 34853 */ case TIFFTAG_GPSIFD: return ("GPSIFD or Olympus SIS TAG2"); /* for Olympus, see https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
     /* 34855 */ case 34855: return ("EXIF ISOSpeedRatings"); /* EXIF, Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. */
     /* 34856 */ case 34856: return ("EXIF OECF"); /* EXIF, Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524. */
     /* 34908 */ case TIFFTAG_FAXRECVPARAMS: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -394,10 +406,14 @@ const char * TIFFTagName( tag_t tag ) {
     /* 50832 */ case TIFFTAG_ASSHOTPREPROFILEMATRIX: return ("ASSHOTPREPROFILEMATRIX");
     /* 50833 */ case TIFFTAG_CURRENTICCPROFILE: return ("CURRENTICCPROFILE");
     /* 50834 */ case TIFFTAG_CURRENTPREPROFILEMATRIX: return ("CURRENTPREPROFILEMATRIX");
+    /* 50838 */ case 50838: return ("ImageJ Metadata Bytecounts (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
+    /* 50839 */ case 50839: return ("ImageJ Metadata (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
     /* 50933 */ case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
     /* 59932 */ case 59932: return ("Padding/ Exif MS HDPhoto"); /* see exiftool, http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html,
                                                                     also check https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftHdPhotoTagConstants.html
                                                                     it is around 2kB and used for Windows Vista */
+    
+    /* 51123 */ case 51123: return ("MicroManagerMetadata (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
     /* 64772 */ case 64772: return ("Kodak P-Series"); /* see http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
 
     default: 
