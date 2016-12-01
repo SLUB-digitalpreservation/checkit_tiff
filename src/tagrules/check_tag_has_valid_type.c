@@ -32,10 +32,12 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_DATETIME:          res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_DOCUMENTNAME:      res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_DOTRANGE:          res=(datatype  ==  TIFF_BYTE) || (datatype ==  TIFF_SHORT);; break;
+    case TIFFTAG_EXIFIFD:           res=(datatype  ==  TIFF_LONG); break; /* Exif Spec 2.3 */
     case TIFFTAG_EXTRASAMPLES:      res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_FILLORDER:         res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_FREEBYTECOUNTS:    res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_FREEOFFSETS:       res=(datatype  ==  TIFF_LONG); break;
+    case TIFFTAG_GPSIFD:            res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_GRAYRESPONSECURVE: res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_GRAYRESPONSEUNIT:  res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_HALFTONEHINTS:     res=(datatype  ==  TIFF_SHORT); break;
@@ -47,6 +49,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_IMAGEWIDTH:        res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT);; break;
     case TIFFTAG_INKNAMES:          res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_INKSET:            res=(datatype  ==  TIFF_SHORT); break;
+    case TIFFTAG_INTEROPERABILITYIFD:res=(datatype ==  TIFF_LONG); break; /* Exif Spec 2.3 */
     case TIFFTAG_JPEGPROC:          res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_MAKE:              res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_MAXSAMPLEVALUE:    res=(datatype  ==  TIFF_SHORT); break;
@@ -65,12 +68,13 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_ROWSPERSTRIP:      res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT); break;
     case TIFFTAG_SAMPLEFORMAT:      res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_SAMPLESPERPIXEL:   res=(datatype  ==  TIFF_SHORT); break;
-    case TIFFTAG_SMAXSAMPLEVALUE:   res=(datatype  == TIFF_ANY); break;
-    case TIFFTAG_SMINSAMPLEVALUE:   res=(datatype  == TIFF_ANY); break;
+    case TIFFTAG_SMAXSAMPLEVALUE:   res=(datatype  ==  TIFF_ANY); break;
+    case TIFFTAG_SMINSAMPLEVALUE:   res=(datatype  ==  TIFF_ANY); break;
     case TIFFTAG_SOFTWARE:          res=(datatype  ==  TIFF_ASCII); break;
     case TIFFTAG_STRIPBYTECOUNTS:   res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT); break;
     case TIFFTAG_STRIPOFFSETS:      res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT); break;
     case TIFFTAG_SUBFILETYPE:       res=(datatype  ==  TIFF_LONG); break;
+    case TIFFTAG_SUBIFD:            res=(datatype  ==  TIFF_LONG); break; /* TIFF technical note 1 */
     case TIFFTAG_T4OPTIONS:         res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_T6OPTIONS:         res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_TARGETPRINTER:     res=(datatype  ==  TIFF_ASCII); break;
@@ -83,7 +87,12 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_WHITEPOINT:        res=(datatype  ==  TIFF_RATIONAL); break;
     case TIFFTAG_XRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     case TIFFTAG_YRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
-    default: res = 1;
+    default: {
+#ifdef WARN
+               printf("for tag %i no explicite type check implemented\n");
+#endif
+               res = 1;
+             };
   }
   if (!res) {
     char array[VALUESTRLEN];
