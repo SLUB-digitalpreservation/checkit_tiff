@@ -189,7 +189,7 @@ const char * TIFFTagName( tag_t tag ) {
 
     /* 33471 */ case 33471: return ("SIS Init Standard Metadata (Olympus)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
 
-    /* 33550 */ case 33550: return ("GeoTIFF ModelPixelScale"); /* http://www.awaresystems.be/imaging/tiff/tifftags/modelpixelscaletag.html */
+    /* 33550 */ case 33550: return ("GeoTIFF ModelPixelScale"); /* http://web.archive.org/web/20160407200550/http://www.remotesensing.org/geotiff/spec/geotiff6.html#6.1 */
     
     /* 33560 */ case 33560: return ("SIS Offset Metadata (Olympus)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
 
@@ -202,8 +202,8 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
     /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33919 */ case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 33920 */ case 33920: return ("IrasB Transormation Matrix"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 33922 */ case 33922: return ("ModelTiepointTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33920 */ case 33920: return ("IrasB Transformation Matrix / obsolete GeoTIFF IntergraphMatrixTag (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33922 */ case 33922: return ("GeoTIFF ModelTiepointTag (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
 
     /* 33923 */ case 33923: return ("Leica Magic Tag"); /* see https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/LeicaReader.java */
 
@@ -231,7 +231,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34031 */ case TIFFTAG_IT8TRAPINDICATOR: return ("IT8TRAPINDICATOR");
     /* 34032 */ case TIFFTAG_IT8CMYKEQUIVALENT: return ("IT8CMYKEQUIVALENT");
     /* 34232 */ case TIFFTAG_FRAMECOUNT: return ("FRAMECOUNT");
-    /* 34264 */ case 34264: return ("ModelTransformationTag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 34264 */ case 34264: return ("Geotiff ModelTransformationTag (JPL Carto Group)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34310 */ case 34310: return ("Leaf MOS PKTS tag (Raw camera)"); /*  see http://fileformats.archiveteam.org/wiki/Leaf_MOS */
 
     /* 34361 */ case 34361: return ("MMHeader (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
@@ -243,6 +243,11 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34730 */ case 34730: return ("Annotation Offsets (Wang TIFF)"); /* line 134, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
     /* 34731 */ case 34731: return ("Mask SUBIFDs (Wang TIFF)"); /* line 135, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
     /* 34732 */ case TIFFTAG_IMAGELAYER: return ("ImageLayer"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag, see RFC2301*/
+    
+    /* 34735 */ case 34735: return ("Geotiff GeoKeyDirectoryTag (SPOT)"); /* http://web.archive.org/web/20160407200550/http://www.remotesensing.org/geotiff/spec/geotiff6.html#6.1 */
+    /* 34736 */ case 34736: return ("Geotiff GeoDoubleParamsTag (SPOT)"); /* http://web.archive.org/web/20160407200550/http://www.remotesensing.org/geotiff/spec/geotiff6.html#6.1 */
+    /* 34737 */ case 34737: return ("Geotiff GeoAsciiParamsTag (SPOT)"); /* http://web.archive.org/web/20160407200550/http://www.remotesensing.org/geotiff/spec/geotiff6.html#6.1 */
+
     /* 34750 */ case TIFFTAG_JBIGOPTIONS: return ("JBIG Options" );
     /* 34820 */ case 34820: return ("EMC/PixTool SpecificTag"); /* thgere is more informatioon about meaning needed. If tag exists, there was string "Untitled" encoded (as binary) */
     /* 34850 */ case 34850: return ("EXIF ExposureProgram"); /* EXIF, The class of the program used by the camera to set exposure when the picture is taken. */
