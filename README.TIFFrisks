@@ -13,7 +13,7 @@ Each tag in the array is 12 Bytes long. The first 4 bytes indicate the tag itsel
 
 In the TIFF specification, there are some hints which help us to repair broken TIFFs.
 
-The first hint is that all offset-addresses must be odd.
+The first hint is that all offset-addresses must be even.
 The second importand rule is that the tags in an IFD must be sorted in an ascending order.
 
 At last, the TIFF spec defines different areas in the tag range. This is to guarantee that the important values are well defined.
