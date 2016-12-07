@@ -8,6 +8,8 @@
 
 #include "check.h"
 #include "check_helper.h"
+#include <assert.h>
+#include <string.h>
 
 /** check if date / time values are within correct ranges 
  * @param year year
@@ -51,10 +53,18 @@ ret_t check_datetime(ctiff_t * ctif ) {
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
-  char *datetime=NULL;
   uint32 count=0;
-  int found=TIFFGetField(ctif->tif, TIFFTAG_DATETIME, &datetime, &count);
-  if (1==found) { /* there exists a datetime field */
+  int tagidx = TIFFGetRawTagListIndex(ctif, TIFFTAG_DATETIME);
+  if (tagidx >= 0) { /* there exists a datetime field */
+    ifd_entry_t datetime_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    assert (datetime_entry.datatype == TIFF_ASCII);
+    if (datetime_entry.value_or_offset == is_value) {
+      return tif_fails_tag( TIFFTAG_DATETIME, "should  be  \"yyyy:MM:DD hh:mm:ss\"", datetime_entry.data8);
+    }
+    uint32 data32offset = datetime_entry.data32offset;
+    offset_t datetime_offset = read_offsetdata( ctif, data32offset, datetime_entry.count, datetime_entry.datatype);
+    char datetime[ datetime_entry.count ];
+    strncpy(datetime, datetime_offset.datacharp, datetime_offset.count);
     int day=0;
     int month=0;
     int year=0;
