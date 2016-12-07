@@ -25,6 +25,7 @@ int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) ;
 TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx );
+int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag);
 offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype);
 //uint32 get_first_IFD(ctiff_t * ctif);
 //int parse_header_and_endianess(ctiff_t * ctif);

@@ -427,6 +427,17 @@ const char * TIFFTagName( tag_t tag ) {
                 else return ("undefined reusable tag");
   }
 }
+
+int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IFD for given tag, return -1 if not found */
+  for (int i= 0; i < get_ifd0_count( ctif ); i++) {
+    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
+      return i;
+    };
+  }
+  return -1;
+}
+
+
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
 {
@@ -1154,10 +1165,6 @@ uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	return offset;
 }
 
-
-
-
-	
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
 
