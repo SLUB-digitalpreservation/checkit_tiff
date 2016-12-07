@@ -17,11 +17,9 @@ ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
     int i;
   ret_t res;
   res.returnmsg=NULL;
-  for (i= 0; i < get_ifd0_count( ctif ); i++) {
-    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
+  if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {
       res.returncode=0;
       return res;
-    };
   }
   res.returncode=1;
   return res;
