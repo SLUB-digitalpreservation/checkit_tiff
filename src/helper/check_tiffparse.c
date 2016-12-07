@@ -1066,6 +1066,24 @@ ctiff_t * initialize_ctif(const char * tiff_file) {
 	}
 	ctif->tif = tif;
 	ctif->filename = strdup(tiff_file);
+	/* streamlen */
+	thandle_t client = TIFFClientdata(ctif->tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
+	TIFFSizeProc sizeproc = TIFFGetSizeProc(ctif->tif);
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
+	}
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
+	if (! sizeproc) {
+		perror ("could not get TIFFGetSizeProc");
+	}
+
+
+	ctif->streamlen = sizeproc(client);
+
 	ctif->ifd0p=NULL;
 	ctif->ifd0pos= 0;
 	ctif->ifd0c= 0;

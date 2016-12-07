@@ -57,6 +57,7 @@ void simplified_result_push(ret_t res, function_t func) {
         result_push( full );
 }
 
+
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   // printf("tiff file=%s\n", tiff_file);
   ret_t res = _empty_result();

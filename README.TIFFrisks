@@ -1,0 +1,81 @@
+Some thoughts about risks in TIFF file format
+=============================================
+
+== Introduction ==
+
+TIFF in general is a very simple fileformat. It starts with a constant header entry, which indicates that the file is a TIFF and how it is encoded (byteorder).
+
+The header contains an offset entry which points to the first image file directory (IFD). Each IFD has a field which counts the number of associated tags, followed by an array of these tags and an offset entry to the next IFD or to zero, which means there is no further IFD.
+
+Each tag in the array is 12 Bytes long. The first 4 bytes indicate the tag itself, the next 2 bytes declare the value-type, followed by 2 bytes counting the values. The last 4 bytes are either an offset or hold the values themselves.
+
+== What makes a TIFF robust? ==
+
+In the TIFF specification, there are some hints which help us to repair broken TIFFs.
+
+The first hint is that all offset-addresses must be even.
+The second importand rule is that the tags in an IFD must be sorted in an ascending order.
+
+At last, the TIFF spec defines different areas in the tag range. This is to guarantee that the important values are well defined.
+
+If we guarantee that a valid TIFF was stored, there is a good chance to detect and repair broken TIFFs using these three hints.
+
+== What are the caveats of TIFF? ==
+
+As a proof of concept there is also a tool "checkit_tiff_risks" provided in this repository. Using this tool, users can analyze the layout of any baseline TIF file.
+
+The most risky memory ranges are the offsets. If a bitflip occurs there, the user must search the complete 4GB range. In practise, the TIF files are smaller, and so this size is the searchspace for offsets.
+
+The most risky offsets are the ones which are indirect offsets. This means the IFD0 offset and the StripOffset tag (code 273).
+
+Here an example of a possible complex StripOffset encoding:
+
+[ditaa]
+----
++-------------+
+| TIFF header |--\
++-------------+  |
+                 |
+     /-----------/ Offset to IFD0
+     |
+     v
++-------------+
+| IFD0        |
+|-------------|
+| ...         |
+| StripOffset |--\
++-------------+  |
+                 | Offset to values
+     /-----------/ of tag StripOffset
+     |
+     v
++-------------+
+| StripOffs. 0|----\
+| StripOffs. 1|--\ | Offset to pixel-data
++-------------+  | | of stripe 0
+                 | |
+     /-----------/ |
+     |             |
+     v             |
++-------------+    |
+| pixel-data 1|    |
++-------------+    |
+                   |
+     /-------------/
+     |
+     v
++-------------+
+| pixel-data 1|
++-------------+
+
+----
+
+The problem in this example is that TIFF has no way to find out how many bytes are part of the pixel-data stream. The existing StripByteCounts tag only stores the expected pixel data length *after* decompression.
+
+This makes the StripOffset tag very fragile. If a bitflip changes the offset of the StripOffset tag, the whole pixel information might be lost.
+
+Also, if a bitflip occurs in the offset area that the StripOffset tag points to, the partial pixel data of the affected stripe is lost.
+
+If compression is used, the risk of losing the whole picture is even higher, because the compression methods do not use an end-symbol. Instead, the buffer sizes as stored in the StripByteCount tag are used.
+Therefore, a bit-error in the Compression tag, the StripOffset tag, the StripByteCount tag or in the memory-map where StripOffset points to, could destroy the picture information.
+

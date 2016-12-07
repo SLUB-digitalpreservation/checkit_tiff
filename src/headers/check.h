@@ -70,6 +70,59 @@ typedef struct offset_s {
 
 typedef uint16 tag_t;
 
+typedef enum {
+	mt_unused, /* memory areas, which are not referenced within TIFF file */
+	mt_constant, /* constant values, which are fix part of TIFF file */
+	mt_ifd, /* memory areas, which are parts of the IFD (but no value!) */
+	mt_offset_to_ifd0,
+	mt_offset_to_ifd, /* offset to nex ifd */
+	mt_ifd_embedded_standardized_value, /* memory areas, with standardized values embedded in ifd */
+	mt_ifd_embedded_registered_value, /* memory areas, with registered values embedded in ifd */
+	mt_ifd_embedded_private_value, /* memory areas, with private values embedded in ifd */
+	mt_ifd_offset_to_standardized_value, /* memory areas, which points to standardized values */
+	mt_ifd_offset_to_registered_value, /* memory areas, which points to registered values */
+	mt_ifd_offset_to_private_value, /* memory areas, which points to private values */
+        mt_ifd_offset_to_stripoffsets, /* offsets which points to stripoffsets */
+        mt_stripoffset_value, /* offsets which points to stripoffset values, hint: if compression is used stripbytecounts holds only decompressed values! */
+	mt_standardized_value, /* memory areas, which contains standardized values */
+	mt_registered_value, /* memory areas, which contains registered values */
+	mt_private_value, /* memory areas, which contains private values */
+	mt_END_marker
+} memtype_t;
+
+static const char* memtype_string[] = {
+	"unused/unknown", /* memory areas", which are not referenced within TIFF file */
+	"constant", /* constant values", which are fix part of TIFF file */
+	"ifd", /* memory areas", which are parts of the IFD (but no value!) */
+	"offset_to_ifd0", /* offset to nex ifd */
+	"offset_to_ifd", /* offset to nex ifd */
+	"ifd_embedded_standardized_value", /* memory areas", with standardized values embedded in ifd */
+	"ifd_embedded_registered_value", /* memory areas", with registered values embedded in ifd */
+	"ifd_embedded_private_value", /* memory areas", with private values embedded in ifd */
+	"ifd_offset_to_standardized_value", /* memory areas", which points to standardized values */
+	"ifd_offset_to_registered_value", /* memory areas", which points to registered values */
+	"ifd_offset_to_private_value", /* memory areas", which points to private values */
+        "ifd_offset_to_stripoffsets", /* offsets which points to stripoffsets */
+        "stripoffset_value", /* stripoffset values, hint: if compression is used stripbytecounts holds only decompressed values! */
+	"standardized_value", /* memory areas", which contains standardized values */
+	"registered_value", /* memory areas", which contains registered values */
+	"private_value", /* memory areas", which contains private values */
+};
+
+typedef struct mem_map_entry_s {
+	uint32 offset; /* adress within the tiff */
+	uint32 count; /* count of bytes beginning with offset */
+	memtype_t mem_type; /* type of memory */
+} mem_map_entry_t;
+
+typedef struct mem_map_s {
+	int count;
+	mem_map_entry_t * base_p;
+	uint32 max_len; /* TIFF length */
+	int max_entries;
+} mem_map_t;
+
+
 #define MAXSTRLEN 1024
 #define EXPECTSTRLEN 160
 #define VALUESTRLEN 160
@@ -97,19 +150,24 @@ ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, 
 ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
-ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int value);
+ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value);
 ret_t check_tag(ctiff_t * ctif, tag_t tag);
 ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag);
 ret_t check_notag(ctiff_t * ctif, tag_t tag);
-ret_t check_tag_has_valid_type(ctiff_t * ctiff, tag_t tag);
+ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag);
 ret_t check_datetime(ctiff_t * ctif);
 ret_t check_icc(ctiff_t * ctif);
 ret_t check_has_only_one_ifd(ctiff_t * ctif);
 ret_t check_tagorder(ctiff_t * ctif);
 ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag); 
-ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char* value);
+ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char* regex_string);
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif);
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif);
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
+
+
+mem_map_t * scan_mem_map(ctiff_t * ctif) ;
+void print_mem_map( mem_map_t * memmap_p);
+void print_mem_stats( mem_map_t * memmap_p);
 #endif
 /* _FIXIT_TIFF_CHECK */

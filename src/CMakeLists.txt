@@ -10,7 +10,14 @@ file( GLOB checkit_tiff_SOURCES
   "${PROJECT_SOURCE_DIR}/helper/*.c"
   "${PROJECT_SOURCE_DIR}/parser/*parser.c"
   "${PROJECT_SOURCE_DIR}/validate_icc/*.c"
+  "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
   )
+
+file( GLOB checkit_tiff_risk_SOURCES
+  "${PROJECT_SOURCE_DIR}/helper/*.c"
+  "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
+)
+
 #
 # Make a version file containing the current version from git.
 #
@@ -33,6 +40,7 @@ endif(WIN32)
 
 add_executable(checkit_tiff checkit_tiff.c ${checkit_tiff_SOURCES})
 add_executable(checkit_check_config checkit_check_config.c ${checkit_tiff_SOURCES})
+add_executable(checkit_tiff_risk checkit_tiff_risk.c ${checkit_tiff_risk_SOURCES})
 set(CMAKE_EXTRA_INCLUDE_FILES tiff.h)
 
 
@@ -106,6 +114,7 @@ endif(PCRE_FOUND)
 
 TARGET_LINK_LIBRARIES(checkit_tiff ${TIFF_LIBRARIES}  ${PCRE_LIBRARIES})
 TARGET_LINK_LIBRARIES(checkit_check_config ${TIFF_LIBRARIES}  ${PCRE_LIBRARIES})
+TARGET_LINK_LIBRARIES(checkit_tiff_risk ${TIFF_LIBRARIES})
 
 install( TARGETS checkit_tiff
   RUNTIME DESTINATION bin
