@@ -168,5 +168,6 @@ ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
 
 mem_map_t * scan_mem_map(ctiff_t * ctif) ;
 void print_mem_map( mem_map_t * memmap_p);
+void print_mem_stats( mem_map_t * memmap_p);
 #endif
 /* _FIXIT_TIFF_CHECK */
