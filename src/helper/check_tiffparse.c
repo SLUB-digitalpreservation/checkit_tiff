@@ -237,7 +237,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34361 */ case 34361: return ("MMHeader (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
     /* 34362 */ case 34362: return ("MMStamp (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
 
-    /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502 */
+    /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502, also see paragraph "Photoshop Image Resource Metadata Structure" in http://help.accusoft.com/ImageGear/v17.2/Windows/DLL/topic755.html or http://fileformats.archiveteam.org/wiki/Photoshop_Image_Resources, this points to http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_pgfId-1037685 */
     /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
     /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
     /* 34730 */ case 34730: return ("Annotation Offsets (Wang TIFF)"); /* line 134, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
