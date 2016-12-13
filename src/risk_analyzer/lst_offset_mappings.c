@@ -81,6 +81,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
 		  case TIFF_SRATIONAL: datasize =  8; break;
 		  case TIFF_FLOAT: datasize =  4; break;
 		  case TIFF_DOUBLE: datasize =  8; break;
+                  default: fprintf(stderr, "unknown datatype %i, possible a program error", datatype); exit(EXIT_FAILURE);
 	  }
           uint32 offset = ifd_entry.data32offset;
           uint16 count = ifd_entry.count;
@@ -170,6 +171,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                        }
                        break;
                      }
+    default: {
+               perror("stripoffset_entry.datatype has an unexpected value, possible a program error\n");
+               exit(EXIT_FAILURE);
+             }
   }
   //printf("count=%i\n", stripoffset_entry.count);
   for (int i=0; i< stripoffset_entry.count; i++) {
