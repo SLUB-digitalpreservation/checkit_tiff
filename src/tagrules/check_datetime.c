@@ -63,7 +63,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     int sec=0;
     int r = 0;
     for (int i=0; i<count; i++) {
-        if (datetime[i] == '\0') {
+        if ((datetime[i] == '\0') && (i != 19)) { /* \0 at 20th byte  allowed */
           r = i+1;
           break;
         }
