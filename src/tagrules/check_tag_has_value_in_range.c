@@ -30,9 +30,11 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: {
+                      uint32 * valp = NULL;
                       uint32 val;
-                      int found=TIFFGetField(ctif->tif, tag, &val);
+                      int found=TIFFGetFieldLONG(ctif, tag, &valp);
                       if (1 == found) {
+                        val = *valp;
                         if ((val >= a && val <= b )) { 
                           ret_t tmp_res;
                           tmp_res.returnmsg=NULL;
@@ -48,9 +50,11 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                       break;
                     }
     case TIFF_SHORT: {
-                       uint16 val;
-                      int found=TIFFGetField(ctif->tif, tag, &val);
+                      uint16 * valp = NULL;
+                      uint16 val;
+                      int found=TIFFGetFieldSHORT(ctif, tag, &valp);
                       if (1 == found) {
+                        val = *valp;
                         if ((val >= a && val <= b )) { 
                           ret_t tmp_res;
                           tmp_res.returnmsg=NULL;
@@ -66,9 +70,11 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                       break;
                      }
     case TIFF_RATIONAL: {
-                       float val;
-                      int found=TIFFGetField(ctif->tif, tag, &val);
+                      float * valp = NULL;
+                      float val;
+                      int found=TIFFGetFieldRATIONAL(ctif, tag, &valp);
                       if (1 == found) {
+                        val = * valp;
                         if ((val >= a && val <= b )) { 
                           ret_t tmp_res;
                           tmp_res.returnmsg=NULL;

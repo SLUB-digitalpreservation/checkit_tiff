@@ -2,20 +2,24 @@
  * 
  * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
 #ifndef _FIXIT_TIFF_CHECK
 #define _FIXIT_TIFF_CHECK
 #include <stdlib.h>
-#include <tiff.h>
-#include <tiffio.h>
+#include "tiff.h"
+#include <stdio.h>
+#include <unistd.h>
+
+typedef int thandle_t;
+
 
 typedef struct ctiff_s {
 	void * streamp; /* TODO: adress of memory-mapped tif stream */
 	uint32 streamlen; /* TODO: length of memory-mapped tif stream (in bytes) */
-	TIFF * tif;
+	int tif; /* filedescriptor */
 	void * ifd0p; /* adress of first ifd in memory-mapped tif stream */
 	uint32 ifd0pos; /* offset in tif stream (in bytes) */
 	uint16 ifd0c; /* count if tags in first ifd */

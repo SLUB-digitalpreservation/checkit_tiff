@@ -2,7 +2,7 @@
  * 
  * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
@@ -53,18 +53,11 @@ ret_t check_datetime(ctiff_t * ctif ) {
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
-  uint32 count=0;
-  int tagidx = TIFFGetRawTagListIndex(ctif, TIFFTAG_DATETIME);
-  if (tagidx >= 0) { /* there exists a datetime field */
-    ifd_entry_t datetime_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-    assert (datetime_entry.datatype == TIFF_ASCII);
-    if (datetime_entry.value_or_offset == is_value) {
-      return tif_fails_tag( TIFFTAG_DATETIME, "should  be  \"yyyy:MM:DD hh:mm:ss\"", datetime_entry.data8);
-    }
-    uint32 data32offset = datetime_entry.data32offset;
-    offset_t datetime_offset = read_offsetdata( ctif, data32offset, datetime_entry.count, datetime_entry.datatype);
-    char datetime[ datetime_entry.count ];
-    strncpy(datetime, datetime_offset.datacharp, datetime_offset.count);
+  int count=0;
+  char *datetime=NULL;
+  count = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime);
+
+  // printf("DATETIME='%s'\n", datetime);
     int day=0;
     int month=0;
     int year=0;
@@ -73,7 +66,8 @@ ret_t check_datetime(ctiff_t * ctif ) {
     int sec=0;
     int r = 0;
     for (int i=0; i<count; i++) {
-        if (datetime[i] == '\0') {
+      //printf("datetime[%i]='%c' (%i)\n", i, datetime[i], datetime[i]);
+        if ((datetime[i] == '\0') && (i != 19)) {
           r = i+1;
           break;
         }
@@ -107,7 +101,6 @@ ret_t check_datetime(ctiff_t * ctif ) {
        return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
        //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);
     }
-  }
   ret_t res;
   res.returnmsg=NULL;
   res.returncode=0;

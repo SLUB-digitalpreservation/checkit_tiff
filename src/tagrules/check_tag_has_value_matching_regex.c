@@ -17,11 +17,9 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_ASCII: {
-                       char * val;
-                       uint32 count;
-                       int found=TIFFGetField(ctif->tif, tag, &val, &count);
-                       if (1 == found) {
-                         count = strlen( val);
+                       char * val=NULL;
+                       int count = TIFFGetFieldASCII(ctif, tag, &val);
+                       if (0 < count) {
 #define OVECCOUNT 30    /* should be a multiple of 3 */
                          pcre *re;
                          int erroffset;

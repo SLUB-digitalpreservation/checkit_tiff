@@ -11,6 +11,7 @@
 #include "check.h"
 #include "check_helper.h"
 #include <unistd.h>
+#include <sys/stat.h>
 #include <assert.h>
 #include <fcntl.h>
 #include <string.h>
@@ -64,4 +65,18 @@ const char* range2str(int d, int n) {
   return strdup(array);
 }
 
+void TIFFSwabShort(uint16 *a) {
+  uint16 b = ((*a & 0xff) << 8) | ((*a >> 8) & 0xff);
+  *a=b;
+}
 
+void TIFFSwabLong(uint32 *a) {
+  uint32 b = ((*a & 0xffff) << 16) | (( *a >> 16) & 0xffff);
+  *a=b;
+}
+
+long long fsize(int fd) {
+  struct stat st;
+  fstat(fd, &st);
+  return st.st_size;
+}

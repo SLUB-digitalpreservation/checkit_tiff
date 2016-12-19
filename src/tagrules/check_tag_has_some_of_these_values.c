@@ -2,7 +2,7 @@
  * 
  * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
@@ -43,8 +43,10 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                         if (tmp_res.returncode == 0) return tmp_res;
                         p++;
                       }
+                      uint32 * valp = NULL;
                       uint32 val;
-                      TIFFGetField(ctif->tif, tag, &val);
+                      TIFFGetFieldLONG(ctif, tag, &valp);
+                      val = *valp;
                       return tif_fails_tag( tag, strdup(expected), int2str(val));
                       break;
                     }
@@ -59,8 +61,10 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                          if (tmp_res.returncode == 0) return tmp_res;
                          p++;
                        }
+                       uint16 * valp = NULL;
                        uint16 val;
-                       TIFFGetField(ctif->tif, tag, &val);
+                       TIFFGetFieldSHORT(ctif, tag, &valp);
+                       val = *valp;
                        return tif_fails_tag( tag, strdup(expected), int2str(val));
                        break;
                      }
@@ -75,8 +79,10 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                             if (tmp_res.returncode == 0) return tmp_res;
                             p++;
                           }
+                          float * valp = NULL;
                           float val;
-                          TIFFGetField(ctif->tif, tag, &val);
+                          TIFFGetFieldRATIONAL(ctif, tag, &valp);
+                          val = * valp;
                           return tif_fails_tag( tag, strdup(expected), float2str(val));
                           //tif_fails("tag %u (%s) does not have some of expected values (but have:%f)\n", tag, TIFFTagName(tif, tag), val);
                           break;

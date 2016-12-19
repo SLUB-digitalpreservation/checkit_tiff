@@ -2,7 +2,7 @@
  * 
  * author: Andreas Romeyke, 2015/2016
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
@@ -177,12 +177,13 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
              }
   }
   //printf("count=%i\n", stripoffset_entry.count);
+/*TODO:
   for (int i=0; i< stripoffset_entry.count; i++) {
-    tsize_t rawstriplen = TIFFRawStripSize(ctif->tif, i);
+    uint32 rawstriplen = TIFFRawStripSize(ctif->tif, i);
     //printf("OFFSET: p[%i]=%u len=%i\n", i,stripoffset_values[i], rawstriplen);
     add_mem_entry( &memmap, stripoffset_values[i], rawstriplen, mt_stripoffset_value);
   }
-
+*/
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
   /*
