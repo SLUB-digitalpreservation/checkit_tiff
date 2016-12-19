@@ -14,7 +14,6 @@
 /* checks if TIF has a specified tag */
 ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
   tifp_check( ctif);
-    int i;
   ret_t res;
   res.returnmsg=NULL;
   if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {
