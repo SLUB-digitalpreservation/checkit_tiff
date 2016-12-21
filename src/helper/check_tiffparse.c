@@ -545,13 +545,13 @@ int parse_header_and_endianess(ctiff_t * ctif) {
   if (magic2 == 42) { return ret; }
   else {
 	  fprintf (stderr, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
-	  if (magic2==0x2b00) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
-	  if (magic2==0x5500) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
-	  if (magic2==0xbc01) fprintf (stderr, "\tbut could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832\n");
-	  if (magic2==0x4e31) fprintf (stderr, "\tbut could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf\n");
-	  if (magic2==0x5243) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
-	  if (magic2==0x524f) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
-	  if (magic2==0x5253) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
+	  if (magic2==0x002b) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
+	  if (magic2==0x0055) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
+	  if (magic2==0x01bc) fprintf (stderr, "\tbut could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832\n");
+	  if (magic2==0x314e) fprintf (stderr, "\tbut could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf\n");
+	  if (magic2==0x4352) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
+	  if (magic2==0x4f52) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
+	  if (magic2==0x5352) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -667,6 +667,20 @@ LABEL1:
 	  }\
 }
 
+void offset_swabshort(ctiff_t * ctif, uint16 * address, uint16 count) {
+  if (is_byteswapped(ctif))
+    for (int i=0; i<count; i++, address++) {
+      TIFFSwabShort( address );
+    }
+}
+
+void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
+  if (is_byteswapped(ctif))
+    for (int i=0; i<count; i++, address++) {
+      TIFFSwabLong( address );
+    }
+}
+
 
 /*  get count-data datastream from offset-address */
 offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype) {
@@ -704,19 +718,24 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
       break;
     case 3: /* 16-bit unsigned integer */
       offset_malloc(fd, offset.data16p, uint16, count)
+      offset_swabshort(ctif, offset.data16p, count);
       break;
     case 8: /* !16-bit signed integer */
       offset_malloc(fd, offset.datas16p, int16, count)
+      offset_swabshort(ctif, offset.datas16p, count);
       break;
     case 4: /* 32-bit unsigned integer */
     case 13: /* %32-bit unsigned integer (offset) */
       offset_malloc(fd, offset.data32p, uint32, count)
+      offset_swablong(ctif, offset.data32p, count);
       break;
     case 9: /* !32-bit signed integer */
       offset_malloc(fd, offset.datas32p, uint32, count)
+      offset_swablong(ctif, offset.data32p, count);
       break;
     case 5: /* 64-bit unsigned fraction */
       offset_malloc(fd, offset.data32p, uint32, 2*count) /* because numerator + denominator */
+      offset_swablong(ctif, offset.data32p, 2*count);
       break;
     case 10: /* !64-bit signed fraction */
       fprintf(stderr, "offsetdata datatype=%i not supported yet", datatype);
