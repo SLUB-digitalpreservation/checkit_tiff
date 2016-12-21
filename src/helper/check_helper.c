@@ -71,7 +71,11 @@ void TIFFSwabShort(uint16 *a) {
 }
 
 void TIFFSwabLong(uint32 *a) {
-  uint32 b = ((*a & 0xffff) << 16) | (( *a >> 16) & 0xffff);
+  uint8 b0 = (*a) & 0xff;
+  uint8 b1 = (*a >> 8) & 0xff;
+  uint8 b2 = (*a >> 16) & 0xff;
+  uint8 b3 = (*a >> 24) & 0xff;
+  uint32 b = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
   *a=b;
 }
 
