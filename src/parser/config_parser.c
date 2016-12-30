@@ -303,7 +303,7 @@ void execute_plan (ctiff_t * ctif) {
       count_of_logical_or=count;
       res.returncode= -count; /* negative count to control output */
       res.count=1;
-      res.returnmsg = malloc( sizeof( retmsg_t ) );
+      res.returnmsg = realloc(res.returnmsg, sizeof( retmsg_t ) );
       if  (NULL==res.returnmsg) {
         fprintf(stderr, "could not allocate memory for tif_fails\n");
         exit(EXIT_FAILURE);
@@ -926,9 +926,18 @@ void set_parse_error(char * msg, char * yytext) {
   exit(EXIT_FAILURE);
 }
 
+void clean_plan_results() {
+	for (int i=parser_state.result_stackp-1; i >= 0; --i) {
+		if (NULL != parser_state.result_stack[i].result.returnmsg) {
+			free(  parser_state.result_stack[i].result.returnmsg );
+			parser_state.result_stack[i].result.returnmsg=NULL;
+			parser_state.result_stack[i].result.count=0;
+		}
+	}
+}
+
 /* prints a plan (list) of functions and their results*/
 int print_plan_results() {
-  int valid=0;
 #ifdef DEBUG
   printf("print plan results:\n");
   printf("####################(\n");
@@ -958,6 +967,7 @@ int print_plan_results() {
   } else {
     printf("Yes, the given tif is valid :)\n");
   }
+  clean_plan_results();
   return parser_state.result_stackp;
 }
 
@@ -991,3 +1001,4 @@ full_res_t _helper_get_nth(int n) {
 }
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
