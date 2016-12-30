@@ -14,7 +14,7 @@
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
   //printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
   tifp_check( ctif);
-  tif_rules_tag(tag, "has valid type");
+  //tif_rules_tag(tag, "has valid type");
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
@@ -107,3 +107,4 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
   /* we check only count, because we evaluate only int-values */
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

@@ -19,7 +19,7 @@
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value) {
   // printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName( tag), value);
   tifp_check( ctif);
-  tif_rules_tag(tag, "has value");
+  // tif_rules_tag(tag, "has value");
   ret_t ret;
   ret = check_tag_has_valid_type( ctif, tag);
   if (ret.returncode == 0) {
@@ -33,3 +33,4 @@ ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value) {
 
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
