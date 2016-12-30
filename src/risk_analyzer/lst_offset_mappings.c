@@ -54,12 +54,12 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   add_mem_entry( &memmap, 4, 4, mt_offset_to_ifd0);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
-  uint32 count = get_ifd0_count( ctif);
+  uint16 count = get_ifd0_count( ctif);
 
   add_mem_entry( &memmap, ifd, 2, mt_ifd); /* count of tags in ifd */
   int ifdbase=2+ifd;
   /* iterate through IFD0 entries */
-  int tagidx;
+  uint16 tagidx;
   ifd_entry_t stripoffset_entry; 
 
   for (tagidx = 0; tagidx< count; tagidx++) {
