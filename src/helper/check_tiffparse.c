@@ -986,6 +986,7 @@ ctiff_t * initialize_ctif(const char * tiff_file) {
   thandle_t client = (ctif->tif);
   ctif->streamlen = fsize(client);
   ctif->ifd0p=NULL;
+  ctif->streamp=NULL;
   ctif->ifd0pos= 0;
   ctif->ifd0c= 0;
   parse_header_and_endianess( ctif );
@@ -995,6 +996,12 @@ ctiff_t * initialize_ctif(const char * tiff_file) {
 
 void free_ctif( ctiff_t * ctif) {
 	assert( NULL != ctif);
+	if (NULL != ctif->ifd0p) free(ctif->ifd0p);
+	ctif->ifd0p=NULL;
+	if (NULL != ctif->streamp) free(ctif->streamp);
+	ctif->streamp=NULL;
+	if (NULL != ctif->filename) free(ctif->filename);
+	ctif->filename=NULL;
 	close(ctif->tif);
 	free (ctif);
 	ctif = NULL;
@@ -1072,6 +1079,7 @@ int TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp) {
 	    	  *(s++) = *(p++);
 	    	}
 	    	//printf("ASCII='%s'\n", *(string_pp));
+		free(offset.datacharp);
 	    	return (entry.count);
 	    }
 	  }
@@ -1099,6 +1107,7 @@ int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp) {
 	    	offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
        //printf("LONG (offset)=%lu\n", *offset.datacharp);
 	    	memcpy((void *) (*long_pp), (void *) offset.datacharp, (sizeof(uint32)*offset.count));
+		free(offset.datacharp);
 	    	return (entry.count);
 	    }
 	  }
@@ -1126,6 +1135,9 @@ int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp) {
 	    	offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
        //printf("SHORT (offset)=%u\n", *offset.datacharp);
 	    	memcpy((void *) (*short_pp), (void *)offset.datacharp, (sizeof(uint16)*offset.count));
+		free( offset.datacharp );
+		offset.datacharp=NULL;
+
 	    	return (entry.count);
 	    }
 	  }
@@ -1153,18 +1165,21 @@ int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp) {
       /* copy to a float */
       uint32 numerator = 0;
       uint32 denominator = 0;
+      uint32 * orig_data32p = offset.data32p;
       for (int i = 0; i< entry.count; i++) {
-          numerator = *(offset.data32p++);
-          denominator = *(offset.data32p++);
+          numerator = *(orig_data32p++);
+          denominator = *(orig_data32p++);
           *(float_pp)[i]=(float) numerator / (float) denominator;
           // printf("*float_pp[%i]=%f (%u / %u)\n", i, *(float_pp)[i], numerator, denominator);
       }
+      free( offset.data32p );
+      offset.data32p=NULL;
+
       return (entry.count);
     }
   }
   return -1;
 }
-
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
 
 
