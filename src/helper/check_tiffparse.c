@@ -722,7 +722,7 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
       break;
     case 8: /* !16-bit signed integer */
       offset_malloc(fd, offset.datas16p, int16, count)
-      offset_swabshort(ctif, offset.datas16p, count);
+      offset_swabshort(ctif, (uint16 *) offset.datas16p, count);
       break;
     case 4: /* 32-bit unsigned integer */
     case 13: /* %32-bit unsigned integer (offset) */
@@ -731,7 +731,7 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
       break;
     case 9: /* !32-bit signed integer */
       offset_malloc(fd, offset.datas32p, uint32, count)
-      offset_swablong(ctif, offset.data32p, count);
+      offset_swablong(ctif, (uint32 *) offset.data32p, count);
       break;
     case 5: /* 64-bit unsigned fraction */
       offset_malloc(fd, offset.data32p, uint32, 2*count) /* because numerator + denominator */
