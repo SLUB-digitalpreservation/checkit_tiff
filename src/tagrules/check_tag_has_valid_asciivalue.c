@@ -49,3 +49,4 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
 }
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

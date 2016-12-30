@@ -29,3 +29,4 @@ ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif) {
   res.returncode=0;
   return res;
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

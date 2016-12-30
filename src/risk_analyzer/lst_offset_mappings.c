@@ -252,3 +252,4 @@ void print_mem_stats( mem_map_t * memmap_p) {
 	}
 	printf("counted: %i bytes, size: %i bytes\n", counted, size);
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

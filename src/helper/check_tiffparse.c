@@ -1180,6 +1180,5 @@ int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp) {
   }
   return -1;
 }
+
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
-
-

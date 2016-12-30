@@ -84,3 +84,4 @@ long long fsize(int fd) {
   fstat(fd, &st);
   return st.st_size;
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

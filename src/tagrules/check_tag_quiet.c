@@ -23,3 +23,4 @@ ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
   res.returncode=1;
   return res;
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

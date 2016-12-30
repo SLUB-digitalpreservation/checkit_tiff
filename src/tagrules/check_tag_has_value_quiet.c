@@ -57,3 +57,4 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected
   ret_t ret;
   ret.returncode=0; ret.returnmsg=NULL; return ret;
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

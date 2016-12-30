@@ -229,3 +229,4 @@ ret_t _empty_result() {
   return t;
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

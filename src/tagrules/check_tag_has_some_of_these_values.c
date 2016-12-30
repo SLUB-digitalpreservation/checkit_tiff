@@ -99,3 +99,4 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
   return res; 
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

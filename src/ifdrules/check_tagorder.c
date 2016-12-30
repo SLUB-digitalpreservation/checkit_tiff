@@ -60,3 +60,4 @@ ret_t check_tagorder(ctiff_t * ctif) {
 }
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
