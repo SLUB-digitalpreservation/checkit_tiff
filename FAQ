@@ -21,8 +21,45 @@ A: You use an older version of the libtiff. If you cannot update, try this:
 
 Q: How can I compile a windows version of your program?
 A: I have only tested creating Windows executables using the crosscompiler
-   minGW under Debian Jessie, please see the instructions in 
-   the ../README.windows file.
+   minGW under Debian Jessie. You need the installed mingw-w64-x86-32 packages,
+   also you need to download and extract libtiff and libpcre. in
+   libtiff-source-dir, call "./configure --host=i686-w64-mingw32
+   --disable-win32-io --disable-shared -enable-static" and "make -j 4". Then in
+   libpcre (pcre-8.37), call "./configure --host=i686-w64-mingw32
+   --disable-win32-io --disable-shared -enable-static" and "make -j 4". Change
+   into checkit-tiff/build, call: 
+   "cmake -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake ../src/ 
+   -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a 
+   -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ 
+   -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a 
+   -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ ../src/" and "make -j 4"
+A2: I have only tested creating Windows executables using the crosscompiler
+   minGW under Debian Jessie. You need the installed mingw-w64-x86-64 packages,
+   also you need to download and extract libtiff and libpcre. in
+   libtiff-source-dir, call "./configure --host=x86_64-w64-mingw32
+   --disable-win32-io --disable-shared -enable-static" and "make -j 4". Then in
+   libpcre (pcre-8.37), call "./configure --host=x86_64-w64-mingw32
+   --disable-win32-io --disable-shared -enable-static" and "make -j 4". Change
+   into checkit-tiff/build, call: 
+   "cmake -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake ../src/ 
+   -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a 
+   -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ 
+   -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a 
+   -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ ../src/" and "make -j 4"
+
+Q: How to compile to Javascript?
+A: Use emscripten, do same steps as above but with "emconfigure
+   ./configure...". Compile checkit_tiff with ff. options:
+   $> emcmake cmake
+   -DCMAKE_C_COMPILER=$(which emcc)
+   -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a
+   -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/
+   -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a
+   -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ -DCMAKE_C_FLAGS="-Oz -s
+   TOTAL_MEMORY=400000000" ../src/"
+   $> make -j 4
+   $> js checkit_tiff.js -c ../tiffs_should_pass/minimal_valid.tiff ../example_configs/cit_tiff6_baseline_SLUB.cfg
+
 
 Q: I tried to compile with 'CFLAGS="-DOLDTIFF" make' under Debian Wheezy,
    but I got the message "error: expected specifier-qualifier-list before
@@ -41,5 +78,6 @@ Q: I am using cmake, but it fails with "CMake Error: your CXX compiler:
    to a valid compiler path or name". But your program is C only, why I need a
    C++compiler then?
 A: cmake uses C++-compiler for its checks. Sorry, you need a C++ then.
+
 
 
