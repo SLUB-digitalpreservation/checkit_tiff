@@ -160,6 +160,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33405 */ case TIFFTAG_WRITERSERIALNUMBER: return ("Kodak serial number");
     /* 33421 */ case 33421: return ("CFAREPEATPATTERNDIM");
     /* 33422 */ case 33422: return ("CFAPATTERN");
+    /* 33423 */ case 33423: return ("BatteryLevel (TIFF/EP)"); /* see ISO12234-2:2001 for TIFF/EP */
     /* 33424 */ case 33424: return ("Kodak IFD");  /* http://perldoc.net/Image/ExifTool/TagNames.pod#Unknown%20Tags  */
     /* 33432 */ case TIFFTAG_COPYRIGHT: return ("Copyright" );
     /* 33434 */ case 33434: return ("EXIF ExposureTime"); /* EXIF, Exposure time, given in seconds. */
@@ -185,7 +186,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33631 */ case 33631: return ("MetaMorph Stack Image UIC4"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
-    /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC"); /*  from libtiff */
+    /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC / NAA"); /* see ISO12234-2:2001 for TIFF/EP */
     /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33919 */ case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33920 */ case 33920: return ("IrasB Transformation Matrix / obsolete GeoTIFF IntergraphMatrixTag (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -241,7 +242,9 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34853 */ case TIFFTAG_GPSIFD: return ("GPSIFD or Olympus SIS TAG2"); /* for Olympus, see https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/SISReader.java */
     /* 34855 */ case 34855: return ("EXIF ISOSpeedRatings"); /* EXIF, Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. */
     /* 34856 */ case 34856: return ("EXIF OECF"); /* EXIF, Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524. */
-    /* 34858 */ case 34858: return ("TimeZoneOffset (TIFF/EP)"); /* https://en.wikipedia.org/wiki/TIFF/EP#Differences_from_TIFF_and_Exif */
+    /* 34857 */ case 34857: return ("Interlace (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 34858 */ case 34858: return ("TimeZoneOffset (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 34859 */ case 34859: return ("SelfTimerMode (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
     /* 34908 */ case TIFFTAG_FAXRECVPARAMS: return ("HylaFax FaxRecvParams"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34909 */ case TIFFTAG_FAXSUBADDRESS: return ("HylaFax FaxSubAdress"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34910 */ case TIFFTAG_FAXRECVTIME: return ("HylaFax FaxRecvTime"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -260,8 +263,19 @@ const char * TIFFTagName( tag_t tag ) {
     /* 37384 */ case 37384: return ("EXIF LightSource"); /* EXIF, The kind of light source. */
     /* 37385 */ case 37385: return ("EXIF Flash"); /* EXIF, Indicates the status of flash when the image was shot. */
     /* 37386 */ case 37386: return ("EXIF FocalLength"); /* EXIF, The actual focal length of the lens, in mm. */
-    /* 37396 */ case 37396: return ("EXIF SubjectArea"); /* EXIF, Indicates the location and area of the main subject in the overall scene. */
-    /* 37398 */ case 37398: return ("TIFF/EPStandardID"); /* TIFF/EP, see http://fileformats.archiveteam.org/wiki/TIFF/EP */
+    /* 37387 */ case 37387: return ("FlashEnergy (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37388 */ case 37388: return ("SpatialFrequencyResponse (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37389 */ case 37389: return ("Noise (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37390 */ case 37390: return ("FocalPlaneXResolution (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37391 */ case 37391: return ("FocalPlaneYResolution (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37392 */ case 37392: return ("FocalPlaneResolutionUnit (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37393 */ case 37393: return ("ImageNumber (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37394 */ case 37394: return ("SecurityClassification (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37395 */ case 37395: return ("ImageHistory (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37396 */ case 37396: return ("EXIF SubjectArea"); /* EXIF, Indicates the location and area of the main subject in the overall scene. Similar with SubjectLocation at TIFF/EP */
+    /* 37397 */ case 37397: return ("ExposureIndex (TIFF/EP)"); /*  see ISO12234-2:2001 for TIFF/EP */
+    /* 37398 */ case 37398: return ("TIFF/EP StandardID"); /* see TIFF/EP ISO12234-2:2001, see http://fileformats.archiveteam.org/wiki/TIFF/EP */
+    /* 37399 */ case 37399: return ("Sensing Method (TIFF/EP)"); /* see ISO12234-2:2001 for TIFF/EP */
     /* 37400 */ case 37400: return ("old Kodak KDC"); /*  see <http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 37439 */ case TIFFTAG_STONITS: return ("StoNits" );
     /* 37500 */ case 37500: return ("EXIF MakerNote"); /* EXIF, Manufacturer specific information. */
