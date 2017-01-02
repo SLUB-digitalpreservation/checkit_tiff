@@ -17,6 +17,7 @@
       /* #include <sys\stat.h> */
       #include <sys/stat.h>
 #endif
+#include <unistd.h>
 
 #define FLAGGED 1
 #define UNFLAGGED 0
