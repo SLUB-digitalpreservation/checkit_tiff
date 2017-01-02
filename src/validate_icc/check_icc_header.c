@@ -213,3 +213,4 @@ int parse_icc(unsigned long iccsize, char* iccdata, unsigned long errsize, char 
   return 0;
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

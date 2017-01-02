@@ -1,8 +1,8 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * author: Andreas Romeyke, 2015
+ * author: Andreas Romeyke, 2015/2016
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
@@ -35,7 +35,6 @@ void help () {
   printf ("\tversion: %s\n", VERSION);
   printf ("\trevision: %s\n", REPO_REVISION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n\n");
-  printf ("\tuses libtiff version %s\n\n", TIFFGetVersion());
   printf ("call it with:\n");
   printf ("\tcheckit_tiff [-c|-h|-m|-d] <tifffile> <configfile>\n");
   printf ("\nwhere <tifffile> is the tiff file (or directory) to be validated\n");
@@ -59,7 +58,6 @@ void simplified_result_push(ret_t res, function_t func) {
 
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-  // printf("tiff file=%s\n", tiff_file);
   ret_t res = _empty_result();
   res = tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file );
@@ -101,8 +99,6 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
     simplified_result_push(res, fc_icc);
   }
   execute_plan(ctif);
-  /* TODO: colorize? */
-  /* TODO: parse results */
   is_valid = print_plan_results();
   free_ctif( ctif );
   return is_valid;
@@ -174,18 +170,15 @@ int main (int argc, char * argv[]) {
     char tiff_dir [ len ];
     strncpy(tiff_dir, tiff_file_or_dir, len);
     tiff_dir[  len ] = 0; 
-    /* printf ("tiffdir='%s'\n\n", tiff_dir);*/
     DIR *dir;
     struct dirent *ent;
     /* remove trailing / */
     char *dirsuffix = strrchr(tiff_dir, '/');
     if (dirsuffix != NULL) { /* found a / */
-      /* printf ("len = %i dir = '%s' dirsuffix = '%s'\n", len, tiff_dir,  dirsuffix);*/
       if ( 0 == strcmp( dirsuffix, "/" ) ) { /* ok, ends with / */
         /* remove last / */
         assert(len >= 1); // or whatever you want to do with short strings
         tiff_dir[len-1] = 0;
-        /* printf("tiffdir2 = '%s'\n", tiff_dir); */
       }
     }
 
@@ -228,3 +221,4 @@ int main (int argc, char * argv[]) {
     exit(EXIT_FAILURE);
   }
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

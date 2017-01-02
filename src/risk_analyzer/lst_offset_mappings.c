@@ -2,7 +2,7 @@
  * 
  * author: Andreas Romeyke, 2015/2016
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
@@ -54,12 +54,12 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   add_mem_entry( &memmap, 4, 4, mt_offset_to_ifd0);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
-  uint32 count = get_ifd0_count( ctif);
+  uint16 count = get_ifd0_count( ctif);
 
   add_mem_entry( &memmap, ifd, 2, mt_ifd); /* count of tags in ifd */
   int ifdbase=2+ifd;
   /* iterate through IFD0 entries */
-  int tagidx;
+  uint16 tagidx;
   ifd_entry_t stripoffset_entry; 
 
   for (tagidx = 0; tagidx< count; tagidx++) {
@@ -177,12 +177,13 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
              }
   }
   //printf("count=%i\n", stripoffset_entry.count);
+/*TODO:
   for (int i=0; i< stripoffset_entry.count; i++) {
-    tsize_t rawstriplen = TIFFRawStripSize(ctif->tif, i);
+    uint32 rawstriplen = TIFFRawStripSize(ctif->tif, i);
     //printf("OFFSET: p[%i]=%u len=%i\n", i,stripoffset_values[i], rawstriplen);
     add_mem_entry( &memmap, stripoffset_values[i], rawstriplen, mt_stripoffset_value);
   }
-
+*/
   /* sort entries by offset */
   qsort(memmap.base_p, memmap.count, sizeof( mem_map_entry_t), compare_memmap);
   /*
@@ -251,3 +252,4 @@ void print_mem_stats( mem_map_t * memmap_p) {
 	}
 	printf("counted: %i bytes, size: %i bytes\n", counted, size);
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

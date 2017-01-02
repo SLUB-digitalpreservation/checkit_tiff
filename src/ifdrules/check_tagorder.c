@@ -12,15 +12,8 @@
 
 ret_t check_tagorder(ctiff_t * ctif) {
   tif_rules("tags are in ascending order");
-  thandle_t client = TIFFClientdata(ctif->tif);
-  TIFFReadWriteProc readproc = TIFFGetReadProc(ctif->tif);
-  TIFFSeekProc seekproc = TIFFGetSeekProc(ctif->tif);
-  if (! seekproc) {
-    perror ("could not get TIFFGetSeekProc");
-  }
-  if (! readproc) {
-    perror ("could not get TIFFGetReadProc");
-  }
+  thandle_t client = (ctif->tif);
+
 
   uint32 offset = get_ifd0_pos(ctif);
   int count = get_ifd0_count(ctif);
@@ -30,15 +23,9 @@ ret_t check_tagorder(ctiff_t * ctif) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  /*
-     if (read(fd, ifdentries, 12 * count) != 12*count) {
-     perror ("TIFF Header read error5");
-     exit(EXIT_FAILURE);
-     }
-     */
-  seekproc(client, offset+2, SEEK_SET);
+  lseek(client, offset+2, SEEK_SET);
 
-  if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
+  if ( read( client, ifdentries, 12 * count) != 12*count ) {
     perror ("TIFF Header read error5");
     exit( EXIT_FAILURE );
   }
@@ -73,3 +60,4 @@ ret_t check_tagorder(ctiff_t * ctif) {
 }
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

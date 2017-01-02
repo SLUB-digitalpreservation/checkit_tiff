@@ -2,7 +2,7 @@
  *
  * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 #define DEBUG
@@ -43,19 +43,15 @@ ret_t tif_fails(const char* fail_message) {
   res.returnmsg->rm_type=rm_hard_error;
   res.count = 1;
   res.returnmsg->rm_msg = str;
-  //printf( "%s", renderer( res) );
   return res;
 }
 
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value) {
   ret_t res = tif_returns( tag, expected, value);
-   // call renderer
-  //printf( "%s", renderer( res) );
   return res;
 }
 
 ret_t tif_rules_tag(tag_t tag, const char *msg) {
-  //printf("DEBUG: %s -> %s\n", tag, msg);
   ret_t res;
   res.returnmsg = NULL;
   res.returncode=0;
@@ -82,12 +78,10 @@ ret_t tif_rules_tag(tag_t tag, const char *msg) {
   p++;
   p->rm_type=rm_rule;
   p->rm_msg = strndup( msg, MAXSTRLEN);
-  // printf( "%s", renderer( res) );
   return res;
 }
 
 ret_t tif_no_tag(tag_t tag) {
-  //printf("DEBUG: %s -> %s\n", tag, msg);
   ret_t res;
   res.returnmsg = NULL;
   res.returncode=1;
@@ -118,8 +112,6 @@ ret_t tif_no_tag(tag_t tag) {
   p++;
   p->rm_type=rm_value;
   p->rm_msg = ", but is not whitelisted (or rule has no matched dependency)";
-  
-  // printf( "%s", renderer( res) );
   return res;
 }
 
@@ -141,7 +133,6 @@ ret_t tif_rules(const char *msg) {
   p++;
   p->rm_type=rm_rule;
   p->rm_msg = strndup( msg, MAXSTRLEN);
-  //printf( "%s", renderer( res) );
   return res;
 }
 ret_t tif_files(const char *msg) {
@@ -168,21 +159,13 @@ ret_t tif_files(const char *msg) {
 
 void tifp_check( ctiff_t * ctif) {
   if (NULL == ctif) { tif_fails("ctif_t pointer is empty\n"); };
-  if (NULL == ctif->tif) { tif_fails("TIFF pointer is empty\n"); };
+  if (0 > ctif->tif) { tif_fails("TIFF FD pointer is empty\n"); };
 }
 
 /* TODO: add tif_returns specialized for types */
 
 ret_t tif_returns(tag_t tag, const char* expected, const char* value) {
   ret_t res;
-  /*
-     char * str =malloc( sizeof(char) *MAXSTRLEN );
-     if (NULL==str) {
-     fprintf(stderr, "could not allocate memory for tif_fails\n");
-     exit(EXIT_FAILURE);
-     };
-     snprintf (str, MAXSTRLEN-1, "FAILTAG:tag >>%s<< should have value >>%s<<, but has count/value >>%s<<\n", tag, expected, value);
-     */
   res.returnmsg = NULL;
   res.returncode=1;
   res.count = 4;
@@ -222,13 +205,11 @@ ret_t tif_returns(tag_t tag, const char* expected, const char* value) {
     exit(EXIT_FAILURE);
   };
   snprintf (p->rm_msg, MAXSTRLEN-1, ", but has value (values or count) %s", value);
-
   return res;
 }
 
 ret_t tif_fails_by_returns( ret_t ret ) {
- // printf( "%s", renderer( ret) );
- return ret;
+  return ret;
 }
 
 ret_t _empty_result() {
@@ -242,11 +223,10 @@ ret_t _empty_result() {
     fprintf(stderr, "could not allocate memory for _empty_result\n");
     exit(EXIT_FAILURE);
   };
-
   // header
   p->rm_type=rm_default;
   p->rm_msg = "ok";
-
   return t;
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

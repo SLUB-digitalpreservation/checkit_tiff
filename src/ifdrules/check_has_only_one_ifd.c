@@ -32,3 +32,4 @@ ret_t check_has_only_one_ifd(ctiff_t * ctif) {
       return tif_fails( array);
   }
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

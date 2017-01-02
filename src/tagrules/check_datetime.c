@@ -2,12 +2,14 @@
  * 
  * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
- * (see http://libtiff.maptools.org/misc.html)
+ * (see file LICENSE)
  *
  */
 
 #include "check.h"
 #include "check_helper.h"
+#include <assert.h>
+#include <string.h>
 
 /** check if date / time values are within correct ranges 
  * @param year year
@@ -51,10 +53,11 @@ ret_t check_datetime(ctiff_t * ctif ) {
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
+  int count=0;
   char *datetime=NULL;
-  uint32 count=0;
-  int found=TIFFGetField(ctif->tif, TIFFTAG_DATETIME, &datetime, &count);
-  if (1==found) { /* there exists a datetime field */
+  count = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime);
+
+  // printf("DATETIME='%s'\n", datetime);
     int day=0;
     int month=0;
     int year=0;
@@ -97,10 +100,10 @@ ret_t check_datetime(ctiff_t * ctif ) {
        return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
        //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);
     }
-  }
   ret_t res;
   res.returnmsg=NULL;
   res.returncode=0;
   return res;
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

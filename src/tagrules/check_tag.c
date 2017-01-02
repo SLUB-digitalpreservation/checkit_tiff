@@ -26,3 +26,4 @@ ret_t check_tag(ctiff_t * ctif, tag_t tag) {
     return tif_fails_tag(tag, "", "was not found, but requested because defined");
   }
 }
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

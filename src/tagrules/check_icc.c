@@ -73,3 +73,4 @@ ret_t check_icc(ctiff_t * ctif ) {
   return res;
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

@@ -25,9 +25,9 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
   if (datatype == TIFF_ASCII) {
     //printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
     tif_rules_tag(tag, "has valid asciivalue");
-
-    int found=TIFFGetField(ctif->tif, tag, &string, &count);
-    if (1==found) { /* there exists a tag */
+    char * val=NULL;
+    int count = TIFFGetFieldASCII(ctif, tag, &val);
+    if (0 < count) { /* there exists a tag */
       for (int i=0; i<count; i++) {
         if (string[i] == '\0') {
           r = i+1;
@@ -49,3 +49,4 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
 }
 
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

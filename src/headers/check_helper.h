@@ -9,12 +9,15 @@
 #ifndef _FIXIT_TIFF_CHECK_HELPER
 #define _FIXIT_TIFF_CHECK_HELPER
 #include <stdlib.h>
-#include <tiff.h>
-#include <tiffio.h>
+//#include <tiff.h>
+//#include <tiffio.h>
+#define TIFF_ANY 0
+void TIFFSwabShort(uint16 *a);
+void TIFFSwabLong(uint32 *a);
 
 typedef enum{ render_default, render_debug, render_ansi, render_xml} render_type;
-
 /* helper */
+long long fsize(int fd);
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value);
 ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value);
 ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value);
@@ -25,10 +28,12 @@ int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) ;
 TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx );
+int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag);
+int TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_p);
+int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_p);
+int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_p);
+int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_p);
 offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype);
-//uint32 get_first_IFD(ctiff_t * ctif);
-//int parse_header_and_endianess(ctiff_t * ctif);
-//int TIFFIsByteSwapped(TIFF * tif);
 const char * renderer ( const ret_t ret );
 void set_renderer_to_ansi();
 void set_renderer_to_xml();
