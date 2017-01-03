@@ -34,7 +34,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
 
                            int ovector[OVECCOUNT];
                            /*  PCRE_NOTEMPTY: An empty string is not a valid match */
-                           int rc = pcre_exec( re, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
+                           int rc = pcre_exec( re, NULL, val, count-1, 0,PCRE_NOTEMPTY, ovector, OVECCOUNT);
 #ifdef DEBUG
                            printf("tag %s with count=%d and value='%s' -> rc=%d\n", TIFFTagName(tag), count, val, rc);
 #endif
