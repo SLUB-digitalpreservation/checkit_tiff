@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <string.h>
+#include <math.h>
 /*
 #define DEBUG
 */
@@ -705,7 +706,6 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
   lseek(client, address, SEEK_SET);
 
 
-
 #ifdef DEBUG
   printf("read_offsetdata(tif, adress=%u, count=%u, datatype=%u)\n", address, count, datatype);
 #endif
@@ -1163,7 +1163,7 @@ int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp) {
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-    //printf("entry.count=%i\n", entry.count);
+    // printf("entry.count=%i\n", entry.count);
     *(float_pp) = malloc( sizeof(float) * (entry.count));
     if (NULL == *(float_pp)) {
       perror ("could not allocate memory for float_p");
@@ -1184,8 +1184,15 @@ int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp) {
       for (int i = 0; i< entry.count; i++) {
           numerator = *(orig_data32p++);
           denominator = *(orig_data32p++);
-          *(float_pp)[i]=(float) numerator / (float) denominator;
-          // printf("*float_pp[%i]=%f (%u / %u)\n", i, *(float_pp)[i], numerator, denominator);
+          //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
+          float v;
+          if (denominator == 0) {
+            v=NAN;
+          } else {
+            v = (float) numerator / (float) denominator;
+          }
+          // printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
+          (*(float_pp))[i]=v;
       }
       free( offset.data32p );
       offset.data32p=NULL;
