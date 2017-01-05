@@ -53,6 +53,10 @@ ret_t check_datetime(ctiff_t * ctif ) {
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, TIFFTAG_DATETIME );
+  if (datatype != TIFF_ASCII) {
+	  return tif_fails_tag(TIFFTAG_DATETIME, "", "has not the expected datatype ASCII");
+  }
   int count=0;
   char *datetime=NULL;
   count = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime);
