@@ -605,9 +605,11 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 
 	if (is_byteswapped(ctif))
 		TIFFSwabShort(&count);
+	if (count <= 8) {
+		perror("pointer to IFD0 must be greater than 8, because first 8 Bytes contains the TIFF header");
+		exit(EXIT_FAILURE);
+	}
 	ctif->ifd0c = count;
-	assert(0 != ctif->ifd0c);
-
 	return offset;
 }
 
