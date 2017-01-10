@@ -33,10 +33,8 @@ ret_t check_icc(ctiff_t * ctif ) {
                         offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
                         icc_profile = (char *)offset.data32p;
                       } else {
-                        perror("Should not occure");
+                        return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to an offset", "encoded as value instead as offset, but there is no enough space to hold it");
                       }
-
-
                        break;
                      }
     default: { /*  none */
