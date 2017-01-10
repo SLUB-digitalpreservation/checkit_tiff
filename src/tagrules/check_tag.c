@@ -17,11 +17,7 @@ ret_t check_tag(ctiff_t * ctif, tag_t tag) {
   tif_rules_tag(tag, "exists");
     ret_t res = check_tag_quiet( ctif, tag);
   if (res.returncode == 0) {
-    res = check_tag_has_valid_type( ctif, tag);
-    if (res.returncode == 0) {
-      return check_tag_has_valid_asciivalue(ctif, tag);
-    }
-    return tif_fails_by_returns(res);
+    return check_tag_has_valid_type( ctif, tag);
   } else {
     return tif_fails_tag(tag, "", "was not found, but requested because defined");
   }
