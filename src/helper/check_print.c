@@ -159,7 +159,8 @@ ret_t tif_files(const char *msg) {
 
 void tifp_check( ctiff_t * ctif) {
   if (NULL == ctif) { tif_fails("ctif_t pointer is empty\n"); };
-  if (0 > ctif->tif) { tif_fails("TIFF FD pointer is empty\n"); };
+  if (0 > ctif->fd) { tif_fails("TIFF FD pointer is empty\n"); };
+  if (NULL == ctif->streamp) { tif_fails("TIFF stream pointer is empty\n"); };
 }
 
 /* TODO: add tif_returns specialized for types */

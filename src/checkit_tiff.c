@@ -60,7 +60,7 @@ void simplified_result_push(ret_t res, function_t func) {
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   ret_t res = _empty_result();
   res = tif_files(tiff_file);
-  ctiff_t * ctif = initialize_ctif( tiff_file );
+  ctiff_t * ctif = initialize_ctif( tiff_file, use_memmapped?is_memmap:is_filep );
   int is_valid = 0;
   /* special checks */
   res = check_all_IFDs_are_word_aligned( ctif);
@@ -195,7 +195,7 @@ int main (int argc, char * argv[]) {
           exit(EXIT_FAILURE);
         }
         if(attribute.st_mode & S_IFREG) {
-          /* printf ("%s\n", fqname); */
+          printf ("%s\n", fqname); 
           parse_plan_via_file(cfg_file);
           is_valid += check_specific_tiff_file( fqname, flag_use_memorymapped_io);
           clean_plan();

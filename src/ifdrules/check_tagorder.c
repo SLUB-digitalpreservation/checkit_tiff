@@ -12,7 +12,6 @@
 
 ret_t check_tagorder(ctiff_t * ctif) {
   tif_rules("tags are in ascending order");
-  thandle_t client = (ctif->tif);
 
 
   uint32 offset = get_ifd0_pos(ctif);
@@ -23,9 +22,9 @@ ret_t check_tagorder(ctiff_t * ctif) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  lseek(client, offset+2, SEEK_SET);
+  ct_seek(ctif, offset+2, SEEK_SET);
 
-  if ( read( client, ifdentries, 12 * count) != 12*count ) {
+  if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
     perror ("TIFF Header read error5");
     exit( EXIT_FAILURE );
   }

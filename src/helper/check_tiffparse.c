@@ -15,9 +15,67 @@
 #include <fcntl.h>
 #include <string.h>
 #include <math.h>
+#include <sys/mman.h>
+#include <errno.h>
 /*
 #define DEBUG
 */
+
+off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
+	switch (ctif->ioflag) {
+		case is_filep: 
+			assert(ctif->fd >= 0);
+			// TODO: add checks if seek will be outside of file!!!
+			return lseek(ctif->fd, pos, whence);
+			break;
+
+		case  is_memmap:
+		        assert( ctif->streamp != NULL);
+		        assert( ctif->actual_streamp != NULL);
+			// TODO: add checks if seek will be outside of file!!!
+			switch (whence) {
+				case SEEK_SET: 
+					ctif->actual_streamp = ctif->streamp + pos;
+					break;
+				case SEEK_CUR:
+					ctif->actual_streamp+=pos;
+					break;
+				case SEEK_END:
+					ctif->actual_streamp = ctif->streamp + ctif->streamlen + pos;
+					break;
+			}
+			return ctif->actual_streamp - ctif->streamp;
+			break;
+	}
+}
+ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
+	switch (ctif->ioflag) {
+		case is_filep: 
+			// TODO: add checks if seek will be outside of file!!!
+			assert(ctif->fd >= 0);
+			return read(ctif->fd, buf, count);
+			break;
+		case  is_memmap: {
+					 assert( ctif->streamp != NULL);
+					 assert( ctif->actual_streamp != NULL);
+
+					 int testpos = (ctif->actual_streamp+count) - (ctif->streamp);
+					 if ( testpos > ctif->streamlen) {
+						 fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+						 exit(EXIT_FAILURE);
+					 }
+					 if ( testpos < 0 ) {
+						 fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+						 exit(EXIT_FAILURE);
+					 }
+					 memcpy(buf, ctif->actual_streamp, count);
+					 ctif->actual_streamp+=count;
+					 return count;
+					 break;
+				 }
+	}
+}
+
 
 const char * TIFFTagName( tag_t tag ) {
   switch (tag) {
@@ -183,9 +241,9 @@ const char * TIFFTagName( tag_t tag ) {
 
 
     /* 33609 */ case 33609: return ("Component subsample CMYK/YCBCR (WangTIFF)"); /* line 182, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h  */
-    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
-    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
-    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33631 */ case 33631: return ("MetaMorph Stack Image UIC4"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC / NAA"); /* see ISO12234-2:2001 for TIFF/EP */
     /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -529,18 +587,17 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
 
 
 int parse_header_and_endianess(ctiff_t * ctif) {
-  thandle_t client = (ctif->tif);
    /* seek the image file directory (bytes 4-7) */
-  //lseek(fd, (off_t) 0, SEEK_SET);
-  if ( lseek(client, 0, SEEK_SET) != 0)  {
-	  perror ("TIFF header seek error");
+  //ct_seek(fd, (off_t) 0, SEEK_SET);
+  if ( ct_seek(ctif, 0, SEEK_SET) != 0)  {
+	  perror ("TIFF header ct_seek error to 0");
 	  exit( EXIT_FAILURE );
   }
   uint16 header;
   uint16 magic;
   int ret;
-  if ( read( client, &header, 2) != 2 ) {
-	  perror ("TIFF Header read error");
+  if ( ct_read( ctif, &header, 2) != 2 ) {
+	  perror ("TIFF Header ct_read error to magic byte header (first 2 bytes)");
 	  exit( EXIT_FAILURE );
   }
   if (header == 0x4949) ret = 0; /* little endian */
@@ -551,8 +608,8 @@ int parse_header_and_endianess(ctiff_t * ctif) {
     exit(EXIT_FAILURE);
   }
   ctif->isbyteswapped = ret;
-  if ( read( client, &magic, 2) != 2 ) {
-	  perror ("TIFF Header read error");
+  if ( ct_read( ctif, &magic, 2) != 2 ) {
+	  perror ("TIFF Header ct_read error to magic byte header (second 2 bytes == 42)");
 	  exit( EXIT_FAILURE );
   }
 
@@ -574,32 +631,25 @@ int parse_header_and_endianess(ctiff_t * ctif) {
 
 uint32 get_first_IFD(ctiff_t * ctif) {
 	int isByteSwapped = parse_header_and_endianess(ctif);
-	assert( NULL == ctif->ifd0p);
 	/* seek the image file directory (bytes 4-7) */
-	thandle_t client = (ctif->tif);
-	if (lseek(client, 4, SEEK_SET) != 4 ) {
-		perror ("TIFF Header seak error");
+	if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
+		perror ("TIFF Header seak error, seek set to byte 4");
 		exit (EXIT_FAILURE);
 	}
 	uint32 offset;
-	if ( read( client, &offset, 4) != 4 ) {
-		perror ("TIFF Header read error");
+	if ( ct_read( ctif, &offset, 4) != 4 ) {
+		perror ("TIFF Header ct_read error, reading 4 bytes from 4");
 		exit( EXIT_FAILURE );
 	}
 	if (isByteSwapped) {
 		TIFFSwabLong (&offset);
 	}
 	ctif->ifd0pos=offset;
-	ctif->ifd0p=malloc( sizeof(char) * offset );
-	if (NULL == ctif->ifd0p) {
-		fprintf (stderr, "could not allocate memory for ifd0p\n");
-		exit( EXIT_FAILURE );
-	}
-	lseek(client, offset, SEEK_SET);
+	ct_seek(ctif, offset, SEEK_SET);
 
 	uint16 count;
-	if ( read( client, &count, 2) != 2 ) {
-		perror ("TIFF Header read error2");
+	if ( ct_read( ctif, &count, 2) != 2 ) {
+		perror ("TIFF Header ct_read error2, reading ifd0 count (2 bytes)");
 		exit( EXIT_FAILURE );
 	}
 
@@ -618,18 +668,17 @@ uint32 get_first_IFD(ctiff_t * ctif) {
  * IFD-entry */
 int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
 	/* parse TIF */
-	thandle_t client = (ctif->tif);
 	/* seek the image file directory (bytes 4-7) */
 	uint32 offset = ifdpos;
 
 	// printf("diroffset to %i (0x%04lx)\n", offset, offset);
 	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
-	/* read and seek to IFD address */
-	lseek(client, offset, SEEK_SET);
+	/* ct_read and seek to IFD address */
+	ct_seek(ctif, offset, SEEK_SET);
 
 	uint16 count;
-	if ( read( client, &count, 2) != 2 ) {
-		perror ("TIFF Header read error2");
+	if ( ct_read( ctif, &count, 2) != 2 ) {
+		perror ("TIFF Header ct_read error2");
 		exit( EXIT_FAILURE );
 	}
 
@@ -642,15 +691,14 @@ int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
 tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 	int byteswapped = is_byteswapped(ctif);
 	int count = get_ifd0_count( ctif);
-	thandle_t client = (ctif->tif);
-	/* read count of tags (2 Bytes) */
+	/* ct_read count of tags (2 Bytes) */
 	int i;
 	/* replace i/o operatrions with in-memory-operations */
 	uint8 * ifdentries = NULL;
 	ifdentries = malloc ( sizeof(uint8) * 12 * count);
-	lseek(client, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
-	if ( read( client, ifdentries, 12 * count) != 12*count ) {
-		perror ("TIFF Header read error3");
+	ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
+	if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
+		perror ("TIFF Header ct_read error3");
 		exit( EXIT_FAILURE );
 	}
 
@@ -679,8 +727,8 @@ LABEL1:
 
 #define offset_malloc(fd, of, os, count ) {\
 	of = NULL; of = malloc ( sizeof(os) * count);\
-	  if ( read( client, of, sizeof(os) * count) != sizeof(os) *count ) {\
-		  perror ("TIFF Offset read error2");\
+	  if ( ct_read( ctif, of, sizeof(os) * count) != sizeof(os) *count ) {\
+		  perror ("TIFF Offset ct_read error2");\
 		  exit( EXIT_FAILURE );\
 	  }\
 }
@@ -703,9 +751,8 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
 /*  get count-data datastream from offset-address */
 offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype) {
   //int fd = TIFFFileno( tif);
-  thandle_t client = (ctif->tif);
-  /* read and seek to IFD address */
-  lseek(client, address, SEEK_SET);
+  /* ct_read and seek to IFD address */
+  ct_seek(ctif, address, SEEK_SET);
 
 
 #ifdef DEBUG
@@ -721,8 +768,8 @@ offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 d
       /*
       offset.data8p = NULL;
       offset.data8p = malloc ( sizeof(uint8) * count);
-      if (read(fd, offset.data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
-        perror ("TIFF Offset read error");
+      if (ct_read(fd, offset.data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
+        perror ("TIFF Offset ct_read error");
       */
       offset_malloc(fd, offset.data8p, uint8, count)
       break;
@@ -790,19 +837,18 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   printf(" count of tags = %i\n", tagcount);
 #endif
   // int fd = TIFFFileno( tif);
-  thandle_t client = (ctif->tif);
   //printf("count %i\n", count);
-  /* read count of tags (2 Bytes) */
+  /* ct_read count of tags (2 Bytes) */
   int i;
   ifd_entry_t ifd_entry;
   ifd_entry.value_or_offset = is_error;
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * tagcount);
-  lseek(client, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
+  ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
 
-  if ( read( client, ifdentries, 12 * tagcount) != 12*tagcount ) {
-	  perror ("TIFF Header read error4");
+  if ( ct_read( ctif, ifdentries, 12 * tagcount) != 12*tagcount ) {
+	  perror ("TIFF Header ct_read error4");
 	  exit( EXIT_FAILURE );
   }
   uint8 * e = ifdentries;
@@ -956,7 +1002,7 @@ if (tagidx >= 0) {
   }
 }
 
-/* reads the datatype of given tag on specified TIFF,
+/* ct_reads the datatype of given tag on specified TIFF,
  * because FieldType of libtiff does not return the true value (because it maps
  * its own datastructure), we need to use this function instead
  * @param tif pointer to TIFF structure
@@ -984,26 +1030,40 @@ TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag) {
   }
 }
 
-ctiff_t * initialize_ctif(const char * tiff_file) {
-  /* load tiff file */
-  int tif = open(tiff_file, O_RDONLY);
-  if (-1 == tif) {
-    fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
-    exit (EXIT_FAILURE);
-  };
-
+ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
   ctiff_t * ctif = malloc ( sizeof( ctiff_t) );
   if (NULL == ctif) {
     fprintf( stderr, "could not allocate memory for ctiff_t\n");
     exit (EXIT_FAILURE);
   }
-  ctif->tif = tif;
+  /* load tiff file */
+  int tif = open(tiff_file, O_RDONLY);
+  if (-1 == tif) {
+	  fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
+	  exit (EXIT_FAILURE);
+  };
+  ctif->fd = tif;
+  ctif->streamlen = fsize(tif);
+  ctif->streamp = NULL;
+  ctif->actual_streamp = NULL;
+  switch (ioflag) {
+	  case is_filep: {
+				 /* streamlen */
+				 break;
+			 }
+	  case  is_memmap: {
+				   void * tifmap = mmap( NULL, ctif->streamlen, PROT_READ, MAP_PRIVATE, tif, 0 );
+				   if (MAP_FAILED == tifmap) {
+					   fprintf( stderr, "file '%s' could not be mem-mapped, %s\n", tiff_file, strerror(errno));
+					   exit (EXIT_FAILURE);
+				   };
+				   ctif->streamp=tifmap;
+				   ctif->actual_streamp=tifmap;
+				  break;
+			   }
+  }
+  ctif->ioflag = ioflag;
   ctif->filename = strdup(tiff_file);
-  /* streamlen */
-  thandle_t client = (ctif->tif);
-  ctif->streamlen = fsize(client);
-  ctif->ifd0p=NULL;
-  ctif->streamp=NULL;
   ctif->ifd0pos= 0;
   ctif->ifd0c= 0;
   parse_header_and_endianess( ctif );
@@ -1013,26 +1073,31 @@ ctiff_t * initialize_ctif(const char * tiff_file) {
 
 void free_ctif( ctiff_t * ctif) {
 	assert( NULL != ctif);
-	if (NULL != ctif->ifd0p) free(ctif->ifd0p);
-	ctif->ifd0p=NULL;
-	if (NULL != ctif->streamp) free(ctif->streamp);
-	ctif->streamp=NULL;
 	if (NULL != ctif->filename) free(ctif->filename);
 	ctif->filename=NULL;
-	close(ctif->tif);
+	 switch (ctif->ioflag) {
+	  case is_filep: {
+				 break;
+			 }
+	  case is_memmap: {
+
+				  /* TODO */
+				  break;
+			  }
+	 }
+	 close(ctif->fd);
+	 ctif->fd = -1;
 	free (ctif);
 	ctif = NULL;
 }
 
 uint32 get_ifd0_pos( ctiff_t * ctif ) {
 	assert( NULL != ctif);
-	assert( NULL != ctif->ifd0p);
 	return ctif->ifd0pos;
 }
 
 uint16 get_ifd0_count( ctiff_t * ctif ) {
 	assert( NULL != ctif);
-	assert( NULL != ctif->ifd0p);
 	return ctif->ifd0c;
 }
 
@@ -1043,22 +1108,20 @@ char is_byteswapped( ctiff_t * ctif ) {
 
 uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	assert( NULL != ctif);
-	assert( NULL != ctif->ifd0p);
-	thandle_t client = (ctif->tif);
 
-	lseek(client, actual_pos, SEEK_SET);
+	ct_seek(ctif, actual_pos, SEEK_SET);
 	uint16 count;
-	if ( read( client, &count, 2) != 2 ) {
-		perror ("TIFF Header read error2");
+	if ( ct_read( ctif, &count, 2) != 2 ) {
+		perror ("TIFF Header ct_read error2");
 		exit( EXIT_FAILURE );
 	}
 
 	if (ctif->isbyteswapped)
 		TIFFSwabShort(&count);
-	lseek(client, 12 * count, SEEK_CUR);
+	ct_seek(ctif, 12 * count, SEEK_CUR);
 	uint32 offset;
-	if ( read( client, &offset, 4) != 4 ) {
-		perror ("TIFF Header read error3");
+	if ( ct_read( ctif, &offset, 4) != 4 ) {
+		perror ("TIFF Header ct_read error3");
 		exit( EXIT_FAILURE );
 	}
 	if (ctif->isbyteswapped)

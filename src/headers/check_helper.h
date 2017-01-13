@@ -38,7 +38,7 @@ const char * renderer ( const ret_t ret );
 void set_renderer_to_ansi();
 void set_renderer_to_xml();
 char * secstrcat (char * dest, const char * src, int maxsize);
-ctiff_t * initialize_ctif( const char * tiff_file );
+ctiff_t * initialize_ctif( const char * tiff_file, ct_ioflag_t );
 void free_ctif( ctiff_t * ctif);
 uint32 get_ifd0_pos( ctiff_t * ctif );
 uint32 get_next_ifd_pos( ctiff_t * ctif, uint32 actual_pos );

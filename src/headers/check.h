@@ -16,13 +16,16 @@
 typedef int thandle_t;
 
 
+typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
+
 typedef struct ctiff_s {
+	ct_ioflag_t ioflag;
 	void * streamp; /* TODO: adress of memory-mapped tif stream */
-	uint32 streamlen; /* TODO: length of memory-mapped tif stream (in bytes) */
-	int tif; /* filedescriptor */
-	void * ifd0p; /* adress of first ifd in memory-mapped tif stream */
+	void * actual_streamp;
+	uint32 streamlen; /* TODO: length of tif stream/file (in bytes) */
+	thandle_t fd; /* filedescriptor */
 	uint32 ifd0pos; /* offset in tif stream (in bytes) */
-	uint16 ifd0c; /* count if tags in first ifd */
+	uint16 ifd0c; /* count of tags in first ifd */
 	char isbyteswapped; /* true if BigEndian */
 	char *filename; /* filename */
 	/* TODO: add file size */
@@ -149,7 +152,8 @@ const char* tag2str(tag_t tag);
 const char* int2str(int v);
 const char* frac2str(int d, int n);
 const char* range2str(int d, int n);
-
+off_t ct_seek(ctiff_t * ctif, off_t pos, int whence);
+ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count);
 ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
