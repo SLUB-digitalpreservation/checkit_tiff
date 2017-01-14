@@ -4,7 +4,7 @@
 ########################################################
 mkdir build
 cd build
-cmake ../src/
+cmake ../src/ -DCMAKE_C_FLAGS="-W -Wall -Wextra -ansi -pedantic -O2 -Wno-unused-function"
 make
 ########################################################
 # alternatively for windows crosscompiling using mingw
