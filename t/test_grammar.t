@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 158;
+use Test::More tests => 166;
 
 my $testdir=prepare();
 
@@ -27,6 +27,14 @@ ok( call_checkit_check_config("256; mandatory; any\n") , "simple tag mandatory a
 ok( call_checkit_check_config("256; mandatory; only(1)\n") , "simple tag mandatory only(1)");
 ok( call_checkit_check_config("256; mandatory; ntupel(1,1,1)\n") , "simple tag mandatory ntupel(1,1,1)");
 ok( call_checkit_check_config("256; mandatory; regex(\"string\")\n") , "simple tag mandatory regex(\"string\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"^string\")\n") , "simple tag mandatory regex(\"^string\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"string\$\")\n") , "simple tag mandatory regex(\"string\$\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"^string\$\")\n") , "simple tag mandatory regex(\"^string\$\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"s*\")\n") , "simple tag mandatory regex(\"s*\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"s?\")\n") , "simple tag mandatory regex(\"s?\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"s\\+\")\n") , "simple tag mandatory regex(\"s\\+\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"[A-Z]\")\n") , "simple tag mandatory regex(\"[A-Z]\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"[^A-Z]\")\n") , "simple tag mandatory regex(\"[^A-Z]\")");
 ok( call_checkit_check_config("256; mandatory; range(1,100)\n") , "simple tag mandatory range(1,100)");
 ok( call_checkit_check_config("256; mandatory; range(100,1)\n") , "simple tag mandatory range(100,1)");
 ok( call_checkit_check_config("256; mandatory; logical_or(100,1)\n") , "simple tag mandatory logical_or(100,1)");
@@ -61,6 +69,7 @@ ok( call_checkit_check_config("256; depends(255.1); range(100,1)\n") , "simple t
 ok( call_checkit_check_config("256; depends(255.1); logical_or(100,1)\n") , "simple tag depends(255.1) logical_or(100,1)");
 ok( call_checkit_check_config("256; depends(255.1); logical_or(1,100)\n") , "simple tag depends(255.1) logical_or(1,100)");
 ok( call_checkit_check_config("256; depends(255.regex(\"test\")); any\n") , "simple tag depends(255.regex(\"test\")) any");
+
 ok(! call_checkit_check_config("0; depends(255.regex(\"test\")); any\n") , "simple non-tag depends(255.regex(\"test\")) any");
 ok( call_checkit_check_config("256; depends(255.regex(\"test\")); any\n") , "simple tag depends(255.regex(\"test\")) any");
 ok( call_checkit_check_config("256; depends(255.regex(\"test\")); only(1)\n") , "simple tag depends(255.regex(\"test\")) only(1)");
