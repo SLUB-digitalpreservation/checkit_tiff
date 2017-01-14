@@ -32,7 +32,6 @@ off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
 		case  is_memmap:
 		        assert( ctif->streamp != NULL);
 		        assert( ctif->actual_streamp != NULL);
-			// TODO: add checks if seek will be outside of file!!!
 			switch (whence) {
 				case SEEK_SET: 
 					ctif->actual_streamp = ctif->streamp + pos;
@@ -44,6 +43,16 @@ off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
 					ctif->actual_streamp = ctif->streamp + ctif->streamlen + pos;
 					break;
 			}
+	       		int testpos = ctif->actual_streamp - ctif->streamp;
+			if ( testpos > ctif->streamlen) {
+				fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+				exit(EXIT_FAILURE);
+			}
+			if ( testpos < 0 ) {
+				fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+				exit(EXIT_FAILURE);
+			}
+
 			return ctif->actual_streamp - ctif->streamp;
 			break;
 	}
@@ -704,6 +713,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 
 	uint8 * e = ifdentries;
 	uint16 ret = 0;
+	/*
 	for (i = 0; i<count; i++) {
 		uint8 lo = *e;
 		e++;
@@ -719,6 +729,19 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 		}
 		e+=10;
 	}
+	*/
+	assert(tagidx <= count);
+	assert(tagidx >= 0);
+	e+=(12*tagidx);
+	uint8 lo = *e;
+	e++;
+	uint8 hi = *e;
+	e++;
+	uint16 tagid = (hi << 8) + lo;
+	if (byteswapped)
+		TIFFSwabShort(&tagid);
+	 //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
+	ret = tagid;
 LABEL1:
 	/* loop each tag until end or given tag found */
 	free( ifdentries );
