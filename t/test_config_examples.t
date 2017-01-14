@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 my $testdir=prepare();
 
