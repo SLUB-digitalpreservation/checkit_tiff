@@ -65,6 +65,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_PRIMARYCHROMATICITIES:  res=(datatype  ==  TIFF_RATIONAL); break;
     case TIFFTAG_REFERENCEBLACKWHITE:    res=(datatype  ==  TIFF_LONG); break;
     case TIFFTAG_RESOLUTIONUNIT:    res=(datatype  ==  TIFF_SHORT); break;
+    case TIFFTAG_RICHTIFFIPTC:      res=(datatype == TIFF_UNDEFINED) || (datatype == TIFF_BYTE); break;
     case TIFFTAG_ROWSPERSTRIP:      res=(datatype  ==  TIFF_LONG) || (datatype ==  TIFF_SHORT); break;
     case TIFFTAG_SAMPLEFORMAT:      res=(datatype  ==  TIFF_SHORT); break;
     case TIFFTAG_SAMPLESPERPIXEL:   res=(datatype  ==  TIFF_SHORT); break;
@@ -96,7 +97,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
   }
   if (!res) {
     char array[VALUESTRLEN];
-    snprintf(array, sizeof(array), "with incorrect type: %i", datatype);
+    snprintf(array, sizeof(array), "with incorrect type: %s (%i)", TIFFTypeName(datatype), datatype);
     return tif_returns( tag, "", array);
   } else {
     ret_t tmp_res;
