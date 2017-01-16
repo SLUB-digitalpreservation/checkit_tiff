@@ -85,6 +85,29 @@ ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
 	}
 }
 
+const char * TIFFTypeName( uint16 tagtype ) {
+  switch (tagtype) {
+    case TIFF_NOTYPE: return "NOTYPE"; break;
+    case TIFF_BYTE: return "BYTE"; break;
+    case TIFF_ASCII: return "ASCII"; break;
+    case TIFF_SHORT: return "SHORT"; break;
+    case TIFF_LONG: return "LONG"; break;
+    case TIFF_RATIONAL: return "RATIONAL"; break;
+    case TIFF_SBYTE: return "SBYTE"; break;
+    case TIFF_UNDEFINED: return "UNDEFINED"; break;
+    case TIFF_SSHORT: return "SSHORT"; break;
+    case TIFF_SLONG: return "SLONG"; break;
+    case TIFF_SRATIONAL: return "SRATIONAL"; break;
+    case TIFF_FLOAT: return "FLOAT"; break;
+    case TIFF_DOUBLE: return "DOUBLE"; break;
+    case TIFF_IFD: return "IFD"; break;
+    case TIFF_LONG8: return "LONG8"; break;
+    case TIFF_SLONG8: return "SLONG8"; break;
+    case TIFF_IFD8: return "IFD8"; break;
+    default: return "unknown type"; break;
+  }
+}
+
 
 const char * TIFFTagName( tag_t tag ) {
   switch (tag) {

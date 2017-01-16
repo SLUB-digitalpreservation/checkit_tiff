@@ -21,6 +21,7 @@ long long fsize(int fd);
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value);
 ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value);
 ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value);
+const char * TIFFTypeName( uint16 tagtype );
 const char * TIFFTagName (tag_t tag);
 uint32 TIFFGetRawTagTypeListEntry( ctiff_t * ctif, int tagidx );
 tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) ;
