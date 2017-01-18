@@ -521,10 +521,39 @@ const char * TIFFTagName( tag_t tag ) {
 }
 
 int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IFD for given tag, return -1 if not found */
-  for (int i= 0; i < get_ifd0_count( ctif ); i++) {
-    if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
-      return i;
-    };
+  /*
+     for (int i= 0; i < get_ifd0_count( ctif ); i++) {
+     if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
+     return i;
+     };
+     }
+     */
+
+  switch (ctif->tagorder) {
+    case unknown_tag_order:
+      {
+        ctif->tagorder=has_sorted_tags;
+        tag_t last = TIFFGetRawTagListEntry(ctif, 0);
+        for (int i= 1; i < get_ifd0_count( ctif ); i++) {
+         tag_t current = TIFFGetRawTagListEntry( ctif, i );
+          if (last >= current) {
+            ctif->tagorder=has_unsorted_tags;
+            break;
+          }
+          last = current;
+        };
+        if (has_sorted_tags == ctif->tagorder) {
+          for (int i= 0; i < get_ifd0_count( ctif ); i++) {
+            tag_t tag = TIFFGetRawTagListEntry( ctif, i );
+            ctif->tag_cache[tag] = i;
+          }
+          return ctif->tag_cache[tag];
+        }
+      }
+      break;
+    case has_unsorted_tags:
+    case has_sorted_tags:
+      return ctif->tag_cache[tag];
   }
   return -1;
 }
@@ -1092,6 +1121,10 @@ ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
   ctif->streamlen = fsize(tif);
   ctif->streamp = NULL;
   ctif->actual_streamp = NULL;
+  ctif->tagorder=unknown_tag_order;
+  for (int i= 0; i < 65536; i++) {
+    ctif->tag_cache[i]= -1;
+  }
   switch (ioflag) {
 	  case is_filep: {
 				 /* streamlen */

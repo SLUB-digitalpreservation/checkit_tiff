@@ -15,11 +15,16 @@
 
 typedef int thandle_t;
 
+typedef uint16 tag_t;
 
 typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
 
+typedef enum{ has_sorted_tags, has_unsorted_tags, unknown_tag_order } tagorder_t;
+
 typedef struct ctiff_s {
 	ct_ioflag_t ioflag;
+        tagorder_t tagorder;
+        int tag_cache[65536];
 	void * streamp; /* TODO: adress of memory-mapped tif stream */
 	void * actual_streamp;
 	uint32 streamlen; /* TODO: length of tif stream/file (in bytes) */
@@ -75,7 +80,6 @@ typedef struct offset_s {
   };
 } offset_t;
 
-typedef uint16 tag_t;
 
 typedef enum {
 	mt_unused, /* memory areas, which are not referenced within TIFF file */
