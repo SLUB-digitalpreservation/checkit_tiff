@@ -3,6 +3,7 @@ project (checkit_tiff)
 include_directories("${PROJECT_SOURCE_DIR}/headers")
 include_directories("${PROJECT_SOURCE_DIR}/validate_icc")
 include (CheckSymbolExists)
+include (CheckFunctionExists)
 
 file( GLOB checkit_tiff_SOURCES 
   "${PROJECT_SOURCE_DIR}/tagrules/*.c"
@@ -29,9 +30,11 @@ add_definitions(-DVERSION="${BUILD_BRANCH}")
 add_definitions(-DREPO_REVISION="${REPO_REVISION}")
 add_definitions(-std=gnu11)
 if(WIN32)
+  add_definitions(-D__WIN32__=1)
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   SET(BUILD_SHARED_LIBRARIES OFF)
-  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+  # needed to increase default stack, because Win7 has only 1MB
+  SET(CMAKE_EXE_LINKER_FLAGS "-static -Wl,--stack,20000000")
   add_definitions(-DPCRE_STATIC)
   add_definitions(-D_POSIX_C_SOURCE=200809L)
   # FIXME: needed for MingW only
@@ -57,6 +60,15 @@ if (PCRE_FOUND)
 else(PCRE_FOUND)
   MESSAGE(FATAL_ERROR "No PCRE library found, add $PCRE_INCLUDE_DIR manually")
 endif(PCRE_FOUND)
+
+#find mmap
+CHECK_FUNCTION_EXISTS(mmap   _HAVE_MMAP)
+CHECK_FUNCTION_EXISTS(munmap _HAVE_MUNMAP)
+IF(_HAVE_MMAP AND _HAVE_MUNMAP)
+  MESSAGE(INFO "mmap found")
+  SET(_HAVE__MMAP 1)
+ENDIF()
+
 
 
 TARGET_LINK_LIBRARIES(checkit_tiff ${PCRE_LIBRARIES})

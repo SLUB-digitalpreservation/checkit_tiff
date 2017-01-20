@@ -15,13 +15,18 @@
 #include <fcntl.h>
 #include <string.h>
 #include <math.h>
+
+#ifdef _HAVE__MMAP
 #include <sys/mman.h>
+#endif
+
 #include <errno.h>
 /*
 #define DEBUG
 */
 
 off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
+#ifdef _HAVE__MMAP
 	switch (ctif->ioflag) {
 		case is_filep: 
 			assert(ctif->fd >= 0);
@@ -56,8 +61,15 @@ off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
 			return ctif->actual_streamp - ctif->streamp;
 			break;
 	}
+#else
+  assert(ctif->fd >= 0);
+  // TODO: add checks if seek will be outside of file!!!
+  return lseek(ctif->fd, pos, whence);
+#endif
 }
+
 ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
+#ifdef _HAVE__MMAP
 	switch (ctif->ioflag) {
 		case is_filep: 
 			// TODO: add checks if seek will be outside of file!!!
@@ -83,6 +95,12 @@ ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
 					 break;
 				 }
 	}
+#else
+  // TODO: add checks if seek will be outside of file!!!
+  assert(ctif->fd >= 0);
+  return read(ctif->fd, buf, count);
+#endif
+
 }
 
 const char * TIFFTypeName( uint16 tagtype ) {
@@ -273,9 +291,9 @@ const char * TIFFTagName( tag_t tag ) {
 
 
     /* 33609 */ case 33609: return ("Component subsample CMYK/YCBCR (WangTIFF)"); /* line 182, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiff.h  */
-    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
-    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
-    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also ct_read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33628 */ case 33628: return ("MetaMorph Stack Image UIC1"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33629 */ case 33629: return ("MetaMorph Stack Image UIC2"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
+    /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33631 */ case 33631: return ("MetaMorph Stack Image UIC4"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC / NAA"); /* see ISO12234-2:2001 for TIFF/EP */
     /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
@@ -803,7 +821,7 @@ LABEL1:
 #define offset_malloc(fd, of, os, count ) {\
 	of = NULL; of = malloc ( sizeof(os) * count);\
 	  if ( ct_read( ctif, of, sizeof(os) * count) != sizeof(os) *count ) {\
-		  perror ("TIFF Offset ct_read error2");\
+      fprintf(stderr, "TIFF Offset ct_read error, try to read from offset=%li count=%i bytes\n", offset, count);\
 		  exit( EXIT_FAILURE );\
 	  }\
 }
@@ -1112,7 +1130,11 @@ ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
     exit (EXIT_FAILURE);
   }
   /* load tiff file */
+#ifdef __WIN32__
+  int tif = open(tiff_file, O_RDONLY | O_BINARY);
+#else
   int tif = open(tiff_file, O_RDONLY);
+#endif
   if (-1 == tif) {
 	  fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
 	  exit (EXIT_FAILURE);
@@ -1125,6 +1147,7 @@ ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
   for (int i= 0; i < 65536; i++) {
     ctif->tag_cache[i]= -1;
   }
+#ifdef _HAVE__MMAP
   switch (ioflag) {
 	  case is_filep: {
 				 /* streamlen */
@@ -1141,6 +1164,7 @@ ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
 				  break;
 			   }
   }
+#endif
   ctif->ioflag = ioflag;
   ctif->filename = strdup(tiff_file);
   ctif->ifd0pos= 0;
