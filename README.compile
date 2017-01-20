@@ -11,7 +11,7 @@ make
 ########################################################
 #mkdir build
 #cd build
-#cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchain-mingw32.cmake -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ ../src/
+#cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchain-mingw32.cmake -DPCRE_LIBRARY=~/Downloads/pcre-8.37/.libs/libpcre.a -DPCRE_INCLUDE_DIR=~/Downloads/pcre-8.37/ ../src/
 #make
 #
 ########################################################
