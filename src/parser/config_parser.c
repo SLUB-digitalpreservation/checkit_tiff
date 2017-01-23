@@ -271,7 +271,16 @@ const char * exe_regex_pop(internal_entry_t * ep) {
 
 
 /* executes a plan (list) of functions, checks if predicate-function calls are
- * needed, too. The plan is a global variable. 
+ * needed, too. The plan is a global variable.
+ *
+ * HINT: the order of stack is reversed, that means:
+ *   first, push an execute-function
+ *   second, push the corresponding precondition
+ *
+ *   Example: "123; optional; only("1")"
+ *   push fc_tag_has_value 123 <--- test if tag 123 has only value 1, but only if precondition succeed
+ *   push fc_tag_quiet 123 <--- precondition, checks if tag exists
+ *
  * @param tif pointer to TIFF structure
  * @return return-code is 0 if all called functions are succeed 
  */
@@ -588,6 +597,8 @@ internal_entry_t prepare_internal_entry() {
   }
   return p;
 }
+
+
 void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
   switch ( req ) {
       case ifdepends: {
@@ -675,8 +686,40 @@ void build_functional_structure(internal_entry_t * e_p, values_t val) {
                     e_p->function=fc_tag_has_value_matching_regex;
                     break;
                   }
+                  /* TODO:
+      case sbit: {
+#ifdef RULE_DEBUG
+                   printf("sbit found\n");
+#endif
+                    exe_regex_push(e_p, r_pop());
+                    e_p->function=fc_tag_has_value;
+                    break;
+                  }
+                  */
+      case iccprofile: {
+#ifdef RULE_DEBUG
+                         printf("iccprofile found\n");
+#endif
+                         e_p->function=fc_icc;
+                         break;
+                       }
+      case datetime: {
+#ifdef RULE_DEBUG
+                       printf("datetime found\n");
+#endif
+                       e_p->function=fc_datetime;
+                       break;
+                     }
+      case printable_ascii: {
+#ifdef RULE_DEBUG
+                              printf("printable_ascii found\n");
+#endif
+                              exe_regex_push(e_p, "^[[:print:]]*$");
+                              e_p->function=fc_tag_has_value_matching_regex;
+                              break;
+                            }
       default:
-                  fprintf(stderr, "unknown val, should not occure\n");
+                  fprintf(stderr, "unknown val %i, should not occure\n", val);
                   exit(EXIT_FAILURE);
     }
 }
@@ -751,6 +794,20 @@ void rule_addtag_config() {
     e.lineno=getlineno();
     e.is_precondition=1; /*  no precondition as default */
     e.tag = parser_state.tag;
+
+    if (parser_state.mode & mode_enable_type_checks) {
+      internal_entry_t p;
+      p.i_stackp=0;
+      p.regex_stackp=0;
+      p.lineno=getlineno();
+      p.is_precondition=0;
+      p.tag=parser_state.tag;
+      p.function=fc_tag_quiet;
+      e.function = fc_tag_has_valid_type;
+      exe_push(e); /* first push execute function */
+      exe_push(p); /*  then push preconditions */
+    }
+
 #ifdef RULE_DEBUG
     printf( "try to match tagline at line %i\n", e.lineno);
 #endif
@@ -805,11 +862,39 @@ void rule_addtag_config() {
 }
 
 /* set_mode */
-void set_mode(const char * mode) {
+void set_mode(modes_t mode) {
 #ifdef RULE_DEBUG
 	printf("Mode=%s at line=%i (needs to be implemented)\n", mode, parser_state.lineno );
 #endif
-	/* TODO: Implement mode setting */
+  internal_entry_t e;
+  e.i_stackp=0;
+  e.regex_stackp=0;
+  e.lineno=getlineno();
+  e.is_precondition=1; /*  no precondition as default */
+  e.tag = parser_state.tag;
+
+  switch (mode) {
+    case mode_enable_offset_checks: {
+                                      e.function = fc_all_offsets_are_word_aligned;
+                                      exe_push(e);
+                                      e.function = fc_all_offsets_are_used_once_only;
+                                      exe_push(e);
+                                      break;
+                                    }
+    case mode_enable_ifd_checks: {
+                                      e.function = fc_all_IFDs_are_word_aligned;
+                                      exe_push(e);
+                                      e.function = fc_tagorder;
+                                      exe_push(e);
+                                      break;
+                                 }
+    case mode_baseline: {
+                                      e.function = fc_has_only_one_ifd;
+                                      exe_push(e);
+                                      break;
+                        }
+  }
+  parser_state.mode |= mode;
 }
 
 
@@ -828,6 +913,7 @@ void reset_parser_state() {
   parser_state.tagref=-1;
   parser_state.val_stackp=0;
   parser_state.valuelist=0;
+  parser_state.mode=0;
   for (int i=0; i<MAXTAGS; i++) {
         parser_state.called_tags[i]= 0;
   }

@@ -27,9 +27,6 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
   }
   secstrcat (msg, expected, EXPECTSTRLEN);
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( ctif, tag);
-  if (res.returncode == 0) {
-
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
@@ -95,8 +92,6 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                         return tif_fails_tag( tag, "of type long, short or float", array);
                         }
   }
-  }
-  return res; 
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

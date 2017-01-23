@@ -32,9 +32,6 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
     p++;
   }
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( ctif, tag);
- if (res.returncode == 0) {
-
   unsigned int v[count];
   for (int i=0; i< count; i++) {
     v[i] = *values;
@@ -142,7 +139,5 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                       }
 
   }
- }
-  return tif_fails_by_returns( res );
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

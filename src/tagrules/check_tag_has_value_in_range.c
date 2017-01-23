@@ -23,8 +23,6 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
   char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has value in range %u - %u", a, b);
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( ctif, tag);
-  if (res.returncode == 0) {
     if (a > b) { unsigned int c=a; a=b; b=c; }
     TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
     switch (datatype) {
@@ -120,7 +118,5 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             return tif_fails_tag( tag, "of type long, short or float", array);
                           }
     }
-  }
-  return tif_fails_by_returns( res );
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

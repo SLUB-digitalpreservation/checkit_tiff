@@ -21,14 +21,10 @@ ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value) {
   tifp_check( ctif);
   // tif_rules_tag(tag, "has value");
   ret_t ret;
-  ret = check_tag_has_valid_type( ctif, tag);
-  if (ret.returncode == 0) {
     ret =  check_tag_has_value_quiet( ctif, tag, value);
     if (ret.returncode == 0) {
       return ret;
     }
-  }
-  return tif_fails_by_returns( ret );
 }
 
 

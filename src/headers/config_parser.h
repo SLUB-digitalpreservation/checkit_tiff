@@ -13,8 +13,16 @@
 
 
 typedef enum { mandatory, ifdepends, optdepends, optional } requirements_t;
-typedef enum { range, logical_or, any, only, regex, ntupel } values_t;
+typedef enum { range, logical_or, any, only, regex, ntupel, sbit, iccprofile, datetime, printable_ascii } values_t;
 typedef enum { no_ref, any_ref, only_ref, range_ref, ntupel_ref, regex_ref } reference_t;
+
+typedef enum {
+  mode_baseline=1,
+  mode_enable_type_checks=2,
+  mode_enable_offset_checks=4,
+  mode_enable_ifd_checks=8,
+} modes_t;
+
 /* MINTAGS - MAXTAGS is range of possible existing TAG numbers */
 #define MINTAGS 254
 #define MAXTAGS 65536
@@ -93,7 +101,7 @@ typedef struct parser_state_s {
   int  result_stackp;
   int exe_stackp;
   internal_entry_t exe_stack[MAXSTACKDEPTH];
-
+  int mode;
 } parser_state_t;
 
 void _helper_push_result(full_res_t res);

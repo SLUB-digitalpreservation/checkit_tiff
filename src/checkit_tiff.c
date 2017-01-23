@@ -62,42 +62,6 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   res = tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file, use_memmapped?is_memmap:is_filep );
   int is_valid = 0;
-  /* special checks */
-  res = check_all_IFDs_are_word_aligned( ctif);
-  if (0 != res.returncode) is_valid++;
-  simplified_result_push(res, fc_all_IFDs_are_word_aligned);
-
-  res = check_has_only_one_ifd( ctif);
-  if (0 != res.returncode) is_valid++;
-  simplified_result_push(res, fc_has_only_one_ifd);
-
-  res = check_tagorder( ctif);
-  if (0 != res.returncode) is_valid++;
-  simplified_result_push(res, fc_tagorder);
-
-  res = check_all_offsets_are_used_once_only( ctif );
-  if (0 != res.returncode) is_valid++;
-  simplified_result_push(res, fc_all_offsets_are_used_once_only);
-
-  res = check_all_offsets_are_word_aligned( ctif );
-  if (0 != res.returncode) is_valid++;
-  simplified_result_push(res, fc_all_offsets_are_word_aligned);
-
-  /*  datetime  */
-  res = check_tag_quiet( ctif, TIFFTAG_DATETIME);
-  if (res.returncode == 0) { 
-    res = check_datetime( ctif );
-    if (0 != res.returncode) {is_valid++;}
-    simplified_result_push(res, fc_datetime);
-  }
-
-  /*  ICC */
-  res = check_tag_quiet( ctif, TIFFTAG_ICCPROFILE);
-  if (res.returncode == 0) { 
-    res = check_icc( ctif );
-    if (0 != res.returncode) {is_valid++;}
-    simplified_result_push(res, fc_icc);
-  }
   execute_plan(ctif);
   is_valid = print_plan_results();
   free_ctif( ctif );
