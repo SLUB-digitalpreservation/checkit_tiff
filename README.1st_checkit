@@ -18,7 +18,7 @@ checkit_tiff:
 - checks a TIFF against ruleset
 - needs a Linux or an AIX system with installed libtiff4
   (crosscompiling to Windows should work, too)
-- compile it with: make clean; make all; make strip
+- to compile, please read README.compile
 - help comes with option "checkit_tiff -h"
 
 License
@@ -29,9 +29,9 @@ the sourcecode is licensed under conditions of libtiff, see http://libtiff.mapto
 HINTS
 =====
 
-* The program could already used to check TIFF-files now
-* Remember, it is in alpha-state and needs additional rules to validate tiff files completely. 
-* Please, if you find errors or do you have test files like 
+* The program could already be used to check TIFF-files now
+* Remember, it is in alpha-state and needs additional rules to validate tiff files completely.
+* Please, if you find errors or do you have test files like
 ** https://github.com/EasyinnovaSL/DPFManager/tree/develop/src/test/resources/
 ** or https://github.com/openpreserve/jhove/tree/junit_tests/examples/tiff/badfiles
 * please do not hesitate to contact me.
@@ -45,62 +45,18 @@ see file 'README.compile' for details, in short:
 
 Use the builtin help via './checkit_tiff -h'
 
-Here an example output using 
-
-$ ./checkit_tiff tiffs_should_fail/invalid_date.tiff example_configs/cit_tiff6_baseline_SLUB.cfg 
-'./checkit_tiff' version: master
-	revision: 68
+Here is an example output using
+$> checkit_tiff example_configs/cit_tiff6_baseline_SLUB.cfg tiffs_should_fail/invalid_date.tiff
+'build/checkit_tiff' version: development
+	revision: 176
 licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)
 cfg_file=example_configs/cit_tiff6_baseline_SLUB.cfg
-tiff file=tiffs_should_fail/invalid_date.tiff
-TIFFFetchNormalTag: Warning, Incorrect value for "Photoshop"; tag ignored.
-check if all IFDs are word aligned
-check if only one IFD exists
-check if tags are in ascending order
-check if all offsets are used once only
-check if all offsets are word aligned
-check if tag 306 (DateTime) is correct
-	tag 306 (DateTime) should have value should be  "yyyy:MM:DD hh:mm:ss", but has value (values or count) of datetime was "04.03.2010 09:59:17"
-check if tag 256 (ImageWidth) has value in range 1 - 4294967295
-check if tag 256 (ImageWidth) has valid type
-check if tag 257 (ImageLength) has value in range 1 - 4294967295
-check if tag 257 (ImageLength) has valid type
-check if tag 258 (BitsPerSample) has these 3-values: 8, 8, 8
-check if tag 258 (BitsPerSample) has valid type
-check if tag 259 (Compression) has value
-check if tag 259 (Compression) has valid type
-check if tag 262 (Photometric) has value in range 0 - 2
-check if tag 262 (Photometric) has valid type
-check if tag 273 (StripOffsets) exists
-check if tag 273 (StripOffsets) has valid type
-check if tag 277 (SamplesPerPixel) has value
-check if tag 277 (SamplesPerPixel) has valid type
-check if tag 278 (RowsPerStrip) has value in range 1 - 4294967295
-check if tag 278 (RowsPerStrip) has valid type
-check if tag 279 (StripByteCounts) has value in range 1 - 4294967295
-check if tag 279 (StripByteCounts) has valid type
-check if tag 282 (XResolution) has value in range 300 - 1200
-check if tag 282 (XResolution) has valid type
-check if tag 283 (YResolution) has value in range 300 - 1200
-check if tag 283 (YResolution) has valid type
-check if tag 296 (ResolutionUnit) has value
-check if tag 296 (ResolutionUnit) has valid type
-check if tag 254 (SubFileType) has value
-check if tag 254 (SubFileType) has valid type
-check if tag 266 (FillOrder) has value
-check if tag 266 (FillOrder) has valid type
-check if tag 269 (DocumentName) has  value matching regex '^[[:print:]]*$'
-check if tag 274 (Orientation) has value
-check if tag 274 (Orientation) has valid type
-check if tag 284 (PlanarConfig) has value
-check if tag 284 (PlanarConfig) has valid type
-check if tag 297 (PageNumber) has these 2-values: 0, 1
-check if tag 297 (PageNumber) has valid type
-check if tag 305 (Software) has  value matching regex '^[[:print:]]*$'
-check if tag 306 (DateTime) has  value matching regex '^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]
+tiff file/dir=tiffs_should_fail/invalid_date.tiff
+all processed
+	tag 34377 (Photoshop Image Ressources) is found, but is not whitelisted (or rule has no matched dependency)
+	tag 315 (Artist) is found, but is not whitelisted (or rule has no matched dependency)
 	tag 306 (DateTime) should have value ^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$, but has value (values or count) 04.03.2010 09:59:17
-check if forbidden tags are still existing
-	tag 315 (Artist) is_found, but is not whitelisted (or rule has no matched dependency)
-	tag 34377 (Photoshop Image Ressources) is_found, but is not whitelisted (or rule has no matched dependency)
-found 4 errors
+	tag 306 (DateTime) should have value should be  "yyyy:MM:DD hh:mm:ss", but has value (values or count) of datetime was "04.03.2010 09:59:17"
+Found 4 errors
+No, the given tif is not valid :(
 
