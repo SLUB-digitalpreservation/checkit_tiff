@@ -1,6 +1,6 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * author: Andreas Romeyke, 2015/2016
+ * author: Andreas Romeyke, 2015-2017
  * licensed under conditions of libtiff 
  * (see file LICENSE)
  *
@@ -36,14 +36,14 @@ void help () {
   printf ("\trevision: %s\n", REPO_REVISION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n\n");
   printf ("call it with:\n");
-  printf ("\tcheckit_tiff [-c|-h|-m|-d] <tifffile> <configfile>\n");
+  printf ("\tcheckit_tiff [-c|-h|-m|-d] <configfile> <tifffile> [<tifffile>]\n");
   printf ("\nwhere <tifffile> is the tiff file (or directory) to be validated\n");
   printf ("and <configfile> is the file name of the validation profile\n");
   printf ("\t-h this help\n");
   printf ("\t-c colorized output using ANSI escape sequences\n");
   printf ("\t-m uses memmapped I/O (faster validation, but needs more RAM)\n");
   printf ("\t-d check all files in that directory\n");
-  printf ("example:\n\tcheckit_tiff tiffs_should_pass/minimal_valid.tiff example_configs/baseline_minimal.cfg\n");
+  printf ("example:\n\tcheckit_tiff example_configs/baseline_minimal.cfg tiffs_should_pass/minimal_valid.tiff \n");
   printf ("\n");
 }
 
@@ -153,68 +153,72 @@ int main (int argc, char * argv[]) {
 
 
   }
-  if (argc - optind != 2) {
+  if (argc - optind < 2) {
     help();
-    fprintf( stderr, "%s needs at least two arguments, first should be the tiff-filename, second the config-file, example:\n\t %s tiffs_should_pass/minimal_valid.tiff example_configs/baseline_minimal.cfg\n", argv[0], argv[0]);
+    fprintf( stderr, "%s needs at least two arguments, first should be the config-file, second the TIFF-file\nexample:\n\t %s example_configs/baseline_minimal.cfg tiffs_should_pass/minimal_valid.tiff\n", argv[0], argv[0]);
     exit (EXIT_FAILURE);
   }
-  const char *tiff_file_or_dir=argv[optind];
-  const char *cfg_file=argv[optind+1];
-
+  const char *cfg_file=argv[optind];
   printf("cfg_file=%s\n", cfg_file);
   int is_valid = 0;
+  int index_of_tiff_file_or_dir = optind+1;
+  do {
+    const char *tiff_file_or_dir=argv[index_of_tiff_file_or_dir++];
+    printf("tiff file/dir=%s\n", tiff_file_or_dir);
 
-  if (flag_check_directory == FLAGGED) {
-    /* iterate through all files */
-    size_t len = strlen( tiff_file_or_dir);
-    char tiff_dir [ len ];
-    strncpy(tiff_dir, tiff_file_or_dir, len);
-    tiff_dir[  len ] = 0; 
-    DIR *dir;
-    struct dirent *ent;
-    /* remove trailing / */
-    char *dirsuffix = strrchr(tiff_dir, '/');
-    if (dirsuffix != NULL) { /* found a / */
-      if ( 0 == strcmp( dirsuffix, "/" ) ) { /* ok, ends with / */
-        /* remove last / */
-        assert(len >= 1); // or whatever you want to do with short strings
-        tiff_dir[len-1] = 0;
-      }
-    }
 
-    /* iterate through all files in given dir */
-    if ((dir = opendir (tiff_file_or_dir)) != NULL) {
-      /* print all the files and directories within directory */
-      while ((ent = readdir (dir)) != NULL) {
-        struct stat attribute;
-        len = strlen( tiff_dir ) + strlen( ent->d_name ) + 2;
-        char fqname [ len ];
-        snprintf( fqname, len, "%s/%s", tiff_dir, ent->d_name);
-        if (stat( fqname, &attribute) == -1) {
-          fprintf (stderr, "could not stat on file '%s' in directory '%s' (%s)\n", ent->d_name, tiff_dir, fqname);
-          exit(EXIT_FAILURE);
-        }
-        if(attribute.st_mode & S_IFREG) {
-          printf ("%s\n", fqname); 
-          parse_plan_via_file(cfg_file);
-          is_valid += check_specific_tiff_file( fqname, flag_use_memorymapped_io);
-          clean_plan();
-          printf("\n");
-
+    if (flag_check_directory == FLAGGED) {
+      /* iterate through all files */
+      size_t len = strlen( tiff_file_or_dir);
+      char tiff_dir [ len ];
+      strncpy(tiff_dir, tiff_file_or_dir, len);
+      tiff_dir[  len ] = 0; 
+      DIR *dir;
+      struct dirent *ent;
+      /* remove trailing / */
+      char *dirsuffix = strrchr(tiff_dir, '/');
+      if (dirsuffix != NULL) { /* found a / */
+        if ( 0 == strcmp( dirsuffix, "/" ) ) { /* ok, ends with / */
+          /* remove last / */
+          assert(len >= 1); // or whatever you want to do with short strings
+          tiff_dir[len-1] = 0;
         }
       }
-      closedir (dir);
+
+      /* iterate through all files in given dir */
+      if ((dir = opendir (tiff_file_or_dir)) != NULL) {
+        /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL) {
+          struct stat attribute;
+          len = strlen( tiff_dir ) + strlen( ent->d_name ) + 2;
+          char fqname [ len ];
+          snprintf( fqname, len, "%s/%s", tiff_dir, ent->d_name);
+          if (stat( fqname, &attribute) == -1) {
+            fprintf (stderr, "could not stat on file '%s' in directory '%s' (%s)\n", ent->d_name, tiff_dir, fqname);
+            exit(EXIT_FAILURE);
+          }
+          if(attribute.st_mode & S_IFREG) {
+            printf ("%s\n", fqname); 
+            parse_plan_via_file(cfg_file);
+            is_valid += check_specific_tiff_file( fqname, flag_use_memorymapped_io);
+            clean_plan();
+            printf("\n");
+
+          }
+        }
+        closedir (dir);
+      } else {
+        /* could not open directory */
+        fprintf( stderr, "directory '%s' could not be opened\n", tiff_file_or_dir);
+        exit(EXIT_FAILURE);
+      }
     } else {
-      /* could not open directory */
-      fprintf( stderr, "directory '%s' could not be opened\n", tiff_file_or_dir);
-      exit(EXIT_FAILURE);
+      /* use tiff_file_or_dir */
+      parse_plan_via_file(cfg_file);
+      is_valid = check_specific_tiff_file( tiff_file_or_dir, flag_use_memorymapped_io);
+      clean_plan();
     }
-  } else {
-    /* use tiff_file_or_dir */
-    parse_plan_via_file(cfg_file);
-    is_valid = check_specific_tiff_file( tiff_file_or_dir, flag_use_memorymapped_io);
-    clean_plan();
-  }
+  } while (index_of_tiff_file_or_dir < argc );
   if (0 == is_valid) {
     exit(EXIT_SUCCESS);
   } else {
