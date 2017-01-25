@@ -274,7 +274,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33432 */ case TIFFTAG_COPYRIGHT: return ("Copyright" );
     /* 33434 */ case 33434: return ("EXIF ExposureTime"); /* EXIF, Exposure time, given in seconds. */
     /* 33437 */ case 33437: return ("EXIF FNumber"); /* EXIF, The F number. */
-    /* 33445 */ case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
+    /* 33445 */ case 33445: return ("MD_Filetag"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf or http://www.awaresystems.be/imaging/tiff/tifftags/docs/gel.html*/
     /* 33446 */ case 33446: return ("MD_ScalePixel"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33447 */ case 33447: return ("MD_Colortable"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
     /* 33448 */ case 33448: return ("MD_LabName"); /* http://research.stowers-institute.org/mcm/efg/ScientificSoftware/Utility/TiffTags/GEL-FileFormat.pdf */
@@ -296,9 +296,10 @@ const char * TIFFTagName( tag_t tag ) {
     /* 33630 */ case 33630: return ("MetaMorph Stack Image UIC3"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc, but also read comments in https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/PrairieReader.java */
     /* 33631 */ case 33631: return ("MetaMorph Stack Image UIC4"); /* see: ftp://ftp.meta.moleculardevices.com/support/stack/STK.doc */
     /* 33723 */ case TIFFTAG_RICHTIFFIPTC: return ("RichTIFFIPTC / NAA"); /* see ISO12234-2:2001 for TIFF/EP */
-    /* 33918 */ case 33918: return ("INGR Packet Data Tag"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 33919 */ case 33919: return ("INGR Flag Registers"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33918 */ case 33918: return ("INGR Packet Data Tag  (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33919 */ case 33919: return ("INGR Flag Registers  (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 33920 */ case 33920: return ("IrasB Transformation Matrix / obsolete GeoTIFF IntergraphMatrixTag (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 33921 */ case 33921: return ("Georeferencing Tag / obsolete (Intergraph)"); /*  see http://www.awaresystems.be/imaging/tiff/tifftags/docs/intergraph.html */
     /* 33922 */ case 33922: return ("GeoTIFF ModelTiepointTag (Intergraph)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
 
     /* 33923 */ case 33923: return ("Leica Magic Tag"); /* see https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/LeicaReader.java */
@@ -333,7 +334,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34361 */ case 34361: return ("MMHeader (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
     /* 34362 */ case 34362: return ("MMStamp (Olympus Fluoview or Andor Bio-imaging Division)"); /* https://github.com/openmicroscopy/bioformats/blob/v5.2.4/components/formats-gpl/src/loci/formats/in/FluoviewReader.java */
 
-    /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502, also see paragraph "Photoshop Image Resource Metadata Structure" in http://help.accusoft.com/ImageGear/v17.2/Windows/DLL/topic755.html or http://fileformats.archiveteam.org/wiki/Photoshop_Image_Resources, this points to http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_pgfId-1037685 */
+    /* 34377 */ case TIFFTAG_PHOTOSHOP: return ("Photoshop Image Ressources"); /*  see http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577413_pgfId-1039502, also see paragraph "Photoshop Image Resource Metadata Structure" in http://help.accusoft.com/ImageGear/v17.2/Windows/DLL/topic755.html or http://fileformats.archiveteam.org/wiki/Photoshop_Image_Resources, this points to http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_pgfId-1037685 and http://www.awaresystems.be/imaging/tiff/tifftags/docs/photoshopthumbnail.html*/
     /* 34665 */ case TIFFTAG_EXIFIFD: return ("EXIFIFDOffset");
     /* 34675 */ case TIFFTAG_ICCPROFILE: return ("ICC Profile" );
     /* 34730 */ case 34730: return ("Annotation Offsets (Wang TIFF)"); /* line 134, https://github.com/gasgas4/NT_4.0_SourceCode/blob/master/nt4/private/wangview/xfilexr/include/tiffint.h */
@@ -464,10 +465,10 @@ const char * TIFFTagName( tag_t tag ) {
     /* 46275 */ case 46275: return ("Imacon 3F"); /*  see http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 46279 */ case 46279: return ("Imacon 3F raw dim"); /*  see http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
 
-    /* 50215 */ case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 50216 */ case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 50217 */ case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
-    /* 50218 */ case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50215 */ case 50215: return ("Oce Scanjob Description"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
+    /* 50216 */ case 50216: return ("Oce Application Selector"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
+    /* 50217 */ case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
+    /* 50218 */ case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
     /* 50255 */ case 50255: return ("Photoshop Annotations"); /* http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_17312  */
     /* 50341 */ case 50341: return ("inofficial EXIF PrintImageMatching (poss. Olympus)"); /* see http://www.exiv2.org/tags.html, but not in Exif2.3 standard */
     /* 50454 */ case 50454: return ("unknown Sinar tag"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
@@ -512,7 +513,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 50779 */ case TIFFTAG_CALIBRATIONILLUMINANT2: return ("CALIBRATIONILLUMINANT2");
     /* 50780 */ case TIFFTAG_BESTQUALITYSCALE: return ("BESTQUALITYSCALE");
     /* 50781 */ case TIFFTAG_RAWDATAUNIQUEID: return ("RAWDATAUNIQUEID");
-    /* 50784 */ case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
+    /* 50784 */ case 50784: return ("Alias Layer Metadata"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/alias.html */
     /* 50827 */ case TIFFTAG_ORIGINALRAWFILENAME: return ("ORIGINALRAWFILENAME");
     /* 50828 */ case TIFFTAG_ORIGINALRAWFILEDATA: return ("ORIGINALRAWFILEDATA");
     /* 50829 */ case TIFFTAG_ACTIVEAREA: return ("ACTIVEAREA");
