@@ -72,9 +72,6 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                         uint32 * p = offset.data32p;
                         for (int i=0; i< count; i++) {
                           uint32 pval = *p;
-                          if (is_byteswapped(ctif)) {
-                            TIFFSwabLong(&pval);
-}
 #ifdef DEBUG
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
@@ -113,11 +110,8 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                          uint16 * p = offset.data16p;
                          for (int i=0; i< count; i++) {
                            uint16 pval = *p;
-                           if (is_byteswapped(ctif)) {
-                             TIFFSwabShort(&pval);
-}
 #ifdef DEBUG
-                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
+                           printf("SHORTOFFSET (tag=%i): v[%i]=%u p[%i]=0x%04x\n", tag, i,v[i],i,pval);
 #endif
                            if (v[i] != pval) {
                              char expected[EXPECTSTRLEN];
