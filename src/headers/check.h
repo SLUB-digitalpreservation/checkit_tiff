@@ -51,7 +51,7 @@ typedef struct ret_s {
 
 
 typedef struct ifd_entry_s {
-  uint16 count;
+  uint32 count; /*  count of data */
   TIFFDataType datatype;
   enum{ is_offset, is_value, is_error } value_or_offset;
   union {
@@ -63,7 +63,7 @@ typedef struct ifd_entry_s {
 } ifd_entry_t;
 
 typedef struct offset_s {
-  uint16 count;
+  uint32 count; /*  count of data */
   TIFFDataType datatype;
   union {
     uint8  *data8p;
