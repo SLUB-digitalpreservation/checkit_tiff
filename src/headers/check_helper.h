@@ -34,7 +34,7 @@ int TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_p);
 int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_p);
 int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_p);
 int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_p);
-offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype);
+offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype);
 const char * renderer ( const ret_t ret );
 void set_renderer_to_ansi();
 void set_renderer_to_xml();
