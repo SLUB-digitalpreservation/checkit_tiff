@@ -843,7 +843,7 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
 
 
 /*  get count-data datastream from offset-address */
-offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint16 count, uint16 datatype) {
+offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype) {
   //int fd = TIFFFileno( tif);
   /* ct_read and seek to IFD address */
   ct_seek(ctif, address, SEEK_SET);
