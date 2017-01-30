@@ -82,7 +82,7 @@ const char * renderer_debug ( ret_t ret ) {
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
-  while (NULL != startp && c < ret.count) {
+  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
         switch (startp->rm_type) {
           case rm_rule:       secstrcat( res, ANSI_NORMAL   , 1024); break;
           case rm_tag:        secstrcat( res, ANSI_BOLD     , 1024); break;
@@ -111,7 +111,7 @@ const char * renderer_default ( ret_t ret ) {
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
-  while (NULL != startp && c < ret.count) {
+  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
         secstrcat(res, startp->rm_msg, 1024);
         startp++;
         c++;
@@ -132,7 +132,7 @@ const char * renderer_ansi ( ret_t ret ) {
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
-  while (NULL != startp && c < ret.count) {
+  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
         switch (startp->rm_type) {
           case rm_rule:       secstrcat( res, ANSI_NORMAL   , 1024); break;
           case rm_tag:        secstrcat( res, ANSI_BOLD     , 1024); break;
@@ -165,7 +165,7 @@ const char * renderer_xml ( ret_t ret ) {
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
-  while (NULL != startp && c < ret.count) {
+  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
         switch (startp->rm_type) {
           case rm_rule:       secstrcat( res, "<rule>"   , 1024); break;
           case rm_tag:        secstrcat( res, "<tag>"     , 1024); break;
