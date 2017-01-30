@@ -24,14 +24,18 @@ char * secstrcat (char * dest, const char * src, int maxsize) {
     fprintf(stderr, "internal error, dest is NULL!\n");
     exit(EXIT_FAILURE);
   }
-  int destsize = strlen(dest);
-  int srclen = strlen(src);
-  //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
-  if (destsize+srclen < maxsize) {
-    strcat( dest, src);
+  if (NULL == src) {
+    dest="";
+  } else {
+    int destsize = strlen(dest);
+    int srclen = strlen(src);
+    //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
+    if (destsize+srclen < maxsize) {
+      strcat( dest, src);
+    }
+    destsize = strlen(dest);
+    //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
   }
-  //destsize = strlen(dest);
-  //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
   return dest;
 }
 
