@@ -12,9 +12,15 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
-  //printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
   tifp_check( ctif);
-  //tif_rules_tag(tag, "has valid type");
+
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
@@ -92,20 +98,22 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
 #ifdef WARN
                printf("for tag %i no explicite type check implemented\n");
 #endif
-               res = 1;
+               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret.returncode = tagwarn_type_of_unknown_tag_could_not_be_checked;
+               return ret;
              };
   }
   if (!res) {
-    char array[VALUESTRLEN];
-    snprintf(array, sizeof(array), "with incorrect type: %s (%i)", TIFFTypeName(datatype), datatype);
-    return tif_returns( tag, "", array);
+               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret.returncode = tagerror_unexpected_type_found;
+               return ret;
   } else {
-    ret_t tmp_res;
-    tmp_res.returnmsg=NULL;
-    tmp_res.returncode=0;
-    return tmp_res;
+               ret.returncode = is_valid;
+               return ret;
   }
   /* we check only count, because we evaluate only int-values */
+  ret.returncode = should_not_occure;
+  return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

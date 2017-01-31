@@ -15,7 +15,7 @@
 // TODO: errormessage pointer und maxsize übergeben
 
 
-int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage) {
+icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);

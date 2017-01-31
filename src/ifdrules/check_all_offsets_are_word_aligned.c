@@ -13,8 +13,13 @@
 
 /* check if offsets are word aligned */
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
-  //printf("check if all offsets are word aligned\n");
-  tif_rules("all offsets are word aligned");
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+  tifp_check( ctif);
   int count = get_ifd0_count( ctif);
   int tagidx;
   for (tagidx = 0; tagidx< count; tagidx++) {
@@ -25,14 +30,14 @@ ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
         uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
         // FIXME: tif_fails?
         char array[TIFFAILSTRLEN];
-        snprintf(array, sizeof(array), "pointing to 0x%08x and is not word-aligned", offset);
-        return tif_fails_tag( tag, "word-aligned", array);
+        snprintf(array, sizeof(array), "tag %i pointing to 0x%08x and is not word-aligned", tag, offset);
+        ret.value_found = strncpy(ret.value_found, array, VALUESTRLEN);
+        ret.returncode = tagerror_offset_not_word_aligned;
+        return ret;
       }
     }
   }
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
-  return res;
+  ret.returncode=is_valid;
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

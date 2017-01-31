@@ -579,90 +579,102 @@ int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IF
 
 
 //------------------------------------------------------------------------------
-ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value)
-{
+ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value) {
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
+  tifp_check( ctif);
+
   float * valp = NULL;
   float val;
   int found=TIFFGetFieldRATIONAL(ctif, tag, &valp);
   if (1 == found) {
     val = * valp;
     if ( fabs(val - value) < 0.01 ) {
-      ret_t res;
-      res.returnmsg=NULL;
-      res.returncode=0;
-      res.count=0;
-      return res;
+      ret.returncode=is_valid;
+      return ret;
     } else {
-      return tif_returns( tag, float2str(value), float2str(val));
+      ret.value_found = strncpy(ret.value_found, float2str(val), VALUESTRLEN) ;
+      ret.returncode = tagerror_value_differs;
     }
   } else {
-    char array[EXPECTSTRLEN];
-    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
-    if (written <0) {
-	    perror ("could not write string in buffer");
-	    exit( EXIT_FAILURE );
-    }
-    return tif_fails(array);
+    ret.returncode = tagerror_value_not_found;
+    return ret;
   }
+  ret.returncode = should_not_occure;
+  return ret;
 }
 
 //------------------------------------------------------------------------------
-ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value)
-{
+ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value) {
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
+  tifp_check( ctif);
+
   uint16 * valp = NULL;
   uint16 val;
   int found=TIFFGetFieldSHORT(ctif, tag, &valp);
   if (1 == found) {
     val = *valp;
     if ( val == value ) {
-      ret_t res;
-      res.returnmsg=NULL;
-      res.returncode=0;
-      res.count = 0;
-      return res;
+      ret.returncode=is_valid;
+      return ret;
     } else {
-      return tif_returns( tag, int2str(value), int2str(val));
+      ret.value_found = strncpy(ret.value_found, int2str(val), VALUESTRLEN);
+      ret.returncode = tagerror_value_differs;
+      return ret;
     }
 
   } else {
-    char array[EXPECTSTRLEN];
-    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
-    if (written <0) {
-	    perror ("could not write string in buffer");
-	    exit( EXIT_FAILURE );
-    }
-    return tif_fails(array);
+    ret.returncode = tagerror_value_not_found;
+    return ret;
   }
+  ret.returncode = should_not_occure;
+  return ret;
 }
 
 
 //------------------------------------------------------------------------------
-ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value)
-{
+ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
+  tifp_check( ctif);
+
   uint32 * valp = NULL;
   uint32 val;
   int found=TIFFGetFieldLONG(ctif, tag, &valp);
   if (1 == found) {
     val = *valp;
     if ( val == value )  {
-      ret_t res;
-      res.returnmsg=NULL;
-      res.returncode=0;
-      res.count = 0;
-      return res;
+      ret.returncode=is_valid;
+      return ret;
     } else {
-      return tif_returns( tag, int2str(value), int2str(val));
+      ret.value_found = strncpy(ret.value_found, int2str(val), VALUESTRLEN);
+      ret.returncode = tagerror_value_differs;
+      return ret;
     }
 
   } else {
-    char array[EXPECTSTRLEN];
-    int written = snprintf(array, sizeof(array), "tag %u should exist, because defined\n", tag);
-    if (written <0) {
-	    perror ("could not write string in buffer");
-	    exit( EXIT_FAILURE );
-    }
-    return tif_fails(array);
+    ret.returncode = tagerror_value_not_found;
+    return ret;
   }
+  ret.returncode = should_not_occure;
+  return ret;
+
 }
 
 
@@ -772,7 +784,6 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 	int byteswapped = is_byteswapped(ctif);
 	int count = get_ifd0_count( ctif);
 	/* ct_read count of tags (2 Bytes) */
-	int i;
 	/* replace i/o operatrions with in-memory-operations */
 	uint8 * ifdentries = NULL;
 	ifdentries = malloc ( sizeof(uint8) * 12 * count);
@@ -813,7 +824,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 		TIFFSwabShort(&tagid);
 	 //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
 	ret = tagid;
-LABEL1:
+// LABEL1:
 	/* loop each tag until end or given tag found */
 	free( ifdentries );
 	return ret;
