@@ -12,9 +12,15 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag(ctiff_t * ctif, tag_t tag) {
-  //printf("check if tag %u (%s) exists\n", tag, TIFFTagName(tif, tag));
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
   tifp_check( ctif);
-  tif_rules_tag(tag, "exists");
-    return check_tag_quiet( ctif, tag);
+  ret.returncode = check_tag_quiet( ctif, tag);
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
