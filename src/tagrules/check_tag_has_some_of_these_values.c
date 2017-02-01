@@ -14,19 +14,14 @@
 */
 
 ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  //printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
-  tifp_check( ctif);
-  char msg[EXPECTSTRLEN];
-  char expected[EXPECTSTRLEN]="";
-  snprintf(msg, sizeof(msg), "has some of these %i-values: ", count);
-  unsigned int * p = values;
-  for (int i=0; i< count; i++) {
-    if( i>= 1) secstrcat (expected, ", ", EXPECTSTRLEN);
-    secstrcat (expected, int2str(*p), EXPECTSTRLEN);
-    p++;
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
   }
-  secstrcat (msg, expected, EXPECTSTRLEN);
-  tif_rules_tag(tag, strdup(msg));
+  unsigned int * p = values;
+  tifp_check( ctif);
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
@@ -44,7 +39,11 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                       uint32 val;
                       TIFFGetFieldLONG(ctif, tag, &valp);
                       val = *valp;
-                      return tif_fails_tag( tag, strdup(expected), int2str(val));
+                      char value[VALUESTRLEN];
+                      snprintf(value, sizeof(value), "%u", val);
+                      ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                      ret.returncode = tagerror_value_differs;
+                      return ret;
                       break;
                     }
     case TIFF_SHORT: {
@@ -62,7 +61,11 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                        uint16 val;
                        TIFFGetFieldSHORT(ctif, tag, &valp);
                        val = *valp;
-                       return tif_fails_tag( tag, strdup(expected), int2str(val));
+                       char value[VALUESTRLEN];
+                       snprintf(value, sizeof(value), "%u", val);
+                       ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                       ret.returncode = tagerror_value_differs;
+                       return ret;
                        break;
                      }
     case TIFF_RATIONAL: {
@@ -80,18 +83,22 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                           float val;
                           TIFFGetFieldRATIONAL(ctif, tag, &valp);
                           val = * valp;
-                          return tif_fails_tag( tag, strdup(expected), float2str(val));
-                          //tif_fails("tag %u (%s) does not have some of expected values (but have:%f)\n", tag, TIFFTagName(tif, tag), val);
+                          char value[VALUESTRLEN];
+                          snprintf(value, sizeof(value), "%f", val);
+                          ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                          ret.returncode = tagerror_value_differs;
+                          return ret;
                           break;
                         }
     default: /*  none */
                         {
-                        // tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
-                        char array[VALUESTRLEN];
-                        snprintf(array, sizeof(array), "but was:%i", datatype);
-                        return tif_fails_tag( tag, "of type long, short or float", array);
+                          ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+                          ret.returncode = tagerror_unexpected_type_found;
+                          return ret;
                         }
   }
+  ret.returncode=should_not_occure;
+  return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

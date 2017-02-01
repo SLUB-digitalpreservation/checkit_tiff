@@ -71,7 +71,9 @@ ret_t check_icc(ctiff_t * ctif ) {
     case icc_error_header_1v43_2010: ret.returncode = iccerror_header_1v43_2010; break; 
     case icc_error_header_v240_v430: ret.returncode = iccerror_header_v240_v430; break; 
     case icc_error_header_generic: ret.returncode = iccerror_header_generic; break; 
-    case icc_error_preferredcmmtype: ret.returncode = iccerror_preferredcmmtype; break; 
+    case icc_error_preferredcmmtype: ret.returncode = iccerror_preferredcmmtype; break;
+    case icc_error_committed_size_differs: ret.returncode = iccerror_committed_size_differs; break;
+    case icc_should_not_occure:  ret.returncode = should_not_occure; break;
   }
 
   ret.value_found = strncpy(ret.value_found, errmessage, VALUESTRLEN);

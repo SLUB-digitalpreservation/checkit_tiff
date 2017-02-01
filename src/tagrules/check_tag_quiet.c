@@ -12,11 +12,20 @@
 
 
 /* checks if TIF has a specified tag */
-returncode_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
+ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
+ ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
   tifp_check( ctif);
   if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {
-      return tag_exist;
+      ret.returncode=is_valid;
+  } else {
+    ret.returncode=tag_does_not_exist;
   }
-  return tag_does_not_exist;
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

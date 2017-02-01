@@ -21,7 +21,12 @@ ret_t check_notag(ctiff_t * ctif, tag_t tag) {
   }
 
   tifp_check( ctif);
-  ret.returncode = check_tag_quiet( ctif, tag);
+  ret_t r =  check_tag_quiet( ctif, tag);
+  if (is_valid == r.returncode) {
+    ret.returncode = tag_exist;
+  } else if (tag_does_not_exist == r.returncode) {
+    ret.returncode = is_valid;
+  } else return r;
   return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

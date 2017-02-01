@@ -10,16 +10,16 @@
 #define INFO(...) ;
 #endif
 */
-#define FAIL(...) {snprintf(errmessage, errsize, __VA_ARGS__); return 1;};
+#define FAIL(RETCODE, ...) {snprintf(errmessage, errsize, __VA_ARGS__); return RETCODE;};
 #define INFO(...) ;
 // TODO: errormessage pointer und maxsize übergeben
 
 
-icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage) {
+icc_returncode_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 128) FAIL("Invalid ICC profile, minimum size is 128 byte");
+  if (iccsize < 128) FAIL(icc_error_header_generic, "iccsize=%lu", iccsize);
   unsigned long profilesize = (
       ((iccdata[0] & 0x00ff) <<24) |
       ((iccdata[1] & 0x00ff) <<16) |
@@ -27,7 +27,7 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
       (iccdata[3] & 0x00ff)
       ) & 0xffffffff;
   INFO("ICC: profilesize=%li %0x\n", profilesize, profilesize);
-  if (profilesize != iccsize) FAIL("commited ICC size (%li / 0x%04x) differs from encoded profilesize (%li / 0x%04x)", iccsize, iccsize, profilesize, profilesize);
+  if (profilesize != iccsize) FAIL(icc_error_committed_size_differs, "committed ICC size (%li / 0x%04lx) differs from encoded profilesize (%li / 0x%04lx)", iccsize, iccsize, profilesize, profilesize);
   /* -- */
   char preferredcmmtype[5]="    "; memcpy(preferredcmmtype, &iccdata[4],4);
   INFO("ICC: preferredcmmtype='%s'\n", preferredcmmtype);
@@ -60,7 +60,7 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
       (0 != strncmp("WTG ", preferredcmmtype, 4))  &&
       (0 != strncmp("zc00", preferredcmmtype, 4))
 
-     ) FAIL("preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'", preferredcmmtype);
+     ) FAIL(icc_error_preferredcmmtype, "preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'", preferredcmmtype);
   /* -- */
   char profileversion[6]="    "; snprintf(profileversion, 6, "%i.%i.%i", (iccdata[8]) & 0x000f, ((iccdata[9] & 0x00f0) >>4), (iccdata[9] & 0x000f));
   INFO("ICC: profileversion='%s'\n", profileversion);
@@ -76,7 +76,7 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
       (0 != strncmp("spac", profileclass, 4)) &&
       (0 != strncmp("abst", profileclass, 4)) &&
       (0 != strncmp("nmcl", profileclass, 4))
-     ) FAIL("profile class ('%s'), should be one of following strings for device classes: 'scnr', 'mntr', 'prtr' or for profile classes: 'link', 'spac', 'abst', 'nmcl'", profileclass);
+     ) FAIL(icc_error_profileclass, "profile class ('%s'), should be one of following strings for device classes: 'scnr', 'mntr', 'prtr' or for profile classes: 'link', 'spac', 'abst', 'nmcl'", profileclass);
   /* -- */
   char colorspacedata[5]="    "; memcpy(colorspacedata, &iccdata[16],4);
   INFO("ICC: colorspacedata='%s'\n", colorspacedata);
@@ -106,14 +106,14 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
       (0 != strncmp("DCLR", colorspacedata, 4)) &&
       (0 != strncmp("ECLR", colorspacedata, 4)) &&
       (0 != strncmp("FCLR", colorspacedata, 4))
-     ) FAIL("colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'", colorspacedata);
+     ) FAIL(icc_error_colorspacedata, "colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'", colorspacedata);
   /* -- */
   char connectionspacedata[5]="    "; memcpy(connectionspacedata, &iccdata[20],4);
   INFO("ICC: connectionspacedata(PCS)='%s'\n", connectionspacedata);
   if ( /*  see page 15, table 14 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf */
       (0 != strncmp("XYZ ", connectionspacedata, 4)) &&
       (0 != strncmp("Lab ", connectionspacedata, 4))
-     ) FAIL("connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '", connectionspacedata);
+     ) FAIL(icc_error_connectionspacedata, "connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '", connectionspacedata);
   /* -- */
   // datetime 24-35
   char datetime[20]; snprintf(datetime, 20, "%.4d:%.2d:%.2d %.2d:%.2d:%.2d", 
@@ -140,7 +140,7 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
       (0 != strncmp("SGI ", primaryplattformsignature, 4)) &&
       (0 != strncmp("SUNW", primaryplattformsignature, 4)) &&
       (0 != strncmp("TGNT", primaryplattformsignature, 4))
-     ) FAIL("primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT'", primaryplattformsignature);
+     ) FAIL(icc_error_primaryplatformsignature, "primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT'", primaryplattformsignature);
 
   /* -- */
   // Profile Flags 44-47
@@ -155,17 +155,17 @@ icc_ret_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsi
   /* -- */
   // rendering intent field 64-67
   /* -- */
-  return 0;
+  return icc_is_valid;
 }
 
 /* checks a ICC header, see chapter 7 of http://www.color.org/specification/ICC1v43_2010-12.pdf */
-int parse_icc_v430(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
+icc_returncode_t parse_icc_v430(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 128) FAIL ("Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details");
-  int ret_header =  parse_icc_header_v240_v430( iccsize, iccdata, errsize, errmessage);
-  if (0 != ret_header) return ret_header;
+  if (iccsize < 128) FAIL (icc_error_header_1v43_2010, "Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details");
+  icc_returncode_t ret_header =  parse_icc_header_v240_v430( iccsize, iccdata, errsize, errmessage);
+  if (icc_is_valid != ret_header) return ret_header;
   else {
   // PCS illuminant field 68-79
   /* -- */
@@ -176,17 +176,17 @@ int parse_icc_v430(unsigned long iccsize, char* iccdata, unsigned long errsize, 
   // Reserved field bytes 100-127
 
   };
-  return 0;
+  return icc_is_valid;
 }
 
 /* checks a ICC header, see chapter 6 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf */
-int parse_icc_v240(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
+icc_returncode_t parse_icc_v240(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 128) FAIL ("Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details");
+  if (iccsize < 128) FAIL (icc_error_header_v240_v430, "Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details");
   int ret_header =  parse_icc_header_v240_v430( iccsize, iccdata, errsize, errmessage);
-  if (0 != ret_header) return ret_header;
+  if (icc_is_valid != ret_header) return ret_header;
   else {
   // PCS xyz illuminant  68-79
   /* -- */
@@ -194,15 +194,15 @@ int parse_icc_v240(unsigned long iccsize, char* iccdata, unsigned long errsize, 
   /* -- */
   // Reserved field bytes 84-127
   };
-  return 0;
+  return icc_is_valid;
 }
 
 /*  returns 0 if valid, !0 if errorneous */
-int parse_icc(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
+icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 10) FAIL ("Invalid ICC profile");
+  if (iccsize < 10) FAIL (icc_error_header_generic, "Invalid ICC profile");
   char profileversion[6]="    "; snprintf(profileversion, 6, "%i.%i.%i", (iccdata[8]) & 0x000f, ((iccdata[9] & 0x00f0) >>4), (iccdata[9] & 0x000f));
   INFO("ICC: profileversion='%s'\n", profileversion);
   if (0==strncmp(profileversion, "4.3.0",5))  return parse_icc_v430(iccsize, iccdata, errsize, errmessage);
@@ -210,7 +210,7 @@ int parse_icc(unsigned long iccsize, char* iccdata, unsigned long errsize, char 
   else {
         return parse_icc_header_v240_v430(iccsize,iccdata, errsize, errmessage);
   }
-  return 0;
+  return icc_should_not_occure;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

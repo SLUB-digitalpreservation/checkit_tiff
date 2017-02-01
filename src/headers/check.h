@@ -37,11 +37,11 @@ typedef struct ctiff_s {
 	/* TODO: add file size */
 } ctiff_t;
 
-typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error } rm_type_t;
+typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_is_valid } rm_type_t;
 typedef struct retmsg_s {
   rm_type_t rm_type;
   char * rm_msg;
-
+  struct retmsg_s * next;
 } retmsg_t;
 
 #define ICC_ERROR_OFFSET 100
@@ -62,8 +62,8 @@ typedef enum {
   tagerror_datetime_wrong_size, /* if a datetime tag has date with wrong size */
   tagerror_value_not_found, /* if a value of a given tag is not found */
   tagwarn_type_of_unknown_tag_could_not_be_checked, /* there is no explicite type check defined yet */
-  tag_exist,
-  tag_does_not_exist,
+  tag_exist, /* if a tag exists, but should not (only used by fc_notag) */
+  tag_does_not_exist, /* if a tag does not exist, but should (only used by fc_tag_quiet) */
   tagerror_encoded_as_value_excited_space, /* tag encoded as value instead as offset, but there is no enough space to hold it, pE. ICC-Profile encoded without offset */
   tagerror_pcre_nomatch, /*  regex does not match value */
   pcre_compile_error, /* regex is wrong */
@@ -82,10 +82,16 @@ typedef enum {
   iccerror_header_v240_v430= ICC_ERROR_OFFSET + 5, /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
   iccerror_header_generic= ICC_ERROR_OFFSET + 6, /* size < 10 */
   iccerror_preferredcmmtype= ICC_ERROR_OFFSET + 7, /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
+  iccerror_committed_size_differs   = ICC_ERROR_OFFSET + 8,
   tiff_seek_error_header,
   tiff_read_error_header,
   tiff_seek_error_offset,
   tiff_read_error_offset,
+  code_error_streampointer_empty,
+  code_error_filedescriptor_empty,
+  code_error_ctif_empty,
+  parser_error_wrong_function_found_in_parser_state_exe_stack,
+  parser_logicalor_error,
 
 
 } returncode_t;
@@ -93,6 +99,7 @@ typedef enum {
 typedef struct ret_s {
   returncode_t returncode;
   char * value_found;
+  int logical_or_count;
 } ret_t;
 
 
@@ -186,7 +193,8 @@ typedef struct mem_map_s {
 #define VALUESTRLEN 160
 #define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
 #define MAXRESULT 200000
-void tifp_check( ctiff_t * ctif);
+returncode_t tifp_check( ctiff_t * ctif);
+/* 
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails(const char* fail_message);
@@ -195,8 +203,8 @@ ret_t tif_rules_tag(tag_t tag, const char *msg);
 ret_t tif_rules(const char *msg);
 ret_t tif_files(const char *msg);
 ret_t tif_no_tag(tag_t tag);
-
 ret_t _empty_result();
+*/
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);
@@ -211,7 +219,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value);
 ret_t check_tag(ctiff_t * ctif, tag_t tag);
-returncode_t check_tag_quiet(ctiff_t * ctif, tag_t tag);
+ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag);
 ret_t check_notag(ctiff_t * ctif, tag_t tag);
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag);
 ret_t check_datetime(ctiff_t * ctif);
