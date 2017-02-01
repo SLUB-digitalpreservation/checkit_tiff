@@ -12,15 +12,6 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag(ctiff_t * ctif, tag_t tag) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
-  tifp_check( ctif);
-  ret.returncode = check_tag_quiet( ctif, tag);
-  return ret;
+  return check_tag_quiet( ctif, tag);
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

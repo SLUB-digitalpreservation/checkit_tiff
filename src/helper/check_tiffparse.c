@@ -833,7 +833,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 #define offset_malloc(fd, of, os, count ) {\
 	of = NULL; of = malloc ( sizeof(os) * count);\
 	  if ( ct_read( ctif, of, sizeof(os) * count) != sizeof(os) *count ) {\
-      fprintf(stderr, "TIFF Offset ct_read error, try to read from offset=%li count=%i bytes\n", offset, count);\
+      fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count);\
 		  exit( EXIT_FAILURE );\
 	  }\
 }
