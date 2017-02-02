@@ -27,11 +27,12 @@ char * secstrcat (char * dest, const char * src, int maxsize) {
   if (NULL == src) {
     dest="";
   } else {
-    int destsize = strlen(dest);
-    int srclen = strlen(src);
+    //fprintf(stderr, "0dest='%s' , src='%s'\n", dest, src);
+    int destsize = strnlen(dest, maxsize);
+    int srclen = strnlen(src, maxsize);
     //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
     if (destsize+srclen < maxsize) {
-      strcat( dest, src);
+      strncat( dest, src, maxsize);
     }
     destsize = strlen(dest);
     //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
