@@ -71,139 +71,139 @@ void set_renderer_to_xml() {
     render_engine=render_xml;
 }
 
-const char * renderer_debug ( ret_t ret ) {
-  char res[1024] = "";
-  if (0 == ret.returncode) {
-    secstrcat( res, "\t", 1024  );
-    secstrcat (res, ANSI_GREEN, 1024);
-  } else {
-    secstrcat( res, "\t", 1024  );
-    secstrcat (res, ANSI_RED_BOLD, 1024);
-  }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
+/* 65536 Tags a 256 chars message + 100 Messages */
+#define RENDERSIZE (65536*256 + 100*256) 
+
+const char * renderer_debug ( const retmsg_t * ret ) {
+  char res[RENDERSIZE] = "";
+  secstrcat( res, "\t", RENDERSIZE  );
+  const retmsg_t * startp = ret;
+  while (NULL != startp && NULL != startp->next) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_NORMAL   , 1024); break;
-          case rm_tag:        secstrcat( res, ANSI_BOLD     , 1024); break;
-          case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
-          case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
-          case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_warning:    secstrcat( res, ANSI_YELLOW   , 1024); break;
-          case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, 1024); break;
-          default:            secstrcat( res, ANSI_INVERSE  , 1024);
+          case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE); break;
+          case rm_tag:        secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
+          case rm_value:      secstrcat( res, ANSI_BLUE     , RENDERSIZE); break;
+          case rm_expected:   secstrcat( res, ANSI_RED      , RENDERSIZE); break;
+          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , RENDERSIZE); break;
+          case rm_error:      secstrcat( res, ANSI_RED      , RENDERSIZE); break;
+          case rm_warning:    secstrcat( res, ANSI_YELLOW   , RENDERSIZE); break;
+          case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, RENDERSIZE); break;
+          default:            secstrcat( res, ANSI_INVERSE  , RENDERSIZE);
         }
-        secstrcat(res, startp->rm_msg, 1024);
-        startp++;
-        c++;
+        secstrcat(res, startp->rm_msg, RENDERSIZE);
+        startp=startp->next;
   }
-  secstrcat(res, ANSI_RESET, 1024);
-  secstrcat(res, "\n", 1024);
+  secstrcat(res, ANSI_RESET, RENDERSIZE);
+  secstrcat(res, "\n", RENDERSIZE);
   return strdup( res );
 }
 
-const char * renderer_default ( ret_t ret ) {
-  char res[1024] = "";
-  if (0 == ret.returncode) {
-  } else {
-    secstrcat( res, "\t", 1024  );
+const char * renderer_default ( const retmsg_t * ret ) {
+  char * res = malloc( sizeof(char) * RENDERSIZE);
+  if (NULL == res) {
+    exit(could_not_allocate_memory);
+  } 
+  secstrcat( res, "\t", RENDERSIZE  );
+  const retmsg_t * startp = ret;
+  while (NULL != startp && NULL != startp->next) {
+	  if (startp->rm_type != rm_is_valid) {
+		  secstrcat(res, startp->rm_msg, RENDERSIZE);
+	  } 
+	  if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff) {
+		  secstrcat(res, "\n", RENDERSIZE);
+	  }
+	  startp=startp->next;
   }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
-        secstrcat(res, startp->rm_msg, 1024);
-        startp++;
-        c++;
-  }
-  secstrcat(res, "\n", 1024);
-  return strdup( res );
+  secstrcat(res, "\n", RENDERSIZE);
+  return res ;
 }
 
 
-const char * renderer_ansi ( ret_t ret ) {
-  char res[1024] = "";
-  if (0 == ret.returncode) {
-    secstrcat( res, "", 1024  );
-    secstrcat (res, ANSI_GREEN, 1024);
-  } else {
-    secstrcat (res, ANSI_RED_BOLD, 1024);
-    secstrcat( res, "==> ", 1024  );
-  }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
+const char * renderer_ansi ( const retmsg_t * ret ) {
+  char * res = malloc( sizeof(char) * RENDERSIZE);
+  if (NULL == res) {
+    exit(could_not_allocate_memory);
+  } 
+  const retmsg_t * startp = ret;
+  while (NULL != startp && NULL != startp->next) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_NORMAL   , 1024); break;
-          case rm_tag:        secstrcat( res, ANSI_BOLD     , 1024); break;
-          case rm_value:      secstrcat( res, ANSI_BLUE     , 1024); break;
-          case rm_expected:   secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , 1024); break;
-          case rm_error:      secstrcat( res, ANSI_RED      , 1024); break;
-          case rm_warning:    secstrcat( res, ANSI_GREY   , 1024); break;
-          case rm_logicalor_error:    secstrcat( res, ANSI_YELLOW   , 1024); break;
-          case rm_file:       secstrcat( res, ANSI_BLUE_BOLD, 1024); break;
-          default:            secstrcat( res, ANSI_NORMAL   , 1024);
+          case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE); break;
+          case rm_tag:        secstrcat( res, "\t", RENDERSIZE  );
+                              secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
+          case rm_mode:       secstrcat( res, "\t", RENDERSIZE  );
+                              secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
+          case rm_value:      secstrcat( res, ANSI_BLUE     , RENDERSIZE); break;
+          case rm_expected:   secstrcat( res, ANSI_RED      , RENDERSIZE); break;
+          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , RENDERSIZE); break;
+          case rm_error:      secstrcat( res, ANSI_RED      , RENDERSIZE); break;
+          case rm_warning:    secstrcat( res, ANSI_GREY   , RENDERSIZE); break;
+          case rm_logicalor_error:    secstrcat( res, ANSI_YELLOW   , RENDERSIZE); break;
+          case rm_file:       secstrcat( res, "\n", RENDERSIZE  );
+                              secstrcat( res, ANSI_BLUE_BOLD, RENDERSIZE);
+                              break;
+          default:            secstrcat( res, ANSI_NORMAL   , RENDERSIZE);
         }
 	/* FIXME: replace all occurrences of a space, backslash, caret,  or
-       any control character anywhere in the string, as well as a hash mark as
-       the first character. */
-        secstrcat(res, startp->rm_msg, 1024);
-        startp++;
-        c++;
+	   any control character anywhere in the string, as well as a hash mark as
+	   the first character. */
+	secstrcat(res, startp->rm_msg, RENDERSIZE);
+	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff || startp->rm_type==rm_file) {
+		secstrcat(res, ANSI_NORMAL, RENDERSIZE);
+		secstrcat(res, "\n", RENDERSIZE);
+	}
+	startp=startp->next;
   }
-  secstrcat(res, ANSI_NORMAL, 1024);
-  secstrcat(res, "\n", 1024);
-  return strdup( res );
+  secstrcat(res, ANSI_NORMAL, RENDERSIZE);
+  secstrcat(res, "\n", RENDERSIZE);
+  return res;
 }
-const char * renderer_xml ( ret_t ret ) {
-  char res[1024] = "<checkit_tiff_result>";
-  if (0 == ret.returncode) {
-    secstrcat( res, "<is_valid>true</is_valid>", 1024  );
-  } else {
-    secstrcat( res, "<is_valid>false</is_valid>", 1024  );
-  }
-  retmsg_t * startp = ret.returnmsg;
-  int c = 0;
-  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
+const char * renderer_xml ( const retmsg_t * ret ) {
+  char * res = malloc( sizeof(char) * RENDERSIZE);
+  if (NULL == res) {
+    exit(could_not_allocate_memory);
+  } 
+  secstrcat( res, "\t", RENDERSIZE  );
+  const retmsg_t * startp = ret;
+  while (NULL != startp && NULL != startp->next) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, "<rule>"   , 1024); break;
-          case rm_tag:        secstrcat( res, "<tag>"     , 1024); break;
-          case rm_value:      secstrcat( res, "<value>"     , 1024); break;
-          case rm_expected:   secstrcat( res, "<expected>"      , 1024); break;
-          case rm_hard_error: secstrcat( res, "<harderror>" , 1024); break;
-          case rm_error:      secstrcat( res, "<error>"     , 1024); break;
-          case rm_warning:    secstrcat( res, "<warn>"   , 1024); break;
-          case rm_logicalor_error:    secstrcat( res, "<partial_logical_or_error>"   , 1024); break;
-          case rm_file:       secstrcat( res, "<file>", 1024); break;
-          default:            secstrcat( res, ""   , 1024);
+          case rm_rule:       secstrcat( res, "<rule>"   , RENDERSIZE); break;
+          case rm_tag:        secstrcat( res, "<tag>"     , RENDERSIZE); break;
+          case rm_value:      secstrcat( res, "<value>"     , RENDERSIZE); break;
+          case rm_expected:   secstrcat( res, "<expected>"      , RENDERSIZE); break;
+          case rm_hard_error: secstrcat( res, "<harderror>" , RENDERSIZE); break;
+          case rm_error:      secstrcat( res, "<error>"     , RENDERSIZE); break;
+          case rm_warning:    secstrcat( res, "<warn>"   , RENDERSIZE); break;
+          case rm_logicalor_error:    secstrcat( res, "<partial_logical_or_error>"   , RENDERSIZE); break;
+          case rm_file:       secstrcat( res, "<file>", RENDERSIZE); break;
+          default:            secstrcat( res, ""   , RENDERSIZE);
         }
 	/* FIXME: replace all occurrences of a space, backslash, caret,  or
-       any control character anywhere in the string, as well as a hash mark as
-       the first character. */
-        secstrcat(res, startp->rm_msg, 1024);
- switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, "</rule>"   , 1024); break;
-          case rm_tag:        secstrcat( res, "</tag>"     , 1024); break;
-          case rm_value:      secstrcat( res, "</value>"     , 1024); break;
-          case rm_expected:   secstrcat( res, "</expected>"      , 1024); break;
-          case rm_hard_error: secstrcat( res, "</harderror>" , 1024); break;
-          case rm_error:      secstrcat( res, "</error>"     , 1024); break;
-          case rm_warning:    secstrcat( res, "</warn>"   , 1024); break;
-          case rm_logicalor_error:    secstrcat( res, "</partial_logical_or_error>"   , 1024); break;
-          case rm_file:       secstrcat( res, "</file>", 1024); break;
-          default:            secstrcat( res, ""   , 1024);
+	   any control character anywhere in the string, as well as a hash mark as
+	   the first character. */
+	secstrcat(res, startp->rm_msg, RENDERSIZE);
+	switch (startp->rm_type) {
+          case rm_rule:       secstrcat( res, "</rule>"   , RENDERSIZE); break;
+          case rm_tag:        secstrcat( res, "</tag>"     , RENDERSIZE); break;
+          case rm_value:      secstrcat( res, "</value>"     , RENDERSIZE); break;
+          case rm_expected:   secstrcat( res, "</expected>"      , RENDERSIZE); break;
+          case rm_hard_error: secstrcat( res, "</harderror>" , RENDERSIZE); break;
+          case rm_error:      secstrcat( res, "</error>"     , RENDERSIZE); break;
+          case rm_warning:    secstrcat( res, "</warn>"   , RENDERSIZE); break;
+          case rm_logicalor_error:    secstrcat( res, "</partial_logical_or_error>"   , RENDERSIZE); break;
+          case rm_file:       secstrcat( res, "</file>", RENDERSIZE); break;
+          default:            secstrcat( res, ""   , RENDERSIZE);
         }
-
-        startp++;
-        c++;
+	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff) {
+		secstrcat(res, "\n", RENDERSIZE);
+	}
+        startp=startp->next;
   }
-  secstrcat(res, "</checkit_tiff_result>", 1024);
-  secstrcat(res, "\n", 1024);
-  return strdup( res );
+  secstrcat(res, "</checkit_tiff_result>", RENDERSIZE);
+  secstrcat(res, "\n", RENDERSIZE);
+  return res;
 }
 
-const char * renderer ( ret_t ret ) {
+const char * renderer ( const retmsg_t * ret ) {
   // call debug renderer
   switch (render_engine) {
     case render_xml: return renderer_xml( ret );

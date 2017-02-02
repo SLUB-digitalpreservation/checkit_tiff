@@ -24,7 +24,6 @@
 #define YY_DEBUG 1
 */
 
-
 /* global vars */
 parser_state_t parser_state;
 
@@ -175,7 +174,6 @@ void exe_printstack () {
 }
 
 
-
 /*  reduce results */
 void reduce_results() {
   /*  go forward and eliminate all valid rule results */
@@ -189,8 +187,8 @@ void reduce_results() {
     printf("reduce i=%i tmpc=%i logc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.lineno, full_result.tag, function_name(full_result.function), e.returncode );
 #endif
     int has_errors=0;
-    if (e.returncode < 0) { /* logical or encoded as -count */
-      logc= -e.returncode + 1;
+    if (e.logical_or_count < 0) { /* logical or encoded as -count */
+      logc= -e.logical_or_count + 1;
 #ifdef DEBUG
 printf("\tlogc'=%i", logc);
 #endif
@@ -201,28 +199,34 @@ printf("\tlogc'=%i", logc);
 #ifdef DEBUG
         printf(".... j=%i error=%s\n", j, (parser_state.result_stack[j].result.returncode > 0)?"yes":"no");
 #endif
-        if (parser_state.result_stack[j].result.returncode > 0) {
+        if (parser_state.result_stack[j].result.returncode != is_valid) {
           has_errors++;
-        } else if (parser_state.result_stack[j].result.returncode == 0) {
+        } else if (parser_state.result_stack[j].result.returncode == is_valid) {
           break;
         }
       }
 #ifdef DEBUG
       printf("found %i logical or errors (i=%i)\n", has_errors, i);
 #endif
-      if (-e.returncode > has_errors) { // ok, at least one result is valid
+      if (-e.logical_or_count > has_errors) { // ok, at least one result is valid
 #ifdef DEBUG
         printf("\t erasing errors from j=%i < %i\n", i, i+logc);
 #endif
 
         for (int j = i; j < i+logc; j++) {
-          parser_state.result_stack[j].result.returncode=0;
+#ifdef DEBUG
+          printf("j=%i\n", j);
+#endif
+          parser_state.result_stack[j].result.returncode=is_valid;
         }
       }
-    } else if (e.returncode > 0) {
+    } else if (e.returncode >0) {
       /* push to tmp */
-      if (logc > 0) full_result.result.returnmsg->rm_type = rm_logicalor_error;
+      if (logc > 0) full_result.result.returncode = parser_logicalor_error;
       tmp[tmpc++]=full_result;
+    } else {
+      // is valid
+tmp[tmpc++]=full_result;
     }
     logc--;
   }
@@ -233,7 +237,6 @@ printf("\tlogc'=%i", logc);
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
-
 
 
 
@@ -269,7 +272,6 @@ const char * exe_regex_pop(internal_entry_t * ep) {
   return s;
 }
 
-
 /* executes a plan (list) of functions, checks if predicate-function calls are
  * needed, too. The plan is a global variable.
  *
@@ -284,7 +286,7 @@ const char * exe_regex_pop(internal_entry_t * ep) {
  * @param tif pointer to TIFF structure
  * @return return-code is 0 if all called functions are succeed 
  */
-void execute_plan (ctiff_t * ctif) {
+ret_t execute_plan (ctiff_t * ctif) {
   /*  iterate other function-stack */
   int precondition_result=0;
   int last_run_was_a_precondition=1;
@@ -295,10 +297,10 @@ void execute_plan (ctiff_t * ctif) {
   printf("------------------------------------\n");
   //i_printstack();
   //r_printstack();
-  //exe_printstack();
+  exe_printstack();
 #endif
   do { 
-    ret_t res=_empty_result();
+    ret_t ret;
     internal_entry_t exe = exe_pop();
 #ifdef EXE_DEBUG
     //i_printstack();
@@ -310,28 +312,13 @@ void execute_plan (ctiff_t * ctif) {
       /* TODO: combine n results */
       int count = exe_i_pop(&exe);
       count_of_logical_or=count;
-      res.returncode= -count; /* negative count to control output */
-      res.count=1;
-      res.returnmsg = realloc(res.returnmsg, sizeof( retmsg_t ) );
-      if  (NULL==res.returnmsg) {
-        fprintf(stderr, "could not allocate memory for tif_fails\n");
-        exit(EXIT_FAILURE);
-      };
-      char * str =malloc( sizeof(char) *MAXSTRLEN );
-      if (NULL==str) {
-        fprintf(stderr, "could not allocate memory for tif_fails\n");
-        exit(EXIT_FAILURE);
-      };
-      snprintf (str, MAXSTRLEN-1, "logical_or %i", count);
-      res.returnmsg->rm_msg = str;
-      /*  
-      full_res_t full;
-      full.tag = exe.tag;
-      full.function=exe.function;
-      full.lineno=exe.lineno;
-      full.result=res;
-      result_push( full );
-      */
+      ret.logical_or_count= -count; /* negative count to control output */
+      ret.value_found =malloc( sizeof(char) * VALUESTRLEN );
+      if (NULL == ret.value_found) {
+        ret.returncode=could_not_allocate_memory;
+        return ret;
+      }
+      snprintf (ret.value_found, VALUESTRLEN-1, "logical_or %i", count);
     }
 
     if (
@@ -344,46 +331,61 @@ void execute_plan (ctiff_t * ctif) {
        ) { /* if true, execute function */
       if (exe.tag >= MINTAGS && exe.tag <= (MAXTAGS-1)) parser_state.called_tags[exe.tag]=0;
       switch (exe.function) {
-        case fc_true:                           { res.returncode=0; break;}
-        case fc_false:                          { res.returncode=1; break; }
-        case fc_tag_has_some_of_these_values:   { int count = exe_i_pop(&exe); unsigned int values[count]; for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe); res = check_tag_has_some_of_these_values(ctif, exe.tag, count, values); break;}
-        case fc_tag_has_valuelist:              { int count = exe_i_pop(&exe); unsigned int values[count]; for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe); res = check_tag_has_valuelist(ctif, exe.tag, count, values); break;}
-        case fc_tag_has_value_in_range:         { int a = exe_i_pop(&exe); int b = exe_i_pop(&exe); res = check_tag_has_value_in_range(ctif, exe.tag, a, b); break;}
-        case fc_tag_has_value:                  { int a = exe_i_pop(&exe); res = check_tag_has_value(ctif, exe.tag, a); break;}
-        case fc_tag_has_value_quiet:            { int a = exe_i_pop(&exe); res = check_tag_has_value_quiet(ctif, exe.tag, a); break;}
-        case fc_tag:                            { res = check_tag(ctif, exe.tag); break;}
-        case fc_tag_quiet:                      { res = check_tag_quiet(ctif, exe.tag); break;}
-        case fc_notag:                          { res = check_notag(ctif, exe.tag); break;}
-        case fc_tag_has_valid_type:             { res = check_tag_has_valid_type(ctif, exe.tag); break;}
-        case fc_datetime:                       { res = check_datetime(ctif); break;}
-        case fc_icc:                            { res = check_icc(ctif); break;}
-        case fc_has_only_one_ifd:               { res = check_has_only_one_ifd(ctif); break;}
-        case fc_tagorder:                       { res = check_tagorder(ctif); break;}
-        case fc_tag_has_valid_asciivalue:       { res = check_tag_has_valid_asciivalue(ctif, exe.tag); break;}
-        case fc_tag_has_value_matching_regex:   { const char * regex = exe_regex_pop( &exe); res = check_tag_has_value_matching_regex(ctif, exe.tag, regex); break;}
-        case fc_all_offsets_are_word_aligned:   { res = check_all_offsets_are_word_aligned(ctif); break;}
-        case fc_all_offsets_are_used_once_only: { res = check_all_offsets_are_used_once_only(ctif); break;}
-        case fc_all_IFDs_are_word_aligned:      { res = check_all_IFDs_are_word_aligned(ctif); break;}
+        case fc_true:                           { ret.returncode=is_valid; break;}
+        case fc_false:                          { ret.returncode=is_error; break; }
+        case fc_tag_has_some_of_these_values:   { int count = exe_i_pop(&exe); unsigned int values[count]; for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe); ret = check_tag_has_some_of_these_values(ctif, exe.tag, count, values); break;}
+        case fc_tag_has_valuelist:              { int count = exe_i_pop(&exe); unsigned int values[count]; for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe); ret = check_tag_has_valuelist(ctif, exe.tag, count, values); break;}
+        case fc_tag_has_value_in_range:         { int a = exe_i_pop(&exe); int b = exe_i_pop(&exe); ret = check_tag_has_value_in_range(ctif, exe.tag, a, b); break;}
+        case fc_tag_has_value:                  { int a = exe_i_pop(&exe); ret = check_tag_has_value(ctif, exe.tag, a); break;}
+        case fc_tag_has_value_quiet:            { int a = exe_i_pop(&exe); ret = check_tag_has_value_quiet(ctif, exe.tag, a); break;}
+        case fc_tag:                            { ret = check_tag(ctif, exe.tag); break;}
+        case fc_tag_quiet:                      { ret = check_tag_quiet(ctif, exe.tag); break;}
+        case fc_notag:                          { ret = check_notag(ctif, exe.tag); break;}
+        case fc_tag_has_valid_type:             { ret = check_tag_has_valid_type(ctif, exe.tag); break;}
+        case fc_datetime:                       { ret = check_datetime(ctif); break;}
+        case fc_icc:                            { ret = check_icc(ctif); break;}
+        case fc_has_only_one_ifd:               { ret = check_has_only_one_ifd(ctif); break;}
+        case fc_tagorder:                       { ret = check_tagorder(ctif); break;}
+        case fc_tag_has_valid_asciivalue:       { ret = check_tag_has_valid_asciivalue(ctif, exe.tag); break;}
+        case fc_tag_has_value_matching_regex:   { const char * regex = exe_regex_pop( &exe); ret = check_tag_has_value_matching_regex(ctif, exe.tag, regex); break;}
+        case fc_all_offsets_are_word_aligned:   { ret = check_all_offsets_are_word_aligned(ctif); break;}
+        case fc_all_offsets_are_used_once_only: { ret = check_all_offsets_are_used_once_only(ctif); break;}
+        case fc_all_IFDs_are_word_aligned:      { ret = check_all_IFDs_are_word_aligned(ctif); break;}
         case fc_internal_logic_combine:         { break; }
         default: {
-                   fprintf(stderr, "wrong function found in parser state in parser_state.exe_stack at lineno=%i, stack entry tag %i\n", parser_state.lineno, exe.tag);
+                   ret_t res;
+                   res.value_found = malloc(VALUESTRLEN);
+                   if (NULL == res.value_found) {
+                     res.returncode=could_not_allocate_memory;
+                     return res;
+                   }
+                   snprintf(res.value_found, VALUESTRLEN, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
+                   res.returncode =parser_error_wrong_function_found_in_parser_state_exe_stack;
+#ifdef EXE_DEBUG
                    exe_printstack();
-                   exit(EXIT_FAILURE);
+#endif
+                   return res;
                  }
       }
-    
+      if (exe.function != fc_internal_logic_combine) { ret.logical_or_count = 0; }
+#ifdef EXE_DEBUG
+      printf("ret.returncode=%i, exe.is_precondition=%i is_valid=%i", ret.returncode, exe.is_precondition, is_valid);
+#endif
       /* combine results */
       if (0 == exe.is_precondition) { /* precondition, next run depends on this result */
-        precondition_result = res.returncode;
+        precondition_result = (ret.returncode == is_valid)?0:1;
       } else { /*  no precondition function */
         full_res_t full;
         full.tag = exe.tag;
         full.function=exe.function;
         full.lineno=exe.lineno;
-        full.result=res;
+        full.result=ret;
         result_push( full );
         precondition_result=0;
       }
+#ifdef EXE_DEBUG
+      printf(" precondition_result=%i\n", precondition_result);
+#endif
     }
     if (count_of_logical_or > 0) {
       count_of_logical_or--;
@@ -391,13 +393,11 @@ void execute_plan (ctiff_t * ctif) {
         last_run_was_a_precondition=exe.is_precondition;
     }
 #ifdef EXE_DEBUG
-    if (res.returncode == 0) {
-      printf("tmpresult = {returncode=%i}\n\nexe is precondition=%s\n", res.returncode, exe.is_precondition==0?"true":"false");;
+    if (ret.returncode == is_valid) {
+      printf("tmpresult = {returncode=%i}\n\nexe is precondition=%s\n", ret.returncode, exe.is_precondition==0?"true":"false");;
     }else{
-      printf("tmpresult = {returncode=%i, count=%i}\n\nexe is precondition=%s\n", res.returncode, res.count, exe.is_precondition==0?"true":"false");;
+      printf("tmpresult = {returncode=%i}\n\nexe is precondition=%s\n", ret.returncode, exe.is_precondition==0?"true":"false");;
     }
-#endif
-  #ifdef EXE_DEBUG
     printf("==========\n");
 #endif
   } while (parser_state.exe_stackp > 0);
@@ -405,7 +405,7 @@ void execute_plan (ctiff_t * ctif) {
   for (int i = MINTAGS; i<MAXTAGS; i++) {
     if (1==parser_state.called_tags[i]) {
       ret_t res = check_notag(ctif, i);
-      if (res.returncode != 0) {
+      if (res.returncode != is_valid) {
 #ifdef EXE_DEBUG
         printf("checking %i -> res=%i\n", i, res.returncode);
 #endif
@@ -419,7 +419,6 @@ void execute_plan (ctiff_t * ctif) {
     }
   }
 }
-
 
 
 /* function to clean an execution plan */
@@ -893,6 +892,8 @@ void set_mode(modes_t mode) {
                                       exe_push(e);
                                       break;
                         }
+    case mode_enable_type_checks: { /*  nothing, because we must enable it only in rule_addtag_config */
+                                  }
   }
   parser_state.mode |= mode;
 }
@@ -1014,16 +1015,48 @@ void set_parse_error(char * msg, char * yytext) {
 
 void clean_plan_results() {
 	for (int i=parser_state.result_stackp-1; i >= 0; --i) {
-		if (NULL != parser_state.result_stack[i].result.returnmsg) {
-			free(  parser_state.result_stack[i].result.returnmsg );
-			parser_state.result_stack[i].result.returnmsg=NULL;
-			parser_state.result_stack[i].result.count=0;
+		if (NULL != parser_state.result_stack[i].result.value_found) {
+			free(  parser_state.result_stack[i].result.value_found );
+			parser_state.result_stack[i].result.value_found=NULL;
+      parser_state.result_stack[i].result.logical_or_count=0;
 		}
 	}
 }
 
+returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type) {
+   assert(pointer != NULL);
+   retmsg_t * actual_render = NULL;
+   actual_render = *pointer;
+   assert(actual_render != NULL);
+   actual_render->next = malloc ( sizeof(retmsg_t));
+   if (NULL == actual_render->next) {
+     exit( could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+
+   actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
+   if (NULL == actual_render->next->rm_msg) {
+     exit (could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+   memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
+   // printf("%p -> %p\n", actual_render, actual_render->next);
+   if (NULL == src) { 
+     strncpy(actual_render->next->rm_msg, "NULL", VALUESTRLEN );
+   } else {
+     strncpy(actual_render->next->rm_msg, src, VALUESTRLEN );
+   }
+   actual_render->next->rm_type = src_type;
+   actual_render = actual_render->next;
+   *pointer = actual_render;
+   return is_valid;
+}
+
+
+
 /* prints a plan (list) of functions and their results*/
-int print_plan_results() {
+ret_t print_plan_results(retmsg_t * actual_render) {
+    
 #ifdef DEBUG
   printf("print plan results:\n");
   printf("####################(\n");
@@ -1040,24 +1073,75 @@ int print_plan_results() {
   printf(")####################\n");
   printf("reduced\n");
 #endif
+
   reduce_results();
+  int count_of_valid_results = 0;
   for (int i=parser_state.result_stackp-1; i >= 0; --i) {
 #ifdef DEBUG
-   printf( "i=%i retcode=%i %s", i, parser_state.result_stack[i].result.returncode, renderer( parser_state.result_stack[i].result));
+   printf( "i=%i retcode=%i lineno=%i tag=%i %s\n", i, parser_state.result_stack[i].result.returncode, parser_state.result_stack[i].lineno,  parser_state.result_stack[i].tag,  parser_state.result_stack[i].result.value_found);
 #endif
-   printf( "%s", renderer( parser_state.result_stack[i].result));
+   ret_t res =  parser_state.result_stack[i].result;
+   /* fill render pipeline */
+   uint16 tag = parser_state.result_stack[i].tag;
+   /* fill with errorcodes */
+   rm_type_t type= rm_default;
+   switch ( res.returncode ) {
+     /*  add rm_type */
+     case is_valid: type = rm_is_valid; count_of_valid_results++; break;
+     case could_not_allocate_memory:
+     case could_not_print:
+     case should_not_occure:
+     case code_error_streampointer_empty:
+     case code_error_filedescriptor_empty:
+     case code_error_ctif_empty:
+     case pcre_compile_error:
+     case tiff_seek_error_header:
+     case tiff_read_error_header:
+     case tiff_seek_error_offset:
+     case tiff_read_error_offset: type = rm_hard_error; break;
+     default: type = rm_error; break;
+   }
+   __add_to_render_pipeline_via_strncpy(&actual_render, " ", type);
+
+   /* fill with tag infos */
+   if (tag > 0) {
+	   char tagstr [VALUESTRLEN];
+	   snprintf(tagstr, VALUESTRLEN, "tag %s (%i)", TIFFTagName(tag), tag);
+	   __add_to_render_pipeline_via_strncpy(&actual_render, tagstr, rm_tag);
+   } else {
+     __add_to_render_pipeline_via_strncpy(&actual_render, "general", rm_mode);
+   }
+
+   /* fill with rule infos */
+   __add_to_render_pipeline_via_strncpy(&actual_render, function_name(parser_state.result_stack[i].function), rm_rule);
+   /* fill with value found */
+   if (res.returncode != is_valid) {
+	   __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_value);
+   }
+   /* fill with newline */
+   __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endrule);
+
+/*   printf( "%s", renderer( parser_state.result_stack[i].result)); */
   }
-  printf("Found %i errors\n", parser_state.result_stackp);
-  if (parser_state.result_stackp > 0) {
-    printf("No, the given tif is not valid :(\n");
+  int errors = (parser_state.result_stackp -count_of_valid_results );
+  ret_t res;
+  char msg[VALUESTRLEN];
+  snprintf(msg, VALUESTRLEN, "Found %i errors\n", errors) ;
+  if (errors > 0) {
+	  res.returncode = is_error;
+	  __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_error);
+	  __add_to_render_pipeline_via_strncpy(&actual_render, "No, the given tif is not valid :(", rm_error);
   } else {
-    printf("Yes, the given tif is valid :)\n");
+	  res.returncode = is_valid;
+	  __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_is_valid);
+	  __add_to_render_pipeline_via_strncpy(&actual_render, "Yes, the given tif is valid :)", rm_is_valid);
   }
+  __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endtiff);
   clean_plan_results();
-  return parser_state.result_stackp;
+  return res;
 }
 
-void _helper_mark_top_n_results( int n, rm_type_t type) {
+void _helper_mark_top_n_results( int n, returncode_t type) {
   if (parser_state.result_stackp -n < 0) {
     fprintf(stderr, "stackunderflow using n=%i, only %i on stack", n, parser_state.result_stackp);
     exit(EXIT_FAILURE);
@@ -1069,7 +1153,7 @@ void _helper_mark_top_n_results( int n, rm_type_t type) {
 
   for (int i = parser_state.result_stackp; i > parser_state.result_stackp-n; i--) {
     printf("\tmark i=%i\n", i);
-    if (NULL != parser_state.result_stack[i].result.returnmsg) parser_state.result_stack[i].result.returnmsg->rm_type=type;
+    if (NULL != parser_state.result_stack[i].result.value_found) parser_state.result_stack[i].result.returncode=type;
   }
 }
 
