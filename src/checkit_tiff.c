@@ -58,14 +58,28 @@ void simplified_result_push(ret_t res, function_t func) {
 
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-  ret_t res = _empty_result();
-  res = tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file, use_memmapped?is_memmap:is_filep );
-  int is_valid = 0;
   execute_plan(ctif);
-  is_valid = print_plan_results();
+  /* init render pipeline */
+ retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
+  if (NULL == render_pipeline) {
+    ret_t ret;
+    ret.returncode=could_not_allocate_memory;
+    return ret.returncode;
+  }
+  retmsg_t * actual_render = render_pipeline;
+  actual_render->rm_type = rm_file;
+  actual_render->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
+  if (NULL == actual_render->rm_msg) {
+	  exit (could_not_allocate_memory);
+  }
+  strncpy(actual_render->rm_msg, tiff_file, VALUESTRLEN);
+  actual_render->next=NULL;
+
+  ret_t res = print_plan_results( actual_render);
+  printf("%s\n", renderer( render_pipeline ));
   free_ctif( ctif );
-  return is_valid;
+  return res.returncode;
 }
 
 

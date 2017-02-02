@@ -106,13 +106,13 @@ typedef struct parser_state_s {
 
 void _helper_push_result(full_res_t res);
 full_res_t _helper_pop_result();
-void _helper_mark_top_n_results(int n, rm_type_t type);
+void _helper_mark_top_n_results(int n, returncode_t type);
 full_res_t _helper_get_nth(int n);
 
 void set_parse_error(char * msg, char * yytext);
-void execute_plan (ctiff_t * ctif);
+ret_t execute_plan (ctiff_t * ctif);
 void print_plan ();
-int print_plan_results ();
+ret_t print_plan_results (retmsg_t *);
 void clean_plan ();
 void parse_plan ();
 void parse_plan_via_stream (FILE * file);
