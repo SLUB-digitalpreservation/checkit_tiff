@@ -25,7 +25,7 @@ int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned l
       ((iccdata[1] & 0x00ff) <<16) |
       ((iccdata[2] & 0x00ff) <<8) |
       (iccdata[3] & 0x00ff)
-      ) & 0xffff;
+      ) & 0xffffffff;
   INFO("ICC: profilesize=%li %0x\n", profilesize, profilesize);
   if (profilesize != iccsize) FAIL("commited ICC size (%li / 0x%04x) differs from encoded profilesize (%li / 0x%04x)", iccsize, iccsize, profilesize, profilesize);
   /* -- */
