@@ -8,6 +8,7 @@ include (CheckFunctionExists)
 file( GLOB checkit_tiff_SOURCES 
   "${PROJECT_SOURCE_DIR}/tagrules/*.c"
   "${PROJECT_SOURCE_DIR}/ifdrules/*.c"
+  "${PROJECT_SOURCE_DIR}/messages/*.c"
   "${PROJECT_SOURCE_DIR}/helper/*.c"
   "${PROJECT_SOURCE_DIR}/parser/*parser.c"
   "${PROJECT_SOURCE_DIR}/validate_icc/*.c"
@@ -16,6 +17,7 @@ file( GLOB checkit_tiff_SOURCES
 
 file( GLOB checkit_tiff_risk_SOURCES
   "${PROJECT_SOURCE_DIR}/helper/*.c"
+  "${PROJECT_SOURCE_DIR}/messages/*.c"
   "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
 )
 
@@ -29,7 +31,7 @@ execute_process( COMMAND git describe --long --tags --dirty --always OUTPUT_VARI
 add_definitions(-DVERSION="${BUILD_BRANCH}")
 add_definitions(-DREPO_REVISION="${REPO_REVISION}")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -std=gnu11" CACHE STRING "c flags")
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -Wall -Wno-gnu-zero-line-directive " CACHE STRING "c flags")
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -Wall -Wgnu-zero-line-directive " CACHE STRING "c flags")
 if(WIN32)
   add_definitions(-D__WIN32__=1)
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
