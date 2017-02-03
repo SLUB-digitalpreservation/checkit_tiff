@@ -106,13 +106,18 @@ const char * renderer_default ( const retmsg_t * ret ) {
   secstrcat( res, "\t", RENDERSIZE  );
   const retmsg_t * startp = ret;
   while (NULL != startp && NULL != startp->next) {
-	  if (startp->rm_type != rm_is_valid) {
-		  secstrcat(res, startp->rm_msg, RENDERSIZE);
-	  } 
-	  if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff) {
+        switch (startp->rm_type) {
+          case rm_is_valid:   /* valid results not shown */ break;
+          case rm_file:       secstrcat( res, "file: ", RENDERSIZE  );
+			      secstrcat(res, startp->rm_msg, RENDERSIZE);
+			      break;
+	  default: 	      secstrcat(res, startp->rm_msg, RENDERSIZE);
+			      break;
+	}
+	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff || startp->rm_type==rm_file) {
 		  secstrcat(res, "\n", RENDERSIZE);
-	  }
-	  startp=startp->next;
+	}
+	startp=startp->next;
   }
   secstrcat(res, "\n", RENDERSIZE);
   return res ;
@@ -127,18 +132,23 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
   const retmsg_t * startp = ret;
   while (NULL != startp && NULL != startp->next) {
         switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE); break;
+          case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE);
+			      secstrcat(res, "\t--> ", RENDERSIZE);
+			      break;
           case rm_tag:        secstrcat( res, "\t", RENDERSIZE  );
                               secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
           case rm_mode:       secstrcat( res, "\t", RENDERSIZE  );
                               secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
-          case rm_value:      secstrcat( res, ANSI_BLUE     , RENDERSIZE); break;
-          case rm_expected:   secstrcat( res, ANSI_RED      , RENDERSIZE); break;
+          case rm_value:      secstrcat( res, ANSI_RED     , RENDERSIZE); 
+			      secstrcat(res, " found: ", RENDERSIZE);
+			      break;
+          case rm_expected:   secstrcat( res, ANSI_BLUE, RENDERSIZE);
+                              secstrcat( res, " expected: " , RENDERSIZE); break;
           case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , RENDERSIZE); break;
           case rm_error:      secstrcat( res, ANSI_RED      , RENDERSIZE); break;
           case rm_warning:    secstrcat( res, ANSI_GREY   , RENDERSIZE); break;
           case rm_logicalor_error:    secstrcat( res, ANSI_YELLOW   , RENDERSIZE); break;
-          case rm_file:       secstrcat( res, "\n", RENDERSIZE  );
+          case rm_file:       secstrcat( res, "file: ", RENDERSIZE  );
                               secstrcat( res, ANSI_BLUE_BOLD, RENDERSIZE);
                               break;
           default:            secstrcat( res, ANSI_NORMAL   , RENDERSIZE);

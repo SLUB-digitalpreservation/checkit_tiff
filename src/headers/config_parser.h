@@ -111,7 +111,7 @@ void _helper_mark_top_n_results(int n, returncode_t type);
 full_res_t _helper_get_nth(int n);
 
 void set_parse_error(char * msg, char * yytext);
-ret_t execute_plan (ctiff_t * ctif);
+void execute_plan (ctiff_t * ctif);
 void print_plan ();
 ret_t print_plan_results (retmsg_t *);
 void clean_plan ();

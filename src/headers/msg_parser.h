@@ -9,6 +9,8 @@
 #ifndef _FIXIT_TIFF_MSG_PARSER
 #define _FIXIT_TIFF_MSG_PARSER
 #include "config_parser.h"
-
-const char * function_name (function_t);
+const char * get_parser_function_description (function_t f);
 #endif
+
+
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

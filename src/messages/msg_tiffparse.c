@@ -444,3 +444,4 @@ const char * TIFFTagName( tag_t tag ) {
   }
 }
 
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
