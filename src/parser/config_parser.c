@@ -113,36 +113,6 @@ const char * r_pop () { const char * v; POP(&parser_state, regex, v); return v; 
 void exe_push (internal_entry_t i) { PUSH(&parser_state, exe, i);}
 internal_entry_t exe_pop () { internal_entry_t e; POP(&parser_state, exe, e); return e; }
 
-const char * function_name( function_t f ) {
-  const char * fname[] =
-  {
-    "fc_true",
-    "fc_false",
-    "fc_tag_has_some_of_these_values",
-    "fc_tag_has_valuelist",
-    "fc_tag_has_value_in_range",
-    "fc_tag_has_value",
-    "fc_tag_has_value_quiet",
-    "fc_tag",
-    "fc_tag_quiet",
-    "fc_notag",
-    "fc_tag_has_valid_type",
-    "fc_datetime",
-    "fc_icc",
-    "fc_has_only_one_ifd",
-    "fc_tagorder",
-    "fc_tag_has_valid_asciivalue",
-    "fc_tag_has_value_matching_regex",
-    "fc_all_offsets_are_word_aligned",
-    "fc_all_offsets_are_used_once_only",
-    "fc_all_IFDs_are_word_aligned",
-    "fc_internal_logic_combine",
-    "fc_dummy",
-
-  };
-  return fname[f];
-}
-
 
 /* help function to print exe stack */
 void exe_printstack () {
