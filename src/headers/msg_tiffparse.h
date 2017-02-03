@@ -12,3 +12,4 @@
 const char * TIFFTypeName( uint16 tagtype ); 
 const char * TIFFTagName( tag_t tag );
 #endif
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

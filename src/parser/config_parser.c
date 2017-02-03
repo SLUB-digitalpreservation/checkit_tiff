@@ -124,7 +124,7 @@ void exe_printstack () {
         parser_state.exe_stack[j].lineno,
         parser_state.exe_stack[j].is_precondition,
         parser_state.exe_stack[j].tag,
-        function_name(parser_state.exe_stack[j].function),
+        get_parser_function_description(parser_state.exe_stack[j].function),
         parser_state.exe_stack[j].function
         );
     /*  print i_stack */
@@ -159,7 +159,7 @@ void reduce_results() {
     full_res_t full_result = parser_state.result_stack[i];
     ret_t e = full_result.result;
 #ifdef DEBUG
-    printf("reduce i=%i tmpc=%i logc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.lineno, full_result.tag, function_name(full_result.function), e.returncode );
+    printf("reduce i=%i tmpc=%i logc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), e.returncode );
 #endif
     int has_errors=0;
     if (e.logical_or_count < 0) { /* logical or encoded as -count */
@@ -261,7 +261,7 @@ const char * exe_regex_pop(internal_entry_t * ep) {
  * @param tif pointer to TIFF structure
  * @return return-code is 0 if all called functions are succeed 
  */
-ret_t execute_plan (ctiff_t * ctif) {
+void execute_plan (ctiff_t * ctif) {
   /*  iterate other function-stack */
   int precondition_result=0;
   int last_run_was_a_precondition=1;
@@ -282,7 +282,7 @@ ret_t execute_plan (ctiff_t * ctif) {
     //i_printstack();
     //exe_printstack();
     printf(".. precondition_result=%i\n",precondition_result);
-    printf("parsing function %s (%i) (linecode=%i)\n", function_name( exe.function), exe.function, exe.lineno);
+    printf("parsing function %s (%i) (linecode=%i)\n", get_parser_function_description( exe.function), exe.function, exe.lineno);
 #endif
     if (exe.function == fc_internal_logic_combine) {
       /* TODO: combine n results */
@@ -291,8 +291,8 @@ ret_t execute_plan (ctiff_t * ctif) {
       ret.logical_or_count= -count; /* negative count to control output */
       ret.value_found =malloc( sizeof(char) * VALUESTRLEN );
       if (NULL == ret.value_found) {
-        ret.returncode=could_not_allocate_memory;
-        return ret;
+        fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
       }
       snprintf (ret.value_found, VALUESTRLEN-1, "logical_or %i", count);
     }
@@ -314,8 +314,8 @@ ret_t execute_plan (ctiff_t * ctif) {
                                                   for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe);
                                                   expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "count=%i,", count); 
                                                   for (int j=0; j<count; j++) snprintf(expected_value, VALUESTRLEN, " values[%i]=%i",j, values[j]);
@@ -327,8 +327,8 @@ ret_t execute_plan (ctiff_t * ctif) {
                                                   for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe);
 						  expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "count=%i,", count); 
                                                   for (int j=0; j<count; j++) snprintf(expected_value, VALUESTRLEN, " values[%i]=%i",j, values[j]);
@@ -339,8 +339,8 @@ ret_t execute_plan (ctiff_t * ctif) {
                                                   int b = exe_i_pop(&exe);
 						  expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "%li -- %li", a, b);
                                                   ret = check_tag_has_value_in_range(ctif, exe.tag, a, b);
@@ -349,8 +349,8 @@ ret_t execute_plan (ctiff_t * ctif) {
         case fc_tag_has_value:                  { int a = exe_i_pop(&exe);
                                                   expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "%li", a);
                                                   ret = check_tag_has_value(ctif, exe.tag, a);
@@ -359,8 +359,8 @@ ret_t execute_plan (ctiff_t * ctif) {
         case fc_tag_has_value_quiet:            { int a = exe_i_pop(&exe);
                                                   expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "%li", a);
                                                   ret = check_tag_has_value_quiet(ctif, exe.tag, a);
@@ -368,7 +368,15 @@ ret_t execute_plan (ctiff_t * ctif) {
                                                 }
         case fc_tag:                            { ret = check_tag(ctif, exe.tag); break;}
         case fc_tag_quiet:                      { ret = check_tag_quiet(ctif, exe.tag); break;}
-        case fc_notag:                          { ret = check_notag(ctif, exe.tag); break;}
+        case fc_notag:                          { expected_value = malloc(sizeof(char) * VALUESTRLEN );
+                                                  if (NULL == expected_value) {
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
+						  }
+						  strncpy(expected_value, "nothing", VALUESTRLEN);
+						  ret = check_notag(ctif, exe.tag);
+					          break;
+						}
         case fc_tag_has_valid_type:             { ret = check_tag_has_valid_type(ctif, exe.tag); break;}
         case fc_datetime:                       { ret = check_datetime(ctif); break;}
         case fc_icc:                            { ret = check_icc(ctif); break;}
@@ -378,8 +386,8 @@ ret_t execute_plan (ctiff_t * ctif) {
         case fc_tag_has_value_matching_regex:   { const char * regex = exe_regex_pop( &exe);
                                                   expected_value = malloc(sizeof(char) * VALUESTRLEN );
                                                   if (NULL == expected_value) {
-							  ret.returncode=could_not_allocate_memory;
-							  return ret;
+							  fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
+
 						  }
 						  snprintf(expected_value, VALUESTRLEN, "regex=%s", regex);
                                                   ret = check_tag_has_value_matching_regex(ctif, exe.tag, regex);
@@ -393,15 +401,14 @@ ret_t execute_plan (ctiff_t * ctif) {
                    ret_t res;
                    res.value_found = malloc(VALUESTRLEN);
                    if (NULL == res.value_found) {
-                     res.returncode=could_not_allocate_memory;
-                     return res;
+			   fprintf(stderr, "Could not allocate memory, code=%s, line=%i\n", __FILE__, __LINE__); exit(could_not_allocate_memory);
                    }
-                   snprintf(res.value_found, VALUESTRLEN, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
-                   res.returncode =parser_error_wrong_function_found_in_parser_state_exe_stack;
+                   fprintf(stderr, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
 #ifdef EXE_DEBUG
                    exe_printstack();
 #endif
-                   return res;
+                   exit(parser_error_wrong_function_found_in_parser_state_exe_stack);
+                   ;
                  }
       }
       if (exe.function != fc_internal_logic_combine) { ret.logical_or_count = 0; }
@@ -455,10 +462,12 @@ ret_t execute_plan (ctiff_t * ctif) {
       full.function=fc_notag;
       full.lineno=-1;
       full.result=res;
+      full.expected_value=NULL;
       result_push( full );
       }
     }
   }
+
 }
 
 
@@ -1156,7 +1165,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    }
 
    /* fill with rule infos */
-   __add_to_render_pipeline_via_strncpy(&actual_render, function_name(parser_result.function), rm_rule);
+   __add_to_render_pipeline_via_strncpy(&actual_render, get_parser_function_description(parser_result.function), rm_rule);
    if (parser_result.expected_value != NULL) {
 	   __add_to_render_pipeline_via_strncpy(&actual_render, parser_result.expected_value, rm_expected);
    }
