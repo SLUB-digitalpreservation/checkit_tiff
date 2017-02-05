@@ -713,7 +713,7 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 	int isByteSwapped = parse_header_and_endianess(ctif);
 	/* seek the image file directory (bytes 4-7) */
 	if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
-		perror ("TIFF Header seak error, seek set to byte 4");
+		perror ("TIFF Header seek error, seek set to byte 4");
 		exit (EXIT_FAILURE);
 	}
 	uint32 offset;
@@ -724,8 +724,17 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 	if (isByteSwapped) {
 		TIFFSwabLong (&offset);
 	}
+	if (offset <= 8) {
+		perror("pointer to IFD0 must be greater than 8, because first 8 Bytes contains the TIFF header");
+		exit(EXIT_FAILURE);
+	}
 	ctif->ifd0pos=offset;
-	ct_seek(ctif, offset, SEEK_SET);
+	if (ct_seek(ctif, offset, SEEK_SET) != offset) {
+                char msg[VALUESTRLEN];
+		snprintf(msg, VALUESTRLEN, "TIFF Header seek error, seek set to offset %u", offset);
+		perror(msg);
+		exit (EXIT_FAILURE);
+	}
 
 	uint16 count;
 	if ( ct_read( ctif, &count, 2) != 2 ) {
@@ -735,10 +744,6 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 
 	if (is_byteswapped(ctif))
 		TIFFSwabShort(&count);
-	if (count <= 8) {
-		perror("pointer to IFD0 must be greater than 8, because first 8 Bytes contains the TIFF header");
-		exit(EXIT_FAILURE);
-	}
 	ctif->ifd0c = count;
 	return offset;
 }
