@@ -101,6 +101,6 @@ check if tag 306 (DateTime) has  value matching regex '^[12][901][0-9][0-9]:[01]
 	tag 306 (DateTime) should have value ^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$, but has value (values or count) 04.03.2010 09:59:17
 check if forbidden tags are still existing
 	tag 315 (Artist) is_found, but is not whitelisted (or rule has no matched dependency)
-	tag 34377 (Photoshop Image Ressources) is_found, but is not whitelisted (or rule has no matched dependency)
+	tag 34377 (Photoshop Image Resources) is_found, but is not whitelisted (or rule has no matched dependency)
 found 4 errors
 

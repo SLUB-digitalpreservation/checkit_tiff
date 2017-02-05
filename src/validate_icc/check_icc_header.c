@@ -27,7 +27,7 @@ int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned l
       (iccdata[3] & 0x00ff)
       ) & 0xffffffff;
   INFO("ICC: profilesize=%li %0x\n", profilesize, profilesize);
-  if (profilesize != iccsize) FAIL("commited ICC size (%li / 0x%04x) differs from encoded profilesize (%li / 0x%04x)", iccsize, iccsize, profilesize, profilesize);
+  if (profilesize != iccsize) FAIL("committed ICC size (%li / 0x%04x) differs from encoded profilesize (%li / 0x%04x)", iccsize, iccsize, profilesize, profilesize);
   /* -- */
   char preferredcmmtype[5]="    "; memcpy(preferredcmmtype, &iccdata[4],4);
   INFO("ICC: preferredcmmtype='%s'\n", preferredcmmtype);
@@ -131,16 +131,16 @@ int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned l
   char profilefilesignature[5]="    "; memcpy(profilefilesignature, &iccdata[36],4);
   INFO("ICC: profilefilesignature='%s'\n", profilefilesignature);
   /* -- */
-  char primaryplattformsignature[5]="    "; memcpy(primaryplattformsignature, &iccdata[40],4);
-  INFO("ICC: primaryplattformsignature='%s'\n", primaryplattformsignature);
+  char primaryplatformsignature[5]="    "; memcpy(primaryplatformsignature, &iccdata[40],4);
+  INFO("ICC: primaryplatformsignature='%s'\n", primaryplatformsignature);
   if ( /*  see page 15, table 15 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf */
-      ('\0' != primaryplattformsignature[0]) &&
-      (0 != strncmp("APPL", primaryplattformsignature, 4)) &&
-      (0 != strncmp("MSFT", primaryplattformsignature, 4)) &&
-      (0 != strncmp("SGI ", primaryplattformsignature, 4)) &&
-      (0 != strncmp("SUNW", primaryplattformsignature, 4)) &&
-      (0 != strncmp("TGNT", primaryplattformsignature, 4))
-     ) FAIL("primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT'", primaryplattformsignature);
+      ('\0' != primaryplatformsignature[0]) &&
+      (0 != strncmp("APPL", primaryplatformsignature, 4)) &&
+      (0 != strncmp("MSFT", primaryplatformsignature, 4)) &&
+      (0 != strncmp("SGI ", primaryplatformsignature, 4)) &&
+      (0 != strncmp("SUNW", primaryplatformsignature, 4)) &&
+      (0 != strncmp("TGNT", primaryplatformsignature, 4))
+     ) FAIL("primary platform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT'", primaryplatformsignature);
 
   /* -- */
   // Profile Flags 44-47

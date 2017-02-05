@@ -461,7 +461,7 @@ void commentline() {
 }
 /* helper function for parser */
 /*
-void rule_should_not_occure(char* s) {
+void rule_should_not_occur(char* s) {
 #ifdef DEBUG
   printf("no parser rule matched after line %i (prev tag was %u): '%s'\n", getlineno(), gettag(), s);
 #endif
@@ -623,7 +623,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
                        }
       default:
                        {
-                         fprintf(stderr, "unknown parserstate.req (%i), should not occure\n", parser_state.req);
+                         fprintf(stderr, "unknown parserstate.req (%i), should not occur\n", parser_state.req);
                          exit(EXIT_FAILURE);
                        }
     }
@@ -676,7 +676,7 @@ void build_functional_structure(internal_entry_t * e_p, values_t val) {
                     break;
                   }
       default:
-                  fprintf(stderr, "unknown val, should not occure\n");
+                  fprintf(stderr, "unknown val, should not occur\n");
                   exit(EXIT_FAILURE);
     }
 }
