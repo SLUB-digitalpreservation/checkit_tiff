@@ -58,10 +58,9 @@ void simplified_result_push(ret_t res, function_t func) {
 
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-  ctiff_t * ctif = initialize_ctif( tiff_file, use_memmapped?is_memmap:is_filep );
-  execute_plan(ctif);
+  ret_t res;
   /* init render pipeline */
- retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
+  retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
   if (NULL == render_pipeline) {
     ret_t ret;
     ret.returncode=could_not_allocate_memory;
@@ -73,10 +72,27 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   if (NULL == actual_render->rm_msg) {
 	  exit (could_not_allocate_memory);
   }
-  strncpy(actual_render->rm_msg, tiff_file, VALUESTRLEN);
   actual_render->next=NULL;
-
-  ret_t res = print_plan_results( actual_render);
+  assert(NULL != tiff_file);
+  strncpy(actual_render->rm_msg, tiff_file, VALUESTRLEN);
+  /* parse TIFF file */
+  ctiff_t * ctif = initialize_ctif( tiff_file, use_memmapped?is_memmap:is_filep );
+  res = parse_header_and_endianess( ctif );
+  if (res.returncode != is_valid) {
+	  assert(NULL != res.value_found);
+	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
+	  goto renderer_exit;
+  }  
+  uint32 offset;
+  res=get_first_IFD(ctif, &offset);
+  if (res.returncode != is_valid) {
+	  assert(NULL != res.value_found);
+	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
+	  goto renderer_exit;
+  }  
+  execute_plan(ctif);
+  res = print_plan_results( actual_render);
+renderer_exit:
   printf("%s\n", renderer( render_pipeline ));
   free_ctif( ctif );
   return res.returncode;
