@@ -8,6 +8,7 @@
 #define DEBUG
 #define _GNU_SOURCE
 
+#include <assert.h>
 #include <string.h>
 #include "check.h"
 #include "check_helper.h"
@@ -24,6 +25,37 @@ static inline char *strndup(const char *s, size_t n)
     return (char *) strncpy (result, s, len);
 }
 #endif
+
+returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type) {
+   assert(pointer != NULL);
+   retmsg_t * actual_render = NULL;
+   actual_render = *pointer;
+   assert(actual_render != NULL);
+   assert(src != NULL);
+   assert(actual_render->next==NULL);
+   assert(actual_render->rm_msg != NULL);
+   actual_render->next = malloc ( sizeof(retmsg_t));
+   if (NULL == actual_render->next) {
+     exit( could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+
+   actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
+   if (NULL == actual_render->next->rm_msg) {
+     exit (could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+   memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
+   // printf("%p -> %p\n", actual_render, actual_render->next);
+   strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
+   actual_render->next->rm_type = src_type;
+   actual_render = actual_render->next;
+   *pointer = actual_render;
+   return is_valid;
+}
+
+
+
 
 /* 
 ret_t tif_fails(const char* fail_message) {

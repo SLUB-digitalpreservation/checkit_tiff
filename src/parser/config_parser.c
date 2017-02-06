@@ -1073,35 +1073,6 @@ void clean_plan_results() {
 	}
 }
 
-returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type) {
-   assert(pointer != NULL);
-   retmsg_t * actual_render = NULL;
-   actual_render = *pointer;
-   assert(actual_render != NULL);
-   actual_render->next = malloc ( sizeof(retmsg_t));
-   if (NULL == actual_render->next) {
-     exit( could_not_allocate_memory);
-     // return could_not_allocate_memory;
-   }
-
-   actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
-   if (NULL == actual_render->next->rm_msg) {
-     exit (could_not_allocate_memory);
-     // return could_not_allocate_memory;
-   }
-   memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
-   // printf("%p -> %p\n", actual_render, actual_render->next);
-   if (NULL == src) { 
-     strncpy(actual_render->next->rm_msg, "NULL", VALUESTRLEN );
-   } else {
-     strncpy(actual_render->next->rm_msg, src, VALUESTRLEN );
-   }
-   actual_render->next->rm_type = src_type;
-   actual_render = actual_render->next;
-   *pointer = actual_render;
-   return is_valid;
-}
-
 
 
 /* prints a plan (list) of functions and their results*/
@@ -1171,6 +1142,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    }
    /* fill with value found */
    if (res.returncode != is_valid) {
+	   assert(res.value_found != NULL);
 	   __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_value);
    }
    /* fill with newline */
@@ -1191,7 +1163,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
 	  __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_is_valid);
 	  __add_to_render_pipeline_via_strncpy(&actual_render, "Yes, the given tif is valid :)", rm_is_valid);
   }
-  __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endtiff);
+  __add_to_render_pipeline_via_strncpy(&actual_render, " ", rm_endtiff);
   clean_plan_results();
   return res;
 }
