@@ -244,81 +244,116 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
 }
 
 
-int parse_header_and_endianess(ctiff_t * ctif) {
+ret_t parse_header_and_endianess(ctiff_t * ctif) {
+  ret_t ret;
+  ret.value_found = malloc(VALUESTRLEN);
+  if (NULL == ret.value_found) {
+    ret.returncode=could_not_allocate_memory;
+    return ret;
+  }
+
    /* seek the image file directory (bytes 4-7) */
   //ct_seek(fd, (off_t) 0, SEEK_SET);
   if ( ct_seek(ctif, 0, SEEK_SET) != 0)  {
-	  perror ("TIFF header ct_seek error to 0");
-	  exit( EXIT_FAILURE );
+	  strncpy(ret.value_found, "TIFF header ct_seek error to 0", VALUESTRLEN);
+	  ret.returncode=tiff_seek_error_header;
+	  return ret;
   }
   uint16 header;
   uint16 magic;
-  int ret;
+  int endianess;
   if ( ct_read( ctif, &header, 2) != 2 ) {
-	  perror ("TIFF Header ct_read error to magic byte header (first 2 bytes)");
-	  exit( EXIT_FAILURE );
+	  strncpy(ret.value_found, "TIFF Header ct_read error to magic byte header (first 2 bytes)", VALUESTRLEN);
+	  ret.returncode=tiff_read_error_header;
+	  return ret;
   }
-  if (header == 0x4949) ret = 0; /* little endian */
-  else if (header == 0x4d4d) ret = 1; /*  big endian */
+  if (header == 0x4949) endianess = 0; /* little endian */
+  else if (header == 0x4d4d) endianess = 1; /*  big endian */
   else {
-    fprintf (stderr, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x\n", header);
-    if (header == 0x4550) fprintf( stderr, "could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00\n");
-    exit(EXIT_FAILURE);
+    char errmsg[VALUESTRLEN]="";
+    snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x", header);
+    if (header == 0x4550) {
+	    strncat(errmsg, ", could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00", VALUESTRLEN);
+    }
+    strncpy(ret.value_found, errmsg, VALUESTRLEN);
+    ret.returncode = tiff_byteorder_error; 
+    return ret;
   }
-  ctif->isbyteswapped = ret;
+  ctif->isbyteswapped = endianess;
   if ( ct_read( ctif, &magic, 2) != 2 ) {
-	  perror ("TIFF Header ct_read error to magic byte header (second 2 bytes == 42)");
-	  exit( EXIT_FAILURE );
+	  strncpy(ret.value_found, "TIFF Header ct_read error to magic byte header (second 2 bytes == 42)", VALUESTRLEN);
+	  ret.returncode=tiff_read_error_header;
+	  return ret;
   }
 
   uint16 magic2 = magic;
-  if (ret) TIFFSwabShort( &magic2 ); /*  big endian */
-  if (magic2 == 42) { return ret; }
+  if (endianess) TIFFSwabShort( &magic2 ); /*  big endian */
+  if (magic2 == 42) { ret.returncode=is_valid; return ret; }
   else {
-	  fprintf (stderr, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
-	  if (magic2==0x002b) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
-	  if (magic2==0x0055) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
-	  if (magic2==0x01bc) fprintf (stderr, "\tbut could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832\n");
-	  if (magic2==0x314e) fprintf (stderr, "\tbut could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf\n");
-	  if (magic2==0x4352) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
-	  if (magic2==0x4f52) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
-	  if (magic2==0x5352) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
-    exit(EXIT_FAILURE);
+	  char errmsg[VALUESTRLEN]="";
+	  snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
+	  if (magic2==0x002b) strncat(errmsg, ", but could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html", VALUESTRLEN);
+	  if (magic2==0x0055) strncat(errmsg, ", but could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/", VALUESTRLEN);
+	  if (magic2==0x01bc) strncat(errmsg, ", but could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832", VALUESTRLEN);
+	  if (magic2==0x314e) strncat(errmsg, ", but could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf", VALUESTRLEN);
+	  if (magic2==0x4352) strncat(errmsg, ", but could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf", VALUESTRLEN);
+	  if (magic2==0x4f52) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
+	  if (magic2==0x5352) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
+	  strncpy(ret.value_found, errmsg, VALUESTRLEN);
+	  ret.returncode = tiff_byteorder_error; 
+	  return ret;
   }
+  ret.returncode = should_not_occure;
+  return ret;
 }
 
-uint32 get_first_IFD(ctiff_t * ctif) {
-	int isByteSwapped = parse_header_and_endianess(ctif);
+ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
+	ret_t ret;
+	ret.value_found = malloc(VALUESTRLEN);
+	if (NULL == ret.value_found) {
+		ret.returncode=could_not_allocate_memory;
+		return ret;
+	}
+	int isByteSwapped = ctif->isbyteswapped;
 	/* seek the image file directory (bytes 4-7) */
 	if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
-		perror ("TIFF Header seak error, seek set to byte 4");
-		exit (EXIT_FAILURE);
+		strncpy(ret.value_found, "TIFF Header seak error, seek set to byte 4", VALUESTRLEN);
+		ret.returncode=tiff_seek_error_header;
+		return ret;
 	}
 	uint32 offset;
 	if ( ct_read( ctif, &offset, 4) != 4 ) {
-		perror ("TIFF Header ct_read error, reading 4 bytes from 4");
-		exit( EXIT_FAILURE );
+		strncpy(ret.value_found, "TIFF Header ct_read error, reading 4 bytes from 4", VALUESTRLEN);
+		ret.returncode=tiff_read_error_header;
+		return ret;
 	}
 	if (isByteSwapped) {
 		TIFFSwabLong (&offset);
 	}
+	if (offset <= 8) {
+		snprintf(ret.value_found, VALUESTRLEN, "pointer to IFD0 is %i", offset);
+                ret.returncode=tiff_ifd0_offset_must_be_greater_than_eight;
+		return ret;
+	}
 	ctif->ifd0pos=offset;
-	ct_seek(ctif, offset, SEEK_SET);
-
+	if (ct_seek(ctif, offset, SEEK_SET) != offset ) {
+		snprintf(ret.value_found, VALUESTRLEN, "TIFF Header seek error, seek set to byte %i", offset);
+		ret.returncode=tiff_seek_error_header;
+		return ret;
+	}
 	uint16 count;
 	if ( ct_read( ctif, &count, 2) != 2 ) {
-		perror ("TIFF Header ct_read error2, reading ifd0 count (2 bytes)");
-		exit( EXIT_FAILURE );
+		strncpy(ret.value_found, "TIFF Header ct_read error2, reading ifd0 count (2 bytes)", VALUESTRLEN);
+		ret.returncode=tiff_read_error_header;
+		return ret;
 	}
 
 	if (is_byteswapped(ctif))
 		TIFFSwabShort(&count);
-	if (count <= 8) {
-		perror("pointer to IFD0 must be greater than 8, because first 8 Bytes contains the TIFF header");
-		exit(EXIT_FAILURE);
-	}
 	ctif->ifd0c = count;
-	return offset;
+	*ifd = offset;
+        ret.returncode=is_valid;
+	return ret;
 }
 
 /* scans first IDF and returns count of tags
@@ -747,8 +782,6 @@ ctiff_t * initialize_ctif(const char * tiff_file, ct_ioflag_t ioflag) {
   ctif->filename = strdup(tiff_file);
   ctif->ifd0pos= 0;
   ctif->ifd0c= 0;
-  parse_header_and_endianess( ctif );
-  get_first_IFD( ctif );
   return ctif;
 }
 
