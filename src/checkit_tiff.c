@@ -62,9 +62,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   /* init render pipeline */
   retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
   if (NULL == render_pipeline) {
-    ret_t ret;
-    ret.returncode=could_not_allocate_memory;
-    return ret.returncode;
+	  exit (could_not_allocate_memory);
   }
   retmsg_t * actual_render = render_pipeline;
   actual_render->rm_type = rm_file;
