@@ -40,8 +40,11 @@ void set_renderer_to_xml();
 char * secstrcat (char * dest, const char * src, int maxsize);
 ctiff_t * initialize_ctif( const char * tiff_file, ct_ioflag_t );
 void free_ctif( ctiff_t * ctif);
-uint32 get_ifd0_pos( ctiff_t * ctif );
+uint32 get_ifd0_pos( ctiff_t * ctif);
+ret_t parse_header_and_endianess(ctiff_t * ctif );
 uint32 get_next_ifd_pos( ctiff_t * ctif, uint32 actual_pos );
 uint16 get_ifd0_count( ctiff_t * ctif );
 char is_byteswapped( ctiff_t * ctif );
+ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd);
+returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type);
 #endif
