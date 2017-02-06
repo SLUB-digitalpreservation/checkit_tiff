@@ -130,7 +130,8 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
     exit(could_not_allocate_memory);
   } 
   const retmsg_t * startp = ret;
-  while (NULL != startp && NULL != startp->next) {
+  while (NULL != startp) {
+	assert(startp->rm_msg != NULL);
         switch (startp->rm_type) {
           case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE);
 			      secstrcat(res, "\t--> ", RENDERSIZE);
