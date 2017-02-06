@@ -87,6 +87,8 @@ typedef enum {
   tiff_read_error_header,
   tiff_seek_error_offset,
   tiff_read_error_offset,
+  tiff_byteorder_error, /* not an expected byteorder found */
+  tiff_ifd0_offset_must_be_greater_than_eight, /* must be greater than 8, because first 8 Bytes contains the TIFF header */
   code_error_streampointer_empty,
   code_error_filedescriptor_empty,
   code_error_ctif_empty,
