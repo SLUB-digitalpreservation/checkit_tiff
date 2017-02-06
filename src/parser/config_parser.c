@@ -1146,7 +1146,8 @@ ret_t print_plan_results(retmsg_t * actual_render) {
 	   __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_value);
    }
    /* fill with newline */
-   __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endrule);
+   __add_to_render_pipeline_via_strncpy(&actual_render, " ", rm_endrule);
+   if (type == rm_hard_error) { break; }
 
 /*   printf( "%s", renderer( parser_state.result_stack[i].result)); */
   }
