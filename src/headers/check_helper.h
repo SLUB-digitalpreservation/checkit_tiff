@@ -46,5 +46,7 @@ uint32 get_next_ifd_pos( ctiff_t * ctif, uint32 actual_pos );
 uint16 get_ifd0_count( ctiff_t * ctif );
 char is_byteswapped( ctiff_t * ctif );
 ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd);
+ret_t get_empty_ret();
+ret_t set_value_found_ret (ret_t * rp, const char * msg);
 returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type);
 #endif

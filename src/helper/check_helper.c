@@ -89,4 +89,21 @@ long long fsize(int fd) {
   fstat(fd, &st);
   return st.st_size;
 }
+
+ret_t get_empty_ret () {
+  ret_t ret;
+  ret.value_found = NULL;
+  ret.logical_or_count = 0;
+  return ret;
+}
+
+ret_t set_value_found_ret (ret_t * rp, const char * msg) {
+  rp->value_found=malloc(sizeof(char) * VALUESTRLEN);
+  if (NULL == rp->value_found) {
+    rp->returncode=could_not_allocate_memory;
+  } else {
+    strncpy(rp->value_found, msg, VALUESTRLEN);
+  }
+  return *rp;
+}
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
