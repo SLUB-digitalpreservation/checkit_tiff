@@ -47,15 +47,6 @@ void help () {
   printf ("\n");
 }
 
-void simplified_result_push(ret_t res, function_t func) {
-        full_res_t full;
-        full.tag = -1;
-        full.function=func;
-        full.lineno=-1;
-        full.result=res;
-        result_push( full );
-}
-
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   ret_t res;
@@ -79,6 +70,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   if (res.returncode != is_valid) {
 	  assert(NULL != res.value_found);
 	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
+  printf("res.val='%s'\n", res.value_found);
 	  goto renderer_exit;
   }  
   uint32 offset;
