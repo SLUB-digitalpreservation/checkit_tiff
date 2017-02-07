@@ -724,7 +724,7 @@ uint32 get_first_IFD(ctiff_t * ctif) {
 	if (isByteSwapped) {
 		TIFFSwabLong (&offset);
 	}
-	if (offset <= 8) {
+	if (offset <= 7) {
 		perror("pointer to IFD0 must be greater than 8, because first 8 Bytes contains the TIFF header");
 		exit(EXIT_FAILURE);
 	}
