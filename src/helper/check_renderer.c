@@ -125,6 +125,7 @@ const char * renderer_default ( const retmsg_t * ret ) {
 
 
 const char * renderer_ansi ( const retmsg_t * ret ) {
+  assert (ret != NULL);
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
     exit(could_not_allocate_memory);
@@ -157,7 +158,10 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
 	/* FIXME: replace all occurrences of a space, backslash, caret,  or
 	   any control character anywhere in the string, as well as a hash mark as
 	   the first character. */
+//if (startp->rm_type != is_valid) {
+  assert(startp->rm_msg != NULL);
 	secstrcat(res, startp->rm_msg, RENDERSIZE);
+//}
 	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff || startp->rm_type==rm_file) {
 		secstrcat(res, ANSI_NORMAL, RENDERSIZE);
 		secstrcat(res, "\n", RENDERSIZE);
