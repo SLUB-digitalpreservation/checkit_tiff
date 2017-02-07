@@ -76,7 +76,10 @@ typedef struct full_res_s {
   tag_t tag;
   function_t function;
   const char * expected_value;
-  ret_t result;
+  const char * found_value;
+  int logical_or_count;
+  returncode_t returncode;
+  
 } full_res_t;
 
 typedef struct parser_state_s {
