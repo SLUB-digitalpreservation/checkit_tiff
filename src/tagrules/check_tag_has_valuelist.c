@@ -16,12 +16,7 @@
 */
 
 ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
 
@@ -45,7 +40,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
     snprintf(expected, sizeof(expected), "list has %u values", count);
     char value[VALUESTRLEN];
     snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
-    ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+    ret = set_value_found_ret (&ret, value);
     ret.returncode = tagerror_expected_count_differs;
     return ret;
   }
@@ -57,7 +52,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                           if (v[i] != ifd_entry.data32) {
                             char value[VALUESTRLEN];
                             snprintf(value, sizeof(value), "at [%u]=%u", i,  ifd_entry.data32);
-                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
                           }
@@ -75,7 +70,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                           if (v[i] != *p) {
                             char value[VALUESTRLEN];
                             snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
-                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
                           }
@@ -92,7 +87,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                            if (!c) {
                              char value[VALUESTRLEN];
                              snprintf(value, sizeof(value), "at [%u]=%u", i,  ifd_entry.data16[i]);
-                             ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                             ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
                            }
@@ -110,7 +105,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                            if (v[i] != pval) {
                              char value[VALUESTRLEN];
                              snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
-                             ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                             ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
                            }
@@ -123,7 +118,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                       {
                         char array[VALUESTRLEN];
                         snprintf(array, sizeof(array), "type:%s", TIFFTypeName(ifd_entry.datatype));
-                        ret.value_found = strncpy( ret.value_found, array, VALUESTRLEN);
+                        ret = set_value_found_ret(&ret, array);
                         ret.returncode = tagerror_unexpected_type_found;
                         return ret;
                       }

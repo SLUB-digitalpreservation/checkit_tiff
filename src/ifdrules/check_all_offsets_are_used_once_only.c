@@ -13,12 +13,7 @@
 
 /* check if offsets are used only once */
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
   tifp_check( ctif);
   int count = get_ifd0_count( ctif);
   int tagidx;
@@ -41,8 +36,8 @@ ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
           // FIXME: tif_fails?
           char array[TIFFAILSTRLEN];
           snprintf(array, sizeof(array), "offset of tag %u (%s) points to %08x, which address is used previously by tag %u (%s)", tag, TIFFTagName(tag), offset, tags[i], TIFFTagName(tags[i]) );
-          ret.value_found = strncpy(ret.value_found, array, VALUESTRLEN);
           ret.returncode = ifderror_offset_used_twice;
+          ret = set_value_found_ret(&ret, array);
           return ret;
         }
       }

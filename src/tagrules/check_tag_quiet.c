@@ -13,12 +13,7 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
- ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+ ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
   if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {

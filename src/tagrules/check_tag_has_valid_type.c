@@ -12,12 +12,7 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
 
@@ -98,13 +93,13 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
 #ifdef WARN
                printf("for tag %i no explicite type check implemented\n");
 #endif
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagwarn_type_of_unknown_tag_could_not_be_checked;
                return ret;
              };
   }
   if (!res) {
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
   } else {

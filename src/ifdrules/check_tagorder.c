@@ -12,12 +12,7 @@
 #include <errno.h>
 
 ret_t check_tagorder(ctiff_t * ctif) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
   tifp_check( ctif);
   if (has_sorted_tags != ctif->tagorder) {
     uint32 offset = get_ifd0_pos(ctif);
@@ -31,7 +26,9 @@ ret_t check_tagorder(ctiff_t * ctif) {
     ct_seek(ctif, offset+2, SEEK_SET);
 
     if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
-      snprintf(ret.value_found, VALUESTRLEN, "%i bytes, errorcode=%i", 12*count, errno);
+      char array[VALUESTRLEN];
+      snprintf(array, VALUESTRLEN, "%i bytes, errorcode=%i", 12*count, errno);
+      ret = set_value_found_ret(&ret, array);
       ret.returncode = tiff_read_error_header;
       return ret;
     } else {
@@ -49,7 +46,9 @@ ret_t check_tagorder(ctiff_t * ctif) {
           // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tag, tag, hi, lo);
           free( ifdentries );
           // FIXME: tif_fails?
-          snprintf(ret.value_found, VALUESTRLEN, "previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(lasttag),  tag,  TIFFTagName(tag), i, count);
+          char array[VALUESTRLEN];
+          snprintf(array, VALUESTRLEN, "previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(lasttag),  tag,  TIFFTagName(tag), i, count);
+          ret = set_value_found_ret(&ret, array);
           ret.returncode = ifderror_tags_not_in_ascending_order;
           return ret;
         }

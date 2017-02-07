@@ -50,12 +50,7 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  */
 ret_t check_datetime(ctiff_t * ctif ) {
 
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
   /* find date-tag and fix it */
@@ -63,7 +58,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
   if (datatype != TIFF_ASCII) {
     char array[VALUESTRLEN];
     snprintf(array, sizeof(array), "type:%s", TIFFTypeName(datatype));
-    ret.value_found = strncpy( ret.value_found, array, VALUESTRLEN);
+    ret = set_value_found_ret( &ret, array);
     ret.returncode = tagerror_unexpected_type_found;
     return ret;
   }
@@ -88,7 +83,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
 #ifdef DEBUG
     printf(" count=%u\n\n", count);
 #endif
-    ret.value_found = strncpy( ret.value_found, datetime, VALUESTRLEN);
+    ret = set_value_found_ret(&ret, datetime);
     if (0 == r) {
       if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
         if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {

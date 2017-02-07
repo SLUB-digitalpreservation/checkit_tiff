@@ -16,12 +16,7 @@
 */
 
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
   if (a > b) { unsigned int c=a; a=b; b=c; }
@@ -41,7 +36,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             free(valp);
                             char value[VALUESTRLEN];
                             snprintf(value, sizeof(value), "%u", val);
-                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
                           }
@@ -50,7 +45,6 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             free(valp);
                             valp=NULL;
                           }
-                          ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
                           ret.returncode = tagerror_value_not_found;
                           return ret;
                         }
@@ -71,7 +65,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                              free( valp);
                              char value[VALUESTRLEN];
                              snprintf(value, sizeof(value), "%u", val);
-                             ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                             ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
                            }
@@ -80,7 +74,6 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                              free(valp);
                              valp=NULL;
                            }
-                           ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
                            ret.returncode = tagerror_value_not_found;
                            return ret;
                          }
@@ -101,7 +94,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                                 free( valp);
                                 char value[VALUESTRLEN];
                                 snprintf(value, sizeof(value), "%f", val);
-                                ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                                ret = set_value_found_ret (&ret, value);
                                 ret.returncode = tagerror_value_differs;
                                 return ret;
                               }
@@ -110,7 +103,6 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                                 free(valp);
                                 valp=NULL;
                               }
-                              ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
                               ret.returncode = tagerror_value_not_found;
                               return ret;
                             }
@@ -119,7 +111,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                           }
       default: /*  none */
                           {
-                            ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+                            ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                             ret.returncode = tagerror_unexpected_type_found;
                             return ret;
                           }

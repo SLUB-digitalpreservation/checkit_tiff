@@ -13,12 +13,7 @@
 
 /* check if offsets are word aligned */
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
   tifp_check( ctif);
   int count = get_ifd0_count( ctif);
   int tagidx;
@@ -31,7 +26,7 @@ ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
         // FIXME: tif_fails?
         char array[TIFFAILSTRLEN];
         snprintf(array, sizeof(array), "tag %i pointing to 0x%08x and is not word-aligned", tag, offset);
-        ret.value_found = strncpy(ret.value_found, array, VALUESTRLEN);
+        ret = set_value_found_ret (&ret, array);
         ret.returncode = tagerror_offset_not_word_aligned;
         return ret;
       }

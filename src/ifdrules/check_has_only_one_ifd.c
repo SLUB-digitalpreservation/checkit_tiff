@@ -12,12 +12,7 @@
 
 /*  check if only one IFD exists */
 ret_t check_has_only_one_ifd(ctiff_t * ctif) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret = get_empty_ret();
   tifp_check( ctif);
   /* next commented lines, because TIFFNumberOfDirectories are in endless loop,
    * if the TIFF file from https://github.com/EasyinnovaSL/DPFManager/blob/develop/src/test/resources/IFD%20struct/Circular%20E.tif
@@ -32,7 +27,7 @@ ret_t check_has_only_one_ifd(ctiff_t * ctif) {
     // FIXME: tif_fails?
       char array[TIFFAILSTRLEN];
       snprintf(array, sizeof(array), "baseline TIFF should have only one IFD, but IFD0 at 0x%08x has pointer to IFDn 0x%08x", offset, IFDn );
-      ret.value_found = strncpy(ret.value_found, array, VALUESTRLEN);
+      ret = set_value_found_ret (&ret, array);
       ret.returncode = ifderror_multiple_ifd_detected;
       return ret;
   }
