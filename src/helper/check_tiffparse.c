@@ -330,7 +330,7 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
 	if (isByteSwapped) {
 		TIFFSwabLong (&offset);
 	}
-	if (offset <= 8) {
+	if (offset <= 7) {
 		snprintf(ret.value_found, VALUESTRLEN, "pointer to IFD0 is %i", offset);
                 ret.returncode=tiff_ifd0_offset_must_be_greater_than_eight;
 		return ret;
