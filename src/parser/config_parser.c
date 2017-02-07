@@ -144,7 +144,7 @@ void exe_printstack () {
   }
 }
 
-
+#define DEBUG
 /*  reduce results */
 void reduce_results() {
   /*  go forward and eliminate all valid rule results */
@@ -160,11 +160,14 @@ void reduce_results() {
     full_res_t full_result = parser_state.result_stack[i];
     int logical_or_count = full_result.logical_or_count;
 #ifdef DEBUG
-    printf("reduce i=%i tmpc=%i logc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), e.returncode );
+    printf("reduce i=%i tmpc=%i logc=%i fclogc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.logical_or_count, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
 #endif
+    assert(full_result.logical_or_count <= 20);
+    assert(full_result.logical_or_count >= 0);
+    //assert(logc >= 0);
     int has_errors=0;
-    if (logical_or_count < 0) { /* logical or encoded as -count */
-      logc= -logical_or_count + 1;
+    if (logical_or_count > 0) {
+      logc= logical_or_count + 1;
 #ifdef DEBUG
 printf("\tlogc'=%i", logc);
 #endif
@@ -173,7 +176,7 @@ printf("\tlogc'=%i", logc);
        */
       for (int j = i+1; j < i+logc; j++) {
 #ifdef DEBUG
-        printf(".... j=%i error=%s\n", j, (parser_state.result_stack[j].result.returncode > 0)?"yes":"no");
+        printf(".... j=%i error=%s\n", j, (parser_state.result_stack[j].returncode != is_valid)?"yes":"no");
 #endif
         if (parser_state.result_stack[j].returncode != is_valid) {
           has_errors++;
@@ -182,9 +185,9 @@ printf("\tlogc'=%i", logc);
         }
       }
 #ifdef DEBUG
-      printf("found %i logical or errors (i=%i)\n", has_errors, i);
+      printf("found %i logical or errors (i=%i) logical_or_count=%i\n", has_errors, i, logical_or_count);
 #endif
-      if (-logical_or_count > has_errors) { // ok, at least one result is valid
+      if (logical_or_count > has_errors) { // ok, at least one result is valid
 #ifdef DEBUG
         printf("\t erasing errors from j=%i < %i\n", i, i+logc);
 #endif
@@ -193,10 +196,16 @@ printf("\tlogc'=%i", logc);
 #ifdef DEBUG
           printf("j=%i\n", j);
 #endif
+          if (parser_state.result_stack[j].function != fc_internal_logic_combine && parser_state.result_stack[j].returncode == is_valid) {
+            full_result = parser_state.result_stack[j];
+            tmp[tmpc++]=full_result;
+          }
           parser_state.result_stack[j].returncode=is_valid;
         }
+        i+=(logc-1);
       }
-    } else if (full_result.returncode != is_valid) {
+    }  else
+    if (full_result.returncode != is_valid) {
       /* push to tmp */
       if (logc > 0) full_result.returncode = parser_logicalor_error;
       tmp[tmpc++]=full_result;
@@ -213,7 +222,7 @@ printf("\tlogc'=%i", logc);
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
-
+#undef DEBUG
 
 
 /* stack function for parser */
@@ -301,7 +310,7 @@ void execute_plan (ctiff_t * ctif) {
       /* TODO: combine n results */
       int count = exe_i_pop(&exe);
       count_of_logical_or=count;
-      ret.logical_or_count= -count; /* negative count to control output */
+      ret.logical_or_count= count;
       if (NULL != ret.value_found) {
         free( ret.value_found );
         ret.value_found = NULL;
@@ -443,14 +452,15 @@ void execute_plan (ctiff_t * ctif) {
 #ifdef EXE_DEBUG
         printf("checking %i -> res=%i\n", i, res.returncode);
 #endif
-      full_res_t full;
-      full.tag = i;
-      full.function=fc_notag;
-      full.lineno=-1;
-      full.returncode=res.returncode;
-      full.expected_value=NULL;
-      full.found_value=NULL;
-      result_push( full );
+        full_res_t full;
+        full.tag = i;
+        full.function=fc_notag;
+        full.lineno=-1;
+        full.returncode=res.returncode;
+        full.expected_value=NULL;
+        full.found_value=NULL;
+        full.logical_or_count=0;
+        result_push( full );
       }
     }
   }
@@ -1102,6 +1112,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    switch ( returncode ) {
      /*  add rm_type */
      case is_valid: type = rm_is_valid; count_of_valid_results++; break;
+     case parser_logicalor_error: type = rm_logicalor_error; break;
      case could_not_allocate_memory:
      case could_not_print:
      case should_not_occure:
@@ -1141,6 +1152,11 @@ ret_t print_plan_results(retmsg_t * actual_render) {
        //__add_to_render_pipeline_via_strncpy(&actual_render, "nothing", rm_value);
      }
    }
+   /*  fill with lineno */
+   char msg[VALUESTRLEN];
+   snprintf(msg, VALUESTRLEN, "lineno=%i", parser_result.lineno);
+   __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_lineno);
+
    /* fill with newline */
    __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endrule);
    if (type == rm_hard_error) { goto harderrors; }
