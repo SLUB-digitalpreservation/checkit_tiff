@@ -102,7 +102,8 @@ ret_t set_value_found_ret (ret_t * rp, const char * msg) {
   if (NULL == rp->value_found) {
     rp->returncode=could_not_allocate_memory;
   } else {
-    strncpy(rp->value_found, msg, VALUESTRLEN);
+    memset(rp->value_found, '\0', VALUESTRLEN);
+    strncpy(rp->value_found, msg, VALUESTRLEN-1);
   }
   return *rp;
 }
