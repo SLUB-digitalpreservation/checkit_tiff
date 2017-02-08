@@ -132,41 +132,71 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
   } 
   const retmsg_t * startp = ret;
   while (NULL != startp) {
-	assert(startp->rm_msg != NULL);
-        switch (startp->rm_type) {
-          case rm_rule:       secstrcat( res, ANSI_NORMAL   , RENDERSIZE);
-			      secstrcat(res, "\t--> ", RENDERSIZE);
-			      break;
-          case rm_tag:        secstrcat( res, "\t", RENDERSIZE  );
-                              secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
-          case rm_mode:       secstrcat( res, "\t", RENDERSIZE  );
-                              secstrcat( res, ANSI_BOLD     , RENDERSIZE); break;
-          case rm_value:      secstrcat( res, ANSI_RED     , RENDERSIZE); 
-			      secstrcat(res, " found: ", RENDERSIZE);
-			      break;
-          case rm_expected:   secstrcat( res, ANSI_BLUE, RENDERSIZE);
-                              secstrcat( res, " expected: " , RENDERSIZE); break;
-          case rm_hard_error: secstrcat( res, ANSI_RED_BOLD , RENDERSIZE); break;
-          case rm_error:      secstrcat( res, ANSI_RED      , RENDERSIZE); break;
-          case rm_warning:    secstrcat( res, ANSI_GREY   , RENDERSIZE); break;
-          case rm_logicalor_error:    secstrcat( res, ANSI_YELLOW   , RENDERSIZE); break;
-          case rm_file:       secstrcat( res, "file: ", RENDERSIZE  );
-                              secstrcat( res, ANSI_BLUE_BOLD, RENDERSIZE);
-                              break;
-          default:            secstrcat( res, ANSI_NORMAL   , RENDERSIZE);
-        }
-	/* FIXME: replace all occurrences of a space, backslash, caret,  or
-	   any control character anywhere in the string, as well as a hash mark as
-	   the first character. */
-//if (startp->rm_type != is_valid) {
-  assert(startp->rm_msg != NULL);
-	secstrcat(res, startp->rm_msg, RENDERSIZE);
-//}
-	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff || startp->rm_type==rm_file) {
-		secstrcat(res, ANSI_NORMAL, RENDERSIZE);
-		secstrcat(res, "\n", RENDERSIZE);
-	}
-	startp=startp->next;
+    assert(startp->rm_msg != NULL);
+    switch (startp->rm_type) {
+      case rm_rule:       secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          secstrcat(res, "\t--> ", RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_tag:        secstrcat(res, "\t", RENDERSIZE  );
+                          secstrcat(res, ANSI_BOLD     , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_mode:       secstrcat(res, "\t", RENDERSIZE  );
+                          secstrcat(res, ANSI_BOLD     , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_value:      secstrcat(res, ANSI_RED     , RENDERSIZE);
+                          secstrcat(res, " found: ", RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_expected:   secstrcat(res, ANSI_BLUE, RENDERSIZE);
+                          secstrcat(res, " expected: " , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_hard_error: secstrcat(res, ANSI_RED_BOLD , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_error:      secstrcat(res, ANSI_RED      , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_warning:    secstrcat(res, ANSI_GREY   , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_logicalor_error:    secstrcat(res, ANSI_YELLOW   , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_file:       secstrcat(res, "file: ", RENDERSIZE  );
+                          secstrcat(res, ANSI_BLUE_BOLD, RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          secstrcat(res, "\n", RENDERSIZE);
+                          break;
+      case rm_lineno:     secstrcat(res, ANSI_GREY, RENDERSIZE);
+                          secstrcat(res, " (lineno: ", RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          secstrcat(res, ")", RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          break;
+      case rm_endrule:
+      case rm_endtiff:
+                          secstrcat(res, ANSI_NORMAL, RENDERSIZE);
+                          secstrcat(res, "\n", RENDERSIZE);
+                          break;
+      default:            secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
+    }
+    startp=startp->next;
   }
   secstrcat(res, ANSI_NORMAL, RENDERSIZE);
   secstrcat(res, "\n", RENDERSIZE);
