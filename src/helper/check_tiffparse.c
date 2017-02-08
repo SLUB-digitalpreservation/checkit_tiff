@@ -28,40 +28,46 @@
 
 off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
 #ifdef _HAVE__MMAP
-	switch (ctif->ioflag) {
-		case is_filep: 
-			assert(ctif->fd >= 0);
-			// TODO: add checks if seek will be outside of file!!!
-			return lseek(ctif->fd, pos, whence);
-			break;
+  switch (ctif->ioflag) {
+    case is_filep: 
+      assert(ctif->fd >= 0);
+      // TODO: add checks if seek will be outside of file!!!
+      return lseek(ctif->fd, pos, whence);
+      break;
 
-		case  is_memmap:
-		        assert( ctif->streamp != NULL);
-		        assert( ctif->actual_streamp != NULL);
-			switch (whence) {
-				case SEEK_SET: 
-					ctif->actual_streamp = ctif->streamp + pos;
-					break;
-				case SEEK_CUR:
-					ctif->actual_streamp+=pos;
-					break;
-				case SEEK_END:
-					ctif->actual_streamp = ctif->streamp + ctif->streamlen + pos;
-					break;
-			}
-	       		int testpos = ctif->actual_streamp - ctif->streamp;
-			if ( testpos > ctif->streamlen) {
-				fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
-				exit(EXIT_FAILURE);
-			}
-			if ( testpos < 0 ) {
-				fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
-				exit(EXIT_FAILURE);
-			}
+    case  is_memmap:
+      assert( ctif->streamp != NULL);
+      assert( ctif->actual_streamp != NULL);
+      switch (whence) {
+        case SEEK_SET: 
+          ctif->actual_streamp = ctif->streamp + pos;
+          break;
+        case SEEK_CUR:
+          ctif->actual_streamp+=pos;
+          break;
+        case SEEK_END:
+          ctif->actual_streamp = ctif->streamp + ctif->streamlen + pos;
+          break;
+      }
+      int testpos = ctif->actual_streamp - ctif->streamp;
+      if ( testpos > ctif->streamlen) {
+        /*
+         * fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+         * exit(EXIT_FAILURE);
+         */
+        return -1;
+      }
+      if ( testpos < 0 ) {
+        /*
+         * fprintf(stderr, "seek offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+         * exit(EXIT_FAILURE);
+         */
+        return -1;
+      }
 
-			return ctif->actual_streamp - ctif->streamp;
-			break;
-	}
+      return ctif->actual_streamp - ctif->streamp;
+      break;
+  }
 #else
   assert(ctif->fd >= 0);
   // TODO: add checks if seek will be outside of file!!!
@@ -71,31 +77,37 @@ off_t ct_seek(ctiff_t * ctif, off_t pos, int whence) {
 
 ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
 #ifdef _HAVE__MMAP
-	switch (ctif->ioflag) {
-		case is_filep: 
-			// TODO: add checks if seek will be outside of file!!!
-			assert(ctif->fd >= 0);
-			return read(ctif->fd, buf, count);
-			break;
-		case  is_memmap: {
-					 assert( ctif->streamp != NULL);
-					 assert( ctif->actual_streamp != NULL);
+  switch (ctif->ioflag) {
+    case is_filep: 
+      // TODO: add checks if seek will be outside of file!!!
+      assert(ctif->fd >= 0);
+      return read(ctif->fd, buf, count);
+      break;
+    case  is_memmap: {
+                       assert( ctif->streamp != NULL);
+                       assert( ctif->actual_streamp != NULL);
 
-					 int testpos = (ctif->actual_streamp+count) - (ctif->streamp);
-					 if ( testpos > ctif->streamlen) {
-						 fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
-						 exit(EXIT_FAILURE);
-					 }
-					 if ( testpos < 0 ) {
-						 fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
-						 exit(EXIT_FAILURE);
-					 }
-					 memcpy(buf, ctif->actual_streamp, count);
-					 ctif->actual_streamp+=count;
-					 return count;
-					 break;
-				 }
-	}
+                       int testpos = (ctif->actual_streamp+count) - (ctif->streamp);
+                       if ( testpos > ctif->streamlen) {
+                         /*
+                          * fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+                          * exit(EXIT_FAILURE);
+                          */
+                         return -1;
+                       }
+                       if ( testpos < 0 ) {
+                         /*
+                          * fprintf(stderr, "read offset outside of file on new pos=%i (filesize=%i)\n", testpos, ctif->streamlen);
+                          * exit(EXIT_FAILURE);
+                          */
+                         return -1;
+                       }
+                       memcpy(buf, ctif->actual_streamp, count);
+                       ctif->actual_streamp+=count;
+                       return count;
+                       break;
+                     }
+  }
 #else
   // TODO: add checks if seek will be outside of file!!!
   assert(ctif->fd >= 0);
