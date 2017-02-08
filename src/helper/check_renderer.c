@@ -31,33 +31,6 @@ void set_renderer_to_xml() {
     render_engine=render_xml;
 }
 
-
-const char * renderer_default ( const retmsg_t * ret ) {
-  char * res = malloc( sizeof(char) * RENDERSIZE);
-  if (NULL == res) {
-    exit(could_not_allocate_memory);
-  } 
-  secstrcat( res, "\t", RENDERSIZE  );
-  const retmsg_t * startp = ret;
-  while (NULL != startp && NULL != startp->next) {
-        switch (startp->rm_type) {
-          case rm_is_valid:   /* valid results not shown */ break;
-          case rm_file:       secstrcat( res, "file: ", RENDERSIZE  );
-			      secstrcat(res, startp->rm_msg, RENDERSIZE);
-			      break;
-	  default: 	      secstrcat(res, startp->rm_msg, RENDERSIZE);
-			      break;
-	}
-	if (startp->rm_type == rm_endrule || startp->rm_type == rm_endtiff || startp->rm_type==rm_file) {
-		  secstrcat(res, "\n", RENDERSIZE);
-	}
-	startp=startp->next;
-  }
-  secstrcat(res, "\n", RENDERSIZE);
-  return res ;
-}
-
-
 const char * renderer_xml ( const retmsg_t * ret ) {
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
