@@ -16,7 +16,6 @@
 void TIFFSwabShort(uint16 *a);
 void TIFFSwabLong(uint32 *a);
 
-typedef enum{ render_default, render_debug, render_ansi, render_xml} render_type;
 /* helper */
 long long fsize(int fd);
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value);
@@ -34,9 +33,6 @@ int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_p);
 int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_p);
 int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_p);
 offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype);
-const char * renderer ( const retmsg_t * ret );
-void set_renderer_to_ansi();
-void set_renderer_to_xml();
 char * secstrcat (char * dest, const char * src, int maxsize);
 ctiff_t * initialize_ctif( const char * tiff_file, ct_ioflag_t );
 void free_ctif( ctiff_t * ctif);

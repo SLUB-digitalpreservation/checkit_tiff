@@ -10,13 +10,16 @@ file( GLOB checkit_tiff_SOURCES
   "${PROJECT_SOURCE_DIR}/ifdrules/*.c"
   "${PROJECT_SOURCE_DIR}/messages/*.c"
   "${PROJECT_SOURCE_DIR}/helper/*.c"
+  "${PROJECT_SOURCE_DIR}/helper/renderer/*.c"
   "${PROJECT_SOURCE_DIR}/parser/*parser.c"
   "${PROJECT_SOURCE_DIR}/validate_icc/*.c"
   "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
   )
 
 file( GLOB checkit_tiff_risk_SOURCES
-  "${PROJECT_SOURCE_DIR}/helper/*.c"
+  "${PROJECT_SOURCE_DIR}/helper/check_helper.c"
+  "${PROJECT_SOURCE_DIR}/helper/check_print.c"
+  "${PROJECT_SOURCE_DIR}/helper/check_tiffparse.c"
   "${PROJECT_SOURCE_DIR}/messages/*.c"
   "${PROJECT_SOURCE_DIR}/risk_analyzer/*.c"
 )

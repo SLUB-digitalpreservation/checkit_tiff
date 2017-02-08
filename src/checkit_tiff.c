@@ -10,6 +10,7 @@
 #include "config_parser.h"
 #include "check.h"
 #include "check_helper.h"
+#include "check_renderer.h"
 #include <unistd.h>
 #include <assert.h>
 #include <dirent.h>
