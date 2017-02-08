@@ -57,7 +57,7 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
     exit(could_not_allocate_memory);
-  } 
+  }
   const retmsg_t * startp = ret;
   while (NULL != startp) {
     assert(startp->rm_msg != NULL);
@@ -65,43 +65,39 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
       case rm_rule:       secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           secstrcat(res, "\t--> ", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_tag:        secstrcat(res, "\t", RENDERSIZE  );
                           secstrcat(res, ANSI_BOLD     , RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_mode:       secstrcat(res, "\t", RENDERSIZE  );
                           secstrcat(res, ANSI_BOLD     , RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_value:      secstrcat(res, ANSI_RED     , RENDERSIZE);
                           secstrcat(res, " found: ", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_expected:   secstrcat(res, ANSI_BLUE, RENDERSIZE);
                           secstrcat(res, " expected: " , RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_hard_error: secstrcat(res, ANSI_RED_BOLD , RENDERSIZE);
+                          secstrcat(res, "(HE)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_error:      secstrcat(res, ANSI_RED      , RENDERSIZE);
+                          secstrcat(res, "(EE)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_warning:    secstrcat(res, ANSI_GREY   , RENDERSIZE);
+                          secstrcat(res, "(WW)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
-      case rm_logicalor_error:    secstrcat(res, ANSI_YELLOW   , RENDERSIZE);
+      case rm_logicalor_error:
+                          secstrcat(res, ANSI_YELLOW   , RENDERSIZE);
+                          secstrcat(res, "(LE)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_file:       secstrcat(res, "file: ", RENDERSIZE  );
                           secstrcat(res, ANSI_BLUE_BOLD, RENDERSIZE);
@@ -113,16 +109,17 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
                           secstrcat(res, " (lineno: ", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
                           secstrcat(res, ")", RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           break;
       case rm_endrule:
       case rm_endtiff:
                           secstrcat(res, ANSI_NORMAL, RENDERSIZE);
                           secstrcat(res, "\n", RENDERSIZE);
                           break;
+      case rm_is_valid:   secstrcat(res, ANSI_GREEN_BOLD, RENDERSIZE);
+                          secstrcat(res, "(./)", RENDERSIZE);
+                          break;
       default:            secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          //secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
     }
     startp=startp->next;
   }
