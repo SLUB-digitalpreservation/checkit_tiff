@@ -20,6 +20,7 @@ void set_renderer_to_ansi();
 void set_renderer_to_xml();
 const char * renderer_ansi ( const retmsg_t * ret );
 const char * renderer_default ( const retmsg_t * ret );
+const char * renderer_xml ( const retmsg_t * ret );
 
 #endif
 
