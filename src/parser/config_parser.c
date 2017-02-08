@@ -1172,7 +1172,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    }
    /*  fill with lineno */
    char msg[VALUESTRLEN];
-   snprintf(msg, VALUESTRLEN, "lineno=%i", parser_result.lineno);
+   snprintf(msg, VALUESTRLEN, "%i", parser_result.lineno);
    __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_lineno);
 
    /* fill with newline */
