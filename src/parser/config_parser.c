@@ -334,18 +334,36 @@ void execute_plan (ctiff_t * ctif) {
         case fc_tag_has_some_of_these_values:   { int count = exe_i_pop(&exe);
                                                   unsigned int values[count];
                                                   expected_value = __ch_malloc(expected_value);
+                                                  char * strp = expected_value;
                                                   for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe);
-                                                  snprintf(expected_value, VALUESTRLEN, "count=%i,", count); 
-                                                  for (int j=0; j<count; j++) snprintf(expected_value, VALUESTRLEN, " values[%i]=%i",j, values[j]);
+                                                  int all_printed = 0;
+                                                  int printed = snprintf(strp, VALUESTRLEN, "count=%i, values ", count);
+                                                  strp+=printed;
+                                                  all_printed+=printed;
+                                                  for (int j=0; j<count; j++) {
+                                                    /*  reduce VALUESTRLEN with n*printed */
+                                                    printed = snprintf(strp, VALUESTRLEN-all_printed, " [%i]=%i",j, values[j]);
+                                                    strp+=printed;
+                                                    all_printed+=printed;
+                                                  }
                                                   ret = check_tag_has_some_of_these_values(ctif, exe.tag, count, values);
                                                   break;
                                                 }
         case fc_tag_has_valuelist:              { int count = exe_i_pop(&exe);
                                                   unsigned int values[count];
                                                   expected_value = __ch_malloc(expected_value);
+                                                  char * strp = expected_value;
                                                   for (int j=0; j<count; j++) values[j]=exe_i_pop(&exe);
-                                                  snprintf(expected_value, VALUESTRLEN, "count=%i,", count); 
-                                                  for (int j=0; j<count; j++) snprintf(expected_value, VALUESTRLEN, " values[%i]=%i",j, values[j]);
+                                                  int all_printed = 0;
+                                                  int printed = snprintf(expected_value, VALUESTRLEN, "count=%i, values", count); 
+                                                  strp+=printed;
+                                                  all_printed+=printed;
+                                                  for (int j=0; j<count; j++) {
+                                                    /*  reduce VALUESTRLEN with n*printed */
+                                                    printed = snprintf(strp, VALUESTRLEN, " [%i]=%i",j, values[j]);
+                                                    strp+=printed;
+                                                    all_printed+=printed;
+                                                  }
                                                   ret = check_tag_has_valuelist(ctif, exe.tag, count, values);
                                                   break;
                                                 }
