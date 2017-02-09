@@ -12,7 +12,9 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
-  //printf("check if tag %u (%s) has valid type\n", tag, TIFFTagName(tif, tag));
+  ret_t ret;
+  ret.returnmsg=NULL;
+  ret.returncode=0;
   tifp_check( ctif);
   //tif_rules_tag(tag, "has valid type");
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
@@ -100,10 +102,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     snprintf(array, sizeof(array), "with incorrect type: %s (%i)", TIFFTypeName(datatype), datatype);
     return tif_returns( tag, "", array);
   } else {
-    ret_t tmp_res;
-    tmp_res.returnmsg=NULL;
-    tmp_res.returncode=0;
-    return tmp_res;
+    return ret;
   }
   /* we check only count, because we evaluate only int-values */
 }

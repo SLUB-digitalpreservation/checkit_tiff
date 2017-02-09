@@ -18,12 +18,14 @@
 */
 
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b) {
-  //printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
   char msg[EXPECTSTRLEN];
   snprintf(msg, sizeof(msg), "has value in range %u - %u", a, b);
   tif_rules_tag(tag, strdup(msg));
-  ret_t res = check_tag_has_valid_type( ctif, tag);
+  res = check_tag_has_valid_type( ctif, tag);
   if (res.returncode == 0) {
     if (a > b) { unsigned int c=a; a=b; b=c; }
     TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );

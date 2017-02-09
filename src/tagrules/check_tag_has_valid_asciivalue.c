@@ -14,8 +14,11 @@
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
-    TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
+  TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
 #endif
@@ -36,7 +39,7 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
       }
     }
   } else {
-	return tif_fails_tag(tag, "", "has not the expected datatype ASCII");
+    return tif_fails_tag(tag, "", "has not the expected datatype ASCII");
   }
   if (0 != r) {
     char array[VALUESTRLEN];

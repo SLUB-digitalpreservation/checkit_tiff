@@ -49,13 +49,16 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  * @param filename filename which should be processed, repaired
  */
 ret_t check_datetime(ctiff_t * ctif ) {
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
   //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
   tif_rules_tag(TIFFTAG_DATETIME, "is correct");
   /* find date-tag and fix it */
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, TIFFTAG_DATETIME );
   if (datatype != TIFF_ASCII) {
-	  return tif_fails_tag(TIFFTAG_DATETIME, "", "has not the expected datatype ASCII");
+    return tif_fails_tag(TIFFTAG_DATETIME, "", "has not the expected datatype ASCII");
   }
   int count=0;
   char *datetime=NULL;
@@ -81,9 +84,6 @@ ret_t check_datetime(ctiff_t * ctif ) {
     if (0 == r) {
       if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
         if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
-          ret_t res;
-          res.returnmsg=NULL;
-          res.returncode=0;
           return res;
 
         } else {
@@ -104,9 +104,6 @@ ret_t check_datetime(ctiff_t * ctif ) {
        return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
        //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);
     }
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
   return res;
 }
 

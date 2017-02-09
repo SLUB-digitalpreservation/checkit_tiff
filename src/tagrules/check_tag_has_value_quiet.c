@@ -17,8 +17,11 @@
 
 
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value) {
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
-    ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
+  ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (ifd_entry.count > 1) {
     char array[VALUESTRLEN];
      snprintf(array, sizeof(array), "but has type:%i and count:%i",ifd_entry.datatype, ifd_entry.count);
@@ -54,7 +57,6 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected
 
              };
   };
-  ret_t ret;
-  ret.returncode=0; ret.returnmsg=NULL; return ret;
+  return res;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

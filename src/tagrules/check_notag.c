@@ -13,11 +13,17 @@
 /* checks if TIF does not have a specified tag,
  * needed only for checks to ensure whitelist */
 ret_t check_notag(ctiff_t * ctif, tag_t tag) {
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
-    ret_t res = check_tag_quiet( ctif, tag);
+  res = check_tag_quiet( ctif, tag);
   if (res.returncode == 0) {
     return tif_no_tag( tag);
   } else {
+    if (NULL != res.returnmsg) {
+      free(res.returnmsg);
+    }
     res.returnmsg=NULL;
     res.returncode=0;
     return res;

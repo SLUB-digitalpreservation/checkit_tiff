@@ -13,9 +13,10 @@
 /** checks a ICC tag, see Annex B of http://www.color.org/specification/ICC1v43_2010-12.pdf
  */
 ret_t check_icc(ctiff_t * ctif ) {
-  // printf("DEBUG: check_icc()\n");
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
   tifp_check( ctif);
-  //printf("DEBUG: check_icc() 2\n");
   tif_rules_tag(TIFFTAG_ICCPROFILE, "is correct");
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);
   // printf("DEBUG: count=%i\n", ifd_entry.count);
@@ -61,13 +62,11 @@ ret_t check_icc(ctiff_t * ctif ) {
   char * errmessage = malloc(sizeof(char) * ERRSIZE);
   unsigned long errsize = ERRSIZE;
   int ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
+  if (NULL != icc_profile) free(icc_profile);
   if (0 != ret) {
     return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to valid ICC profile", errmessage);
   }
   free (errmessage);
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
   return res;
 }
 
