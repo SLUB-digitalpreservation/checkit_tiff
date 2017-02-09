@@ -62,6 +62,7 @@ ret_t check_icc(ctiff_t * ctif ) {
   char * errmessage = malloc(sizeof(char) * VALUESTRLEN);
   unsigned long errsize = VALUESTRLEN;
   icc_returncode_t icc_ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
+  if (NULL != icc_profile) free(icc_profile);
   switch (icc_ret) { /*  map between returncodes icc profile and tag check */
     case icc_is_valid: ret.returncode = is_valid; break; 
     case icc_error_profileclass: ret.returncode = iccerror_profileclass; break; 
