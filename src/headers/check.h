@@ -37,7 +37,7 @@ typedef struct ctiff_s {
 	/* TODO: add file size */
 } ctiff_t;
 
-typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_logicalor_valid, rm_is_valid, rm_endrule, rm_endtiff, rm_mode, rm_lineno} rm_type_t;
+typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_logicalor_valid, rm_is_valid, rm_endrule, rm_endtiff, rm_mode, rm_lineno, rm_error_description} rm_type_t;
 typedef struct retmsg_s {
   rm_type_t rm_type;
   char * rm_msg;
@@ -94,6 +94,7 @@ typedef enum {
   code_error_ctif_empty,
   parser_error_wrong_function_found_in_parser_state_exe_stack,
   parser_logicalor_error,
+  tagerror_expected_offsetdata,
 
 
 } returncode_t;
@@ -191,8 +192,8 @@ typedef struct mem_map_s {
 
 
 #define MAXSTRLEN 1024
-#define EXPECTSTRLEN 160
-#define VALUESTRLEN 160
+#define EXPECTSTRLEN 500
+#define VALUESTRLEN 500
 #define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
 #define MAXRESULT 200000
 returncode_t tifp_check( ctiff_t * ctif);
