@@ -846,6 +846,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
+    memset(*string_pp, '\0', entry.count);
     assert (entry.datatype == TIFF_ASCII);
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 4);

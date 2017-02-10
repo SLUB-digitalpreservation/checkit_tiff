@@ -219,6 +219,8 @@ printf("\tlogc'=%i", logc);
   for (int i = 0; i <= tmpc; i++) {
     parser_state.result_stack[i]= tmp[i];
   }
+  free(tmp);
+  tmp=NULL;
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
@@ -294,8 +296,8 @@ void execute_plan (ctiff_t * ctif) {
   //r_printstack();
   exe_printstack();
 #endif
-  do { 
-    ret_t ret;
+  do {
+    ret_t ret= get_empty_ret();
     char * expected_value=NULL;
 
     internal_entry_t exe = exe_pop();
@@ -410,7 +412,7 @@ void execute_plan (ctiff_t * ctif) {
         case fc_all_IFDs_are_word_aligned:      { ret = check_all_IFDs_are_word_aligned(ctif); break;}
         case fc_internal_logic_combine:         { break; }
         default: {
-                   ret_t res;
+                   ret_t res = get_empty_ret();
                    res.value_found = __ch_malloc(res.value_found);
                    fprintf(stderr, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
 #ifdef EXE_DEBUG
@@ -427,6 +429,14 @@ void execute_plan (ctiff_t * ctif) {
       /* combine results */
       if (0 == exe.is_precondition) { /* precondition, next run depends on this result */
         precondition_result = (ret.returncode == is_valid)?0:1;
+        if (NULL != ret.value_found) {
+          free(ret.value_found);
+          ret.value_found = NULL;
+        }
+        if (NULL != expected_value) {
+          free(expected_value);
+          expected_value = NULL;
+        }
       } else { /*  no precondition function */
         full_res_t full;
         full.tag = exe.tag;
@@ -436,9 +446,14 @@ void execute_plan (ctiff_t * ctif) {
         full.logical_or_count=ret.logical_or_count;
         full.expected_value=NULL;
         full.found_value=NULL;
-        if (NULL != expected_value && ret.returncode != is_valid) {
-          full.expected_value = expected_value;
-        } 
+        if (NULL != expected_value) {
+          if (ret.returncode != is_valid) {
+            full.expected_value = expected_value;
+          } else {
+            free (expected_value);
+            expected_value = NULL;
+          }
+        }
         if (ret.returncode != is_valid) {
           full.found_value = ret.value_found;
         }
@@ -1080,23 +1095,24 @@ void set_parse_error(char * msg, char * yytext) {
 }
 
 void clean_plan_results() {
-	for (int i=parser_state.result_stackp-1; i >= 0; --i) {
-		if (NULL != parser_state.result_stack[i].found_value) {
-			free(  parser_state.result_stack[i].found_value );
-			parser_state.result_stack[i].found_value=NULL;
-		}
-		if (NULL != parser_state.result_stack[i].expected_value) {
-			free(  parser_state.result_stack[i].expected_value );
-			parser_state.result_stack[i].expected_value=NULL;
-		}
+  for (int i=parser_state.result_stackp-1; i >= 0; --i) {
+    if (NULL != parser_state.result_stack[i].found_value) {
+      free(  parser_state.result_stack[i].found_value );
+      parser_state.result_stack[i].found_value=NULL;
+    }
+    if (NULL != parser_state.result_stack[i].expected_value) {
+      free(  parser_state.result_stack[i].expected_value );
+      parser_state.result_stack[i].expected_value=NULL;
+    }
     parser_state.result_stack[i].logical_or_count=0;
-	}
+  }
 }
 
 
 
 /* prints a plan (list) of functions and their results*/
 ret_t print_plan_results(retmsg_t * actual_render) {
+  ret_t res = get_empty_ret();
 #ifdef DEBUG
   printf("print plan results:\n");
   printf("####################(\n");
@@ -1184,9 +1200,8 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    /*   printf( "%s", renderer( parser_state.result_stack[i].result)); */
   }
   int errors = (parser_state.result_stackp -count_of_valid_results );
-  ret_t res;
   char msg[VALUESTRLEN];
-  snprintf(msg, VALUESTRLEN, "Found %i errors\n", errors) ;
+  snprintf(msg, VALUESTRLEN, "Found %i errors", errors) ;
   if (errors > 0) {
 harderrors:
     res.returncode = is_error;

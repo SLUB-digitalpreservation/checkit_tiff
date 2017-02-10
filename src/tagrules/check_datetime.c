@@ -89,6 +89,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     ret = set_value_found_ret(&ret, datetime);
     if (0 == r) {
       if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
+        free(datetime);
         if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
           ret.returncode=0;
           return ret;
@@ -97,13 +98,16 @@ ret_t check_datetime(ctiff_t * ctif ) {
           return ret;
         }
       } else {
+        free(datetime);
         ret.returncode = tagerror_datetime_wrong_format;
         return ret;
       }
     } else {
+        free(datetime);
         ret.returncode = tagerror_datetime_wrong_size;
         return ret;
     }
+    free(datetime);
     ret.returncode = should_not_occure;
     return ret;
 }

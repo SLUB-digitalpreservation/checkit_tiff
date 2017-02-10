@@ -50,9 +50,10 @@ void help () {
 
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-  ret_t res;
+  ret_t res = get_empty_ret();
   /* init render pipeline */
   retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
+  const char * render_result_string = NULL;
   if (NULL == render_pipeline) {
 	  exit (could_not_allocate_memory);
   }
@@ -84,8 +85,16 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   execute_plan(ctif);
   res = print_plan_results( actual_render);
 renderer_exit:
-  printf("%s\n", renderer( render_pipeline ));
+  render_result_string = renderer( render_pipeline );
+  printf("%s\n", render_result_string);
   free_ctif( ctif );
+  /* free all entries of render pipeline */
+  __clean_render_pipeline( render_pipeline );
+  free(render_result_string);
+  if (NULL != res.value_found) {
+    free(res.value_found);
+    res.value_found = NULL;
+  }
   return res.returncode;
 }
 

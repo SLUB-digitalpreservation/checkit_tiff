@@ -45,4 +45,5 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd);
 ret_t get_empty_ret();
 ret_t set_value_found_ret (ret_t * rp, const char * msg);
 returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type);
+void __clean_render_pipeline( retmsg_t * pointer );
 #endif

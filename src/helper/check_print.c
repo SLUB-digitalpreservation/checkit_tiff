@@ -56,7 +56,18 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
    return is_valid;
 }
 
-
+void __clean_render_pipeline( retmsg_t * pointer ) {
+   assert(pointer != NULL);
+   retmsg_t * next = pointer->next;
+   if (NULL != pointer->rm_msg) {
+     free( pointer->rm_msg);
+     pointer->rm_msg = NULL;
+   }
+   free( pointer );
+   pointer = NULL;
+   if (NULL != next)
+     __clean_render_pipeline( next );
+}
 
 
 /* 

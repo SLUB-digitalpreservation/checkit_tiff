@@ -47,6 +47,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                              switch(rc) {
                                case PCRE_ERROR_NOMATCH:
                                  ret = set_value_found_ret(&ret, val);
+                                 free(val);
                                  ret.returncode = tagerror_pcre_nomatch;
                                  return ret;
                                  break;
@@ -54,16 +55,18 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                                     Handle other special cases if you like
                                     */
                              }
-                         }
+                           }
                          } else {
                            char array[VALUESTRLEN];
                            snprintf(array, sizeof(array), "regex '%s' compile error: %s at offset: %i\n",regex_string, errorcode, erroffset);
                            ret = set_value_found_ret(&ret, array);
                            ret.returncode = pcre_compile_error;
+                           free(val);
                            return ret;
                          }
                        } else {
                          ret.returncode = tagerror_expected_count_iszero;
+                         free(val);
                          return ret;
                        }
                      }
