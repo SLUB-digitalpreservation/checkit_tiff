@@ -10,6 +10,7 @@
 #define _FIXIT_TIFF_MSG_PARSER
 #include "config_parser.h"
 const char * get_parser_function_description (function_t f);
+const char * get_parser_error_description( returncode_t r);
 #endif
 
 
