@@ -42,6 +42,10 @@ const char * renderer_default ( const retmsg_t * ret ) {
       case rm_error:      secstrcat(res, "(EE)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
                           break;
+      case rm_error_description:
+                          secstrcat(res, " ", RENDERSIZE  );
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          break;
       case rm_warning:    secstrcat(res, "(WW)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
                           break;

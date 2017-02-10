@@ -26,6 +26,7 @@ const char * renderer_xml ( const retmsg_t * ret ) {
           case rm_expected:   secstrcat( res, "<expected>"      , RENDERSIZE); break;
           case rm_hard_error: secstrcat( res, "<harderror>" , RENDERSIZE); break;
           case rm_error:      secstrcat( res, "<error>"     , RENDERSIZE); break;
+          case rm_error_description:      secstrcat( res, "<desciption>"     , RENDERSIZE); break;
           case rm_warning:    secstrcat( res, "<warn>"   , RENDERSIZE); break;
           case rm_logicalor_error:    secstrcat( res, "<partial_logical_or_error>"   , RENDERSIZE); break;
           case rm_file:       secstrcat( res, "<file>", RENDERSIZE); break;
@@ -42,6 +43,7 @@ const char * renderer_xml ( const retmsg_t * ret ) {
           case rm_expected:   secstrcat( res, "</expected>"      , RENDERSIZE); break;
           case rm_hard_error: secstrcat( res, "</harderror>" , RENDERSIZE); break;
           case rm_error:      secstrcat( res, "</error>"     , RENDERSIZE); break;
+          case rm_error_description:      secstrcat( res, "</desciption>"     , RENDERSIZE); break;
           case rm_warning:    secstrcat( res, "</warn>"   , RENDERSIZE); break;
           case rm_logicalor_error:    secstrcat( res, "</partial_logical_or_error>"   , RENDERSIZE); break;
           case rm_file:       secstrcat( res, "</file>", RENDERSIZE); break;

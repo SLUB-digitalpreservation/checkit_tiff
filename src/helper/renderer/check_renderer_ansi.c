@@ -90,6 +90,11 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
                           secstrcat(res, "(EE)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
                           break;
+      case rm_error_description:
+                          secstrcat(res, ANSI_RED      , RENDERSIZE);
+                          secstrcat(res, " ", RENDERSIZE  );
+                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          break;
       case rm_warning:    secstrcat(res, ANSI_GREY   , RENDERSIZE);
                           secstrcat(res, "(WW)", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);

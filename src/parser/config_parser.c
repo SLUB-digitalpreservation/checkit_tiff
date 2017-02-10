@@ -144,7 +144,6 @@ void exe_printstack () {
   }
 }
 
-#define DEBUG
 /*  reduce results */
 void reduce_results() {
   /*  go forward and eliminate all valid rule results */
@@ -161,6 +160,7 @@ void reduce_results() {
     int logical_or_count = full_result.logical_or_count;
 #ifdef DEBUG
     printf("reduce i=%i tmpc=%i logc=%i fclogc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.logical_or_count, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
+    if (full_result.found_value != NULL) { printf("\tvalue='%s'\n", full_result.found_value);}
 #endif
     assert(full_result.logical_or_count <= 20);
     assert(full_result.logical_or_count >= 0);
@@ -222,7 +222,6 @@ printf("\tlogc'=%i", logc);
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
-#undef DEBUG
 
 
 /* stack function for parser */
@@ -439,8 +438,10 @@ void execute_plan (ctiff_t * ctif) {
         full.found_value=NULL;
         if (NULL != expected_value && ret.returncode != is_valid) {
           full.expected_value = expected_value;
-          full.found_value = ret.value_found;
         } 
+        if (ret.returncode != is_valid) {
+          full.found_value = ret.value_found;
+        }
         result_push( full );
         precondition_result=0;
       }
@@ -1096,7 +1097,6 @@ void clean_plan_results() {
 
 /* prints a plan (list) of functions and their results*/
 ret_t print_plan_results(retmsg_t * actual_render) {
-    
 #ifdef DEBUG
   printf("print plan results:\n");
   printf("####################(\n");
@@ -1141,7 +1141,8 @@ ret_t print_plan_results(retmsg_t * actual_render) {
      case tiff_seek_error_header:
      case tiff_read_error_header:
      case tiff_seek_error_offset:
-     case tiff_read_error_offset: type = rm_hard_error; break;
+     case tiff_read_error_offset:
+                                  type = rm_hard_error; break;
      default: type = rm_error; break;
    }
    __add_to_render_pipeline_via_strncpy(&actual_render, "", type);
@@ -1164,6 +1165,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
    }
    /* fill with value found */
    if (returncode != is_valid) {
+     __add_to_render_pipeline_via_strncpy(&actual_render, get_parser_error_description(returncode), rm_error_description);
      if (parser_result.found_value != NULL) {
        __add_to_render_pipeline_via_strncpy(&actual_render, parser_result.found_value, rm_value);
      } else {
