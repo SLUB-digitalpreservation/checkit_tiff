@@ -14,14 +14,12 @@
 */
 
 ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-  unsigned int * p = values;
+  ret_t ret= get_empty_ret();
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
+  unsigned int * p = values;
+
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
@@ -37,12 +35,15 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                       }
                       uint32 * valp = NULL;
                       uint32 val;
-                      TIFFGetFieldLONG(ctif, tag, &valp);
-                      val = *valp;
-                      char value[VALUESTRLEN];
-                      snprintf(value, sizeof(value), "%u", val);
-                      ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                      ret.returncode = tagerror_value_differs;
+                      int count;
+                      ret = TIFFGetFieldLONG(ctif, tag, &valp, &count);
+                      if (count >0) {
+                        val = *valp;
+                        char value[VALUESTRLEN];
+                        snprintf(value, sizeof(value), "%u", val);
+                        ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                        ret.returncode = tagerror_value_differs;
+                      };
                       return ret;
                       break;
                     }
@@ -59,12 +60,15 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                        }
                        uint16 * valp = NULL;
                        uint16 val;
-                       TIFFGetFieldSHORT(ctif, tag, &valp);
-                       val = *valp;
-                       char value[VALUESTRLEN];
-                       snprintf(value, sizeof(value), "%u", val);
-                       ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                       ret.returncode = tagerror_value_differs;
+                       int count;
+                       ret = TIFFGetFieldSHORT(ctif, tag, &valp, &count);
+                       if (count >0) {
+                         val = *valp;
+                         char value[VALUESTRLEN];
+                         snprintf(value, sizeof(value), "%u", val);
+                         ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                         ret.returncode = tagerror_value_differs;
+                       }
                        return ret;
                        break;
                      }
@@ -81,12 +85,15 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                           }
                           float * valp = NULL;
                           float val;
-                          TIFFGetFieldRATIONAL(ctif, tag, &valp);
-                          val = * valp;
-                          char value[VALUESTRLEN];
-                          snprintf(value, sizeof(value), "%f", val);
-                          ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                          ret.returncode = tagerror_value_differs;
+                          int count;
+                          ret = TIFFGetFieldRATIONAL(ctif, tag, &valp, &count);
+                          if (count >0) {
+                            val = * valp;
+                            char value[VALUESTRLEN];
+                            snprintf(value, sizeof(value), "%f", val);
+                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            ret.returncode = tagerror_value_differs;
+                          }
                           return ret;
                           break;
                         }

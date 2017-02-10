@@ -136,7 +136,8 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                       }
                       /*  offset */
                       if (stripoffset_entry.value_or_offset == is_offset) {
-                        offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                        offset_t offset;
+                        ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                         uint32 * p = offset.data32p;
                         for (int i=0; i< stripoffset_entry.count; i++) {
                           uint32 pval = *p;
@@ -158,7 +159,8 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                        }
                        /*  offset */
                        if (stripoffset_entry.value_or_offset == is_offset) {
-                         offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                         offset_t offset;
+                         ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                          uint16 * p = offset.data16p;
                          for (int i=0; i< count; i++) {
                            uint16 pval = *p;

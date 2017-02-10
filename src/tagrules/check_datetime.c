@@ -53,6 +53,9 @@ ret_t check_datetime(ctiff_t * ctif ) {
   ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
+  ret_t rc=check_tag_quiet(ctif, TIFFTAG_DATETIME);
+  if (rc.returncode != is_valid) return rc;
+
   /* find date-tag and fix it */
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, TIFFTAG_DATETIME );
   if (datatype != TIFF_ASCII) {
@@ -64,7 +67,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
   }
   int count=0;
   char *datetime=NULL;
-  count = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime);
+  ret = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime, &count);
 
   // printf("DATETIME='%s'\n", datetime);
     int day=0;

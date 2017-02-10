@@ -19,7 +19,11 @@ ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
   if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {
       ret.returncode=is_valid;
   } else {
+    char msg[VALUESTRLEN];
+    snprintf(msg, VALUESTRLEN, "tag %i is missed", tag);
+    ret = set_value_found_ret(&ret, msg);
     ret.returncode=tag_does_not_exist;
+
   }
   return ret;
 }

@@ -23,8 +23,17 @@ ret_t check_tagorder(ctiff_t * ctif) {
     /* replace i/o operatrions with in-memory-operations */
     uint8 * ifdentries = NULL;
     ifdentries = malloc ( sizeof(uint8) * 12 * count);
-    ct_seek(ctif, offset+2, SEEK_SET);
-
+    if (NULL == ifdentries) {
+      ret.returncode = could_not_allocate_memory;
+      return ret;
+    }
+    if (ct_seek(ctif, offset+2, SEEK_SET) != (offset+2)) {
+      char array[VALUESTRLEN];
+      snprintf(array, VALUESTRLEN, "%i bytes, errorcode=%i", offset+2, errno);
+      ret = set_value_found_ret(&ret, array);
+      ret.returncode = tiff_seek_error_header;
+      return ret;
+    }
     if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
       char array[VALUESTRLEN];
       snprintf(array, VALUESTRLEN, "%i bytes, errorcode=%i", 12*count, errno);
@@ -50,6 +59,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
           snprintf(array, VALUESTRLEN, "previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(lasttag),  tag,  TIFFTagName(tag), i, count);
           ret = set_value_found_ret(&ret, array);
           ret.returncode = ifderror_tags_not_in_ascending_order;
+          ctif->tagorder = has_unsorted_tags;
           return ret;
         }
         lasttag = tag;
@@ -57,8 +67,9 @@ ret_t check_tagorder(ctiff_t * ctif) {
       }
       /* loop each tag until end or given tag found */
       free( ifdentries );
+      ctif->tagorder = has_sorted_tags;
     }
-  } 
+  }
   ret.returncode=is_valid;
   return ret;
 }

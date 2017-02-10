@@ -13,13 +13,7 @@
 /** checks a ICC tag, see Annex B of http://www.color.org/specification/ICC1v43_2010-12.pdf
  */
 ret_t check_icc(ctiff_t * ctif ) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
+  ret_t ret = get_empty_ret();
   tifp_check( ctif);
 
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);
@@ -32,7 +26,8 @@ ret_t check_icc(ctiff_t * ctif ) {
                        count = ifd_entry.count;
                      /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
-                        offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
+                        offset_t offset;
+                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset);
                         icc_profile = (char *)offset.data32p;
                       } else {
                         ret.returncode = tagerror_encoded_as_value_excited_space;
@@ -41,7 +36,7 @@ ret_t check_icc(ctiff_t * ctif ) {
                        break;
                      }
     default: { /*  none */
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(ifd_entry.datatype), VALUESTRLEN);
+               ret = set_value_found_ret( &ret, TIFFTypeName(ifd_entry.datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
                break;
@@ -76,8 +71,7 @@ ret_t check_icc(ctiff_t * ctif ) {
     case icc_error_committed_size_differs: ret.returncode = iccerror_committed_size_differs; break;
     case icc_should_not_occure:  ret.returncode = should_not_occure; break;
   }
-
-  ret.value_found = strncpy(ret.value_found, errmessage, VALUESTRLEN);
+  ret = set_value_found_ret(&ret, errmessage);
   free (errmessage);
   return ret;
 }

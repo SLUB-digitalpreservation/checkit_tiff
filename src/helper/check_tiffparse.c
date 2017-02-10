@@ -158,126 +158,93 @@ int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IF
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
+  ret_t ret= get_empty_ret();
   tifp_check( ctif);
 
   float * valp = NULL;
   float val;
-  int found=TIFFGetFieldRATIONAL(ctif, tag, &valp);
+  int found;
+  ret =TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
   if (1 == found) {
     val = * valp;
     if ( fabs(val - value) < 0.01 ) {
       ret.returncode=is_valid;
       return ret;
     } else {
-      ret.value_found = strncpy(ret.value_found, float2str(val), VALUESTRLEN) ;
+      ret = set_value_found_ret(&ret, float2str(val)) ;
       ret.returncode = tagerror_value_differs;
     }
-  } else {
-    ret.returncode = tagerror_value_not_found;
-    return ret;
   }
-  ret.returncode = should_not_occure;
   return ret;
 }
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
+  ret_t ret= get_empty_ret();
   tifp_check( ctif);
 
   uint16 * valp = NULL;
   uint16 val;
-  int found=TIFFGetFieldSHORT(ctif, tag, &valp);
+  int found;
+  ret=TIFFGetFieldSHORT(ctif, tag, &valp, &found);
   if (1 == found) {
     val = *valp;
     if ( val == value ) {
       ret.returncode=is_valid;
       return ret;
     } else {
-      ret.value_found = strncpy(ret.value_found, int2str(val), VALUESTRLEN);
+      ret = set_value_found_ret(&ret, int2str(val));
       ret.returncode = tagerror_value_differs;
       return ret;
     }
 
-  } else {
-    ret.returncode = tagerror_value_not_found;
-    return ret;
   }
-  ret.returncode = should_not_occure;
   return ret;
 }
 
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret= get_empty_ret();
 
   tifp_check( ctif);
 
   uint32 * valp = NULL;
   uint32 val;
-  int found=TIFFGetFieldLONG(ctif, tag, &valp);
+  int found;
+  ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
   if (1 == found) {
     val = *valp;
     if ( val == value )  {
       ret.returncode=is_valid;
       return ret;
     } else {
-      ret.value_found = strncpy(ret.value_found, int2str(val), VALUESTRLEN);
+      ret = set_value_found_ret(&ret, int2str(val));
       ret.returncode = tagerror_value_differs;
       return ret;
     }
-
-  } else {
-    ret.returncode = tagerror_value_not_found;
-    return ret;
   }
-  ret.returncode = should_not_occure;
   return ret;
-
 }
 
 
 ret_t parse_header_and_endianess(ctiff_t * ctif) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  ret_t ret= get_empty_ret();
 
    /* seek the image file directory (bytes 4-7) */
   //ct_seek(fd, (off_t) 0, SEEK_SET);
   if ( ct_seek(ctif, 0, SEEK_SET) != 0)  {
-	  strncpy(ret.value_found, "TIFF header ct_seek error to 0", VALUESTRLEN);
-	  ret.returncode=tiff_seek_error_header;
-	  return ret;
+    ret = set_value_found_ret(&ret, "TIFF header ct_seek error to 0");
+    ret.returncode=tiff_seek_error_header;
+    return ret;
   }
   uint16 header;
   uint16 magic;
   int endianess;
   if ( ct_read( ctif, &header, 2) != 2 ) {
-	  strncpy(ret.value_found, "TIFF Header ct_read error to magic byte header (first 2 bytes)", VALUESTRLEN);
-	  ret.returncode=tiff_read_error_header;
-	  return ret;
+    ret = set_value_found_ret(&ret, "TIFF Header ct_read error to magic byte header (first 2 bytes)");
+    ret.returncode=tiff_read_error_header;
+    return ret;
   }
   if (header == 0x4949) endianess = 0; /* little endian */
   else if (header == 0x4d4d) endianess = 1; /*  big endian */
@@ -285,170 +252,176 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     char errmsg[VALUESTRLEN]="";
     snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x", header);
     if (header == 0x4550) {
-	    strncat(errmsg, ", could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00", VALUESTRLEN);
+      strncat(errmsg, ", could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00", VALUESTRLEN);
     }
-    strncpy(ret.value_found, errmsg, VALUESTRLEN);
-    ret.returncode = tiff_byteorder_error; 
+    ret=set_value_found_ret(&ret, errmsg);
+    ret.returncode = tiff_byteorder_error;
     return ret;
   }
   ctif->isbyteswapped = endianess;
   if ( ct_read( ctif, &magic, 2) != 2 ) {
-	  strncpy(ret.value_found, "TIFF Header ct_read error to magic byte header (second 2 bytes == 42)", VALUESTRLEN);
-	  ret.returncode=tiff_read_error_header;
-	  return ret;
+    ret = set_value_found_ret(&ret, "TIFF Header ct_read error to magic byte header (second 2 bytes == 42)");
+    ret.returncode=tiff_read_error_header;
+    return ret;
   }
 
   uint16 magic2 = magic;
   if (endianess) TIFFSwabShort( &magic2 ); /*  big endian */
   if (magic2 == 42) { ret.returncode=is_valid; return ret; }
   else {
-	  char errmsg[VALUESTRLEN]="";
-	  snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
-	  if (magic2==0x002b) strncat(errmsg, ", but could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html", VALUESTRLEN);
-	  if (magic2==0x0055) strncat(errmsg, ", but could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/", VALUESTRLEN);
-	  if (magic2==0x01bc) strncat(errmsg, ", but could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832", VALUESTRLEN);
-	  if (magic2==0x314e) strncat(errmsg, ", but could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf", VALUESTRLEN);
-	  if (magic2==0x4352) strncat(errmsg, ", but could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf", VALUESTRLEN);
-	  if (magic2==0x4f52) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
-	  if (magic2==0x5352) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
-	  strncpy(ret.value_found, errmsg, VALUESTRLEN);
-	  ret.returncode = tiff_byteorder_error; 
-	  return ret;
+    char errmsg[VALUESTRLEN]="";
+    snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
+    if (magic2==0x002b) strncat(errmsg, ", but could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html", VALUESTRLEN);
+    if (magic2==0x0055) strncat(errmsg, ", but could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/", VALUESTRLEN);
+    if (magic2==0x01bc) strncat(errmsg, ", but could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832", VALUESTRLEN);
+    if (magic2==0x314e) strncat(errmsg, ", but could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf", VALUESTRLEN);
+    if (magic2==0x4352) strncat(errmsg, ", but could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf", VALUESTRLEN);
+    if (magic2==0x4f52) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
+    if (magic2==0x5352) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
+    ret = set_value_found_ret(&ret, errmsg);
+    ret.returncode = tiff_byteorder_error; 
+    return ret;
   }
   ret.returncode = should_not_occure;
   return ret;
 }
 
 ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
-	ret_t ret;
-	ret.value_found = malloc(VALUESTRLEN);
-	if (NULL == ret.value_found) {
-		ret.returncode=could_not_allocate_memory;
-		return ret;
-	}
-	int isByteSwapped = ctif->isbyteswapped;
-	/* seek the image file directory (bytes 4-7) */
-	if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
-		strncpy(ret.value_found, "TIFF Header seak error, seek set to byte 4", VALUESTRLEN);
-		ret.returncode=tiff_seek_error_header;
-		return ret;
-	}
-	uint32 offset;
-	if ( ct_read( ctif, &offset, 4) != 4 ) {
-		strncpy(ret.value_found, "TIFF Header ct_read error, reading 4 bytes from 4", VALUESTRLEN);
-		ret.returncode=tiff_read_error_header;
-		return ret;
-	}
-	if (isByteSwapped) {
-		TIFFSwabLong (&offset);
-	}
-	if (offset <= 7) {
-		snprintf(ret.value_found, VALUESTRLEN, "pointer to IFD0 is %i", offset);
-                ret.returncode=tiff_ifd0_offset_must_be_greater_than_eight;
-		return ret;
-	}
-	ctif->ifd0pos=offset;
-	if (ct_seek(ctif, offset, SEEK_SET) != offset ) {
-		snprintf(ret.value_found, VALUESTRLEN, "TIFF Header seek error, seek set to byte %i", offset);
-		ret.returncode=tiff_seek_error_header;
-		return ret;
-	}
-	uint16 count;
-	if ( ct_read( ctif, &count, 2) != 2 ) {
-		strncpy(ret.value_found, "TIFF Header ct_read error2, reading ifd0 count (2 bytes)", VALUESTRLEN);
-		ret.returncode=tiff_read_error_header;
-		return ret;
-	}
+  ret_t ret= get_empty_ret();
+  int isByteSwapped = ctif->isbyteswapped;
+  /* seek the image file directory (bytes 4-7) */
+  if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
+    ret = set_value_found_ret(&ret, "TIFF Header seak error, seek set to byte 4");
+    ret.returncode=tiff_seek_error_header;
+    return ret;
+  }
+  uint32 offset;
+  if ( ct_read( ctif, &offset, 4) != 4 ) {
+    ret = set_value_found_ret(&ret, "TIFF Header ct_read error, reading 4 bytes from 4");
+    ret.returncode=tiff_read_error_header;
+    return ret;
+  }
+  if (isByteSwapped) {
+    TIFFSwabLong (&offset);
+  }
+  if (offset <= 7) {
+    char msg[VALUESTRLEN];
+    snprintf(msg, VALUESTRLEN, "pointer to IFD0 is %i", offset);
+    ret=set_value_found_ret(&ret, msg);
+    ret.returncode=tiff_ifd0_offset_must_be_greater_than_eight;
+    return ret;
+  }
+  ctif->ifd0pos=offset;
+  if (ct_seek(ctif, offset, SEEK_SET) != offset ) {
+    char msg[VALUESTRLEN];
+    snprintf(msg, VALUESTRLEN, "TIFF Header seek error, seek set to byte %i", offset);
+    ret=set_value_found_ret(&ret, msg);
+    ret.returncode=tiff_seek_error_header;
+    return ret;
+  }
+  uint16 count;
+  if ( ct_read( ctif, &count, 2) != 2 ) {
+    ret=set_value_found_ret(&ret, "TIFF Header ct_read error2, reading ifd0 count (2 bytes)");
+    ret.returncode=tiff_read_error_header;
+    return ret;
+  }
 
-	if (is_byteswapped(ctif))
-		TIFFSwabShort(&count);
-	ctif->ifd0c = count;
-	*ifd = offset;
-        ret.returncode=is_valid;
-	return ret;
+  if (is_byteswapped(ctif))
+    TIFFSwabShort(&count);
+  ctif->ifd0c = count;
+  *ifd = offset;
+  ret.returncode=is_valid;
+  return ret;
 }
 
 /* scans first IDF and returns count of tags
  * Hint: sideeffect, if succeed the seek points to beginning of the first
  * IFD-entry */
 int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
-	/* parse TIF */
-	/* seek the image file directory (bytes 4-7) */
-	uint32 offset = ifdpos;
+  /* parse TIF */
+  /* seek the image file directory (bytes 4-7) */
+  uint32 offset = ifdpos;
 
-	// printf("diroffset to %i (0x%04lx)\n", offset, offset);
-	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
-	/* ct_read and seek to IFD address */
-	ct_seek(ctif, offset, SEEK_SET);
+  // printf("diroffset to %i (0x%04lx)\n", offset, offset);
+  //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
+  /* ct_read and seek to IFD address */
+  ct_seek(ctif, offset, SEEK_SET);
 
-	uint16 count;
-	if ( ct_read( ctif, &count, 2) != 2 ) {
-		perror ("TIFF Header ct_read error2");
-		exit( EXIT_FAILURE );
-	}
+  uint16 count;
+  if ( ct_read( ctif, &count, 2) != 2 ) {
+    perror ("TIFF Header ct_read error2");
+    exit( EXIT_FAILURE );
+  }
 
-	if (is_byteswapped(ctif))
-		TIFFSwabShort(&count);
-	return count;
+  if (is_byteswapped(ctif))
+    TIFFSwabShort(&count);
+  return count;
 }
 
 /* scans first IDF and returns the n-th tag */
 tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
-	int byteswapped = is_byteswapped(ctif);
-	int count = get_ifd0_count( ctif);
-	/* ct_read count of tags (2 Bytes) */
-	/* replace i/o operatrions with in-memory-operations */
-	uint8 * ifdentries = NULL;
-	ifdentries = malloc ( sizeof(uint8) * 12 * count);
-	ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
-	if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
-		perror ("TIFF Header ct_read error3");
-		exit( EXIT_FAILURE );
-	}
+  int byteswapped = is_byteswapped(ctif);
+  int count = get_ifd0_count( ctif);
+  /* ct_read count of tags (2 Bytes) */
+  /* replace i/o operatrions with in-memory-operations */
+  uint8 * ifdentries = NULL;
+  ifdentries = malloc ( sizeof(uint8) * 12 * count);
+  ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
+  if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
+    perror ("TIFF Header ct_read error3");
+    exit( EXIT_FAILURE );
+  }
 
-	uint8 * e = ifdentries;
-	uint16 ret = 0;
-	/*
-	for (i = 0; i<count; i++) {
-		uint8 lo = *e;
-		e++;
-		uint8 hi = *e;
-		e++;
-		if (i == tagidx) {
-			uint16 tagid = (hi << 8) + lo;
-			if (byteswapped)
-				TIFFSwabShort(&tagid);
-			// printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
-			ret = tagid;
-			goto LABEL1;
-		}
-		e+=10;
-	}
-	*/
-	assert(tagidx <= count);
-	assert(tagidx >= 0);
-	e+=(12*tagidx);
-	uint8 lo = *e;
-	e++;
-	uint8 hi = *e;
-	e++;
-	uint16 tagid = (hi << 8) + lo;
-	if (byteswapped)
-		TIFFSwabShort(&tagid);
-	 //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
-	ret = tagid;
-// LABEL1:
-	/* loop each tag until end or given tag found */
-	free( ifdentries );
-	return ret;
+  uint8 * e = ifdentries;
+  uint16 ret = 0;
+  /*
+     for (i = 0; i<count; i++) {
+     uint8 lo = *e;
+     e++;
+     uint8 hi = *e;
+     e++;
+     if (i == tagidx) {
+     uint16 tagid = (hi << 8) + lo;
+     if (byteswapped)
+     TIFFSwabShort(&tagid);
+  // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
+  ret = tagid;
+  goto LABEL1;
+  }
+  e+=10;
+  }
+  */
+  assert(tagidx <= count);
+  assert(tagidx >= 0);
+  e+=(12*tagidx);
+  uint8 lo = *e;
+  e++;
+  uint8 hi = *e;
+  e++;
+  uint16 tagid = (hi << 8) + lo;
+  if (byteswapped)
+    TIFFSwabShort(&tagid);
+  //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
+  ret = tagid;
+  // LABEL1:
+  /* loop each tag until end or given tag found */
+  free( ifdentries );
+  return ret;
 }
 
 #define offset_malloc(fd, of, os, count ) {\
-	of = NULL; of = malloc ( sizeof(os) * count);\
-	  if ( ct_read( ctif, of, sizeof(os) * count) != sizeof(os) *count ) {\
-      fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count);\
-		  exit( EXIT_FAILURE );\
-	  }\
+  of = NULL; of = malloc ( sizeof(os) * count);\
+  if ( ct_read( ctif, of, sizeof(os) * count) != (sizeof(os) *count) ) {\
+    /* \
+       fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count);\
+       exit( EXIT_FAILURE );\
+       */ \
+    char msg[VALUESTRLEN]; \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count); \
+    ret = set_value_found_ret( &ret, msg); \
+    ret.returncode = tiff_read_error_offset; \
+    return ret; \
+  }\
 }
 
 void offset_swabshort(ctiff_t * ctif, uint16 * address, uint16 count) {
@@ -465,85 +438,90 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
     }
 }
 
-
 /*  get count-data datastream from offset-address */
-offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype) {
-  //int fd = TIFFFileno( tif);
+ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype, offset_t * offset_p) {
+  assert(NULL !=  offset_p);
+  offset_p->count = count;
+  offset_p->datatype = datatype;
+  ret_t ret = get_empty_ret();
   /* ct_read and seek to IFD address */
-  ct_seek(ctif, address, SEEK_SET);
-
-
+  if (ct_seek(ctif, address, SEEK_SET) != address) {
+    offset_p->count = -1;
+    ret.returncode = tiff_seek_error_offset;
+    return ret;
+  }
 #ifdef DEBUG
   printf("read_offsetdata(tif, adress=%u, count=%u, datatype=%u)\n", address, count, datatype);
 #endif
-
-  offset_t offset;
-  offset.count = count;
-  offset.datatype = datatype;
   switch (datatype) {
     case 1: /* 8-bit unsigned integer */
     case 7: /* !8-bit untyped data */
       /*
-      offset.data8p = NULL;
-      offset.data8p = malloc ( sizeof(uint8) * count);
-      if (ct_read(fd, offset.data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
+      offset_p->data8p = NULL;
+      offset_p->data8p = malloc ( sizeof(uint8) * count);
+      if (ct_read(fd, offset_p->data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
         perror ("TIFF Offset ct_read error");
       */
-      offset_malloc(fd, offset.data8p, uint8, count)
+      offset_malloc(fd, offset_p->data8p, uint8, count)
       break;
     case 2: /* 8-bit bytes w/ last byte null */
       assert( sizeof(char) == sizeof(uint8));
-      offset_malloc(fd, offset.datacharp, char, count)
+      offset_malloc(fd, offset_p->datacharp, char, count)
       break;
     case 6: /* !8-bit signed integer */
-      offset_malloc(fd, offset.datas8p, int8, count)
+      offset_malloc(fd, offset_p->datas8p, int8, count)
       break;
     case 3: /* 16-bit unsigned integer */
-      offset_malloc(fd, offset.data16p, uint16, count)
-      offset_swabshort(ctif, offset.data16p, count);
+      offset_malloc(fd, offset_p->data16p, uint16, count)
+      offset_swabshort(ctif, offset_p->data16p, count);
       break;
     case 8: /* !16-bit signed integer */
-      offset_malloc(fd, offset.datas16p, int16, count)
-      offset_swabshort(ctif, (uint16 *) offset.datas16p, count);
+      offset_malloc(fd, offset_p->datas16p, int16, count)
+      offset_swabshort(ctif, (uint16 *) offset_p->datas16p, count);
       break;
     case 4: /* 32-bit unsigned integer */
     case 13: /* %32-bit unsigned integer (offset) */
-      offset_malloc(fd, offset.data32p, uint32, count)
-      offset_swablong(ctif, offset.data32p, count);
+      offset_malloc(fd, offset_p->data32p, uint32, count)
+      offset_swablong(ctif, offset_p->data32p, count);
       break;
     case 9: /* !32-bit signed integer */
-      offset_malloc(fd, offset.datas32p, uint32, count)
-      offset_swablong(ctif, (uint32 *) offset.data32p, count);
+      offset_malloc(fd, offset_p->datas32p, uint32, count)
+      offset_swablong(ctif, (uint32 *) offset_p->data32p, count);
       break;
     case 5: /* 64-bit unsigned fraction */
-      offset_malloc(fd, offset.data32p, uint32, 2*count) /* because numerator + denominator */
-      offset_swablong(ctif, offset.data32p, 2*count);
+      offset_malloc(fd, offset_p->data32p, uint32, 2*count) /* because numerator + denominator */
+      offset_swablong(ctif, offset_p->data32p, 2*count);
       break;
     case 10: /* !64-bit signed fraction */
       fprintf(stderr, "offsetdata datatype=%i not supported yet", datatype);
       exit(EXIT_FAILURE);
     case 11: /* !32-bit IEEE floating point */
       assert( sizeof(float) == 4);
-      offset_malloc(fd, offset.datafloatp, float, count)
+      offset_malloc(fd, offset_p->datafloatp, float, count)
       break;
     case 12: /* !64-bit IEEE floating point */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset.datadoublep, double, count)
+      offset_malloc(fd, offset_p->datadoublep, double, count)
       break;
     case 16: /* BigTIFF 64-bit unsigned integer */
     case 18: /* BigTIFF 64-bit unsigned integer (offset) */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset.data64p, uint64, count)
+      offset_malloc(fd, offset_p->data64p, uint64, count)
       break;
     case 17: /* BigTIFF 64-bit signed integer */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset.datas64p, int64, count)
+      offset_malloc(fd, offset_p->datas64p, int64, count)
         break;
     default: /*  should not occure */
-      fprintf(stderr, "offsetdata datatype=%i not supported yet", datatype);
-      exit(EXIT_FAILURE);
+      {
+        char msg[VALUESTRLEN];
+        snprintf(msg, VALUESTRLEN, "offsetdata datatype=%i not supported yet", datatype);
+        ret = set_value_found_ret(&ret, msg);
+        ret.returncode = should_not_occure;
+        return ret;
+      }
   };
-  return offset;
+  return ret;
 }
 
 /* scans first IDF and returns the type of the n-th tag */
@@ -688,6 +666,7 @@ printf("\ncount=%0x\n\n", count);
   free( ifdentries );
   return ifd_entry;
 }
+
 
 /*  TODO */
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag) {
@@ -855,143 +834,195 @@ uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	return offset;
 }
 
-int TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp) {
-	assert( *string_pp == NULL);
-	int tagidx = TIFFGetRawTagListIndex(ctif, tag);
-	  if (tagidx >= 0) { /* there exists the tag */
-	    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-	    *(string_pp) = malloc( sizeof(char) * entry.count);
-	    if (NULL == (* string_pp)) {
-	    	perror ("could not allocate memory for string_p");
-	    	exit( EXIT_FAILURE);
-	    }
-
-	    assert (entry.datatype == TIFF_ASCII);
-	    if (entry.value_or_offset == is_value) {
-	    	assert (entry.count >= 0 && entry.count <= 4);
-	    	for (int i=0; i<entry.count; i++) {
-	    	  (*string_pp)[i]=entry.data8[i];
-	    	}
-	    	return (entry.count);
-	    } else if (entry.value_or_offset == is_offset) {
-	    	uint32 data32offset = entry.data32offset;
-	    	offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
-	    	char * p = offset.datacharp;
-	    	char * s = *(string_pp);
-        /* DEBUG: */
-        //printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
-        for (int i=0; i<entry.count; i++) {
-	    		//printf("P[%i]=%c\n", i, *p);
-	    	  *(s++) = *(p++);
-	    	}
-	    	//printf("ASCII='%s'\n", *(string_pp));
-		free(offset.datacharp);
-	    	return (entry.count);
-	    }
-	  }
-	  return -1;
+ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * countp ) {
+  assert( *string_pp == NULL);
+  assert( countp != NULL);
+  ret_t ret = get_empty_ret();
+  int tagidx = TIFFGetRawTagListIndex(ctif, tag);
+  if (tagidx >= 0) { /* there exists the tag */
+    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *(string_pp) = malloc( sizeof(char) * entry.count);
+    if (NULL == (* string_pp)) {
+      ret.returncode=could_not_allocate_memory;
+      return ret;
+    }
+    assert (entry.datatype == TIFF_ASCII);
+    if (entry.value_or_offset == is_value) {
+      assert (entry.count >= 0 && entry.count <= 4);
+      for (int i=0; i<entry.count; i++) {
+        (*string_pp)[i]=entry.data8[i];
+      }
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    } else if (entry.value_or_offset == is_offset) {
+      uint32 data32offset = entry.data32offset;
+      offset_t offset;
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      if (ret.returncode != is_valid) {
+        *countp = -1;
+        free(offset.datacharp);
+        return ret;
+      }
+      char * p = offset.datacharp;
+      char * s = *(string_pp);
+      /* DEBUG: */
+      //printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
+      for (int i=0; i<entry.count; i++) {
+        //printf("P[%i]=%c\n", i, *p);
+        *(s++) = *(p++);
+      }
+      //printf("ASCII='%s'\n", *(string_pp));
+      free(offset.datacharp);
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    }
+  }
+  ret.returncode = tag_does_not_exist;
+  return ret;
 }
 
-int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp) {
-	assert( *long_pp == NULL);
-	int tagidx = TIFFGetRawTagListIndex(ctif, tag);
-	  if (tagidx >= 0) { /* there exists the tag */
-	    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-	    *(long_pp) = malloc( sizeof(uint32) * entry.count);
-	    if (NULL == (*long_pp)) {
-	    	perror ("could not allocate memory for long_p");
-	    	exit( EXIT_FAILURE);
-	    }
-	    assert (entry.datatype == TIFF_LONG);
-	    if (entry.value_or_offset == is_value) {
-	    	assert (entry.count >= 0 && entry.count <= 1);
-        //printf("LONG (direct)=%lu\n", entry.data32);
-	    	memcpy((void *) (*long_pp), (void *) &entry.data32, (sizeof(uint32)*entry.count));
-	    	return (entry.count);
-	    } else if (entry.value_or_offset == is_offset) {
-	    	uint32 data32offset = entry.data32offset;
-	    	offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
-       //printf("LONG (offset)=%lu\n", *offset.datacharp);
-	    	memcpy((void *) (*long_pp), (void *) offset.datacharp, (sizeof(uint32)*offset.count));
-		free(offset.datacharp);
-	    	return (entry.count);
-	    }
-	  }
-	  return -1;
+ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * countp) {
+  assert( *long_pp == NULL);
+  assert( countp != NULL);
+  *countp = -1; /*  init */
+  ret_t ret = get_empty_ret();
+  int tagidx = TIFFGetRawTagListIndex(ctif, tag);
+  if (tagidx >= 0) { /* there exists the tag */
+    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *(long_pp) = malloc( sizeof(uint32) * entry.count);
+    if (NULL == (*long_pp)) {
+      ret.returncode=could_not_allocate_memory;
+      return ret;
+    }
+    assert (entry.datatype == TIFF_LONG);
+    if (entry.value_or_offset == is_value) {
+      assert (entry.count >= 0 && entry.count <= 1);
+      //printf("LONG (direct)=%lu\n", entry.data32);
+      memcpy((void *) (*long_pp), (void *) &entry.data32, (sizeof(uint32)*entry.count));
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    } else if (entry.value_or_offset == is_offset) {
+      uint32 data32offset = entry.data32offset;
+      offset_t offset;
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      if (ret.returncode != is_valid) {
+        *countp = -1;
+        free(offset.datacharp);
+        return ret;
+      }
+      //printf("LONG (offset)=%lu\n", *offset.datacharp);
+      memcpy((void *) (*long_pp), (void *) offset.datacharp, (sizeof(uint32)*offset.count));
+      free(offset.datacharp);
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    }
+  }
+  ret.returncode = tag_does_not_exist;
+  return ret;
 }
 
-int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp) {
-	assert( *short_pp == NULL);
-	int tagidx = TIFFGetRawTagListIndex(ctif, tag);
-	  if (tagidx >= 0) { /* there exists the tag */
-	    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-	    *(short_pp) = malloc( sizeof(uint16) * entry.count);
-	    if (NULL == *(short_pp)) {
-	    	perror ("could not allocate memory for short_p");
-	    	exit( EXIT_FAILURE);
-	    }
-	    assert (entry.datatype == TIFF_SHORT);
-	    if (entry.value_or_offset == is_value) {
-	    	assert (entry.count >= 0 && entry.count <= 2);
-	    	memcpy((void *) (*short_pp), (void *) &entry.data16, (sizeof(uint16)*entry.count));
-        //printf("SHORT (direct)=%u %u\n", entry.data32, **short_pp);
-	    	return (entry.count);
-	    } else if (entry.value_or_offset == is_offset) {
-	    	uint32 data32offset = entry.data32offset;
-	    	offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
-       //printf("SHORT (offset)=%u\n", *offset.datacharp);
-	    	memcpy((void *) (*short_pp), (void *)offset.datacharp, (sizeof(uint16)*offset.count));
-		free( offset.datacharp );
-		offset.datacharp=NULL;
+ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * countp) {
+  assert( *short_pp == NULL);
+  assert( countp != NULL);
+  *countp = -1; /*  init */
+  ret_t ret = get_empty_ret();
+  int tagidx = TIFFGetRawTagListIndex(ctif, tag);
+  if (tagidx >= 0) { /* there exists the tag */
+    ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *(short_pp) = malloc( sizeof(uint16) * entry.count);
+    if (NULL == *(short_pp)) {
+      ret.returncode=could_not_allocate_memory;
+      return ret;
+    }
+    assert (entry.datatype == TIFF_SHORT);
+    if (entry.value_or_offset == is_value) {
+      assert (entry.count >= 0 && entry.count <= 2);
+      memcpy((void *) (*short_pp), (void *) &entry.data16, (sizeof(uint16)*entry.count));
+      //printf("SHORT (direct)=%u %u\n", entry.data32, **short_pp);
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    } else if (entry.value_or_offset == is_offset) {
+      uint32 data32offset = entry.data32offset;
+      offset_t offset;
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      if (ret.returncode != is_valid) {
+        *countp = -1;
+        free(offset.datacharp);
+        return ret;
+      }
+      //printf("SHORT (offset)=%u\n", *offset.datacharp);
+      memcpy((void *) (*short_pp), (void *)offset.datacharp, (sizeof(uint16)*offset.count));
+      free( offset.datacharp );
+      offset.datacharp=NULL;
 
-	    	return (entry.count);
-	    }
-	  }
-	  return -1;
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
+    }
+  }
+  ret.returncode = tag_does_not_exist;
+  return ret;
 }
-int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp) {
-	assert( *float_pp == NULL);
+
+ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * countp) {
+  assert( *float_pp == NULL);
+  assert( countp != NULL);
+  *countp = -1; /*  init */
+  ret_t ret = get_empty_ret();
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
     // printf("entry.count=%i\n", entry.count);
     *(float_pp) = malloc( sizeof(float) * (entry.count));
     if (NULL == *(float_pp)) {
-      perror ("could not allocate memory for float_p");
-      exit( EXIT_FAILURE);
+      ret.returncode=could_not_allocate_memory;
+      return ret;
     }
     assert (entry.datatype == TIFF_RATIONAL);
     /*  rational is defined as 2x32bits */
     if (entry.value_or_offset == is_value) {
-      perror ("entry.value_or_offset must be offset");
-      exit(EXIT_FAILURE);
+      ret.returncode = tagerror_expected_offsetdata;
+      return ret;
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
-      offset_t offset = read_offsetdata( ctif, data32offset, entry.count, entry.datatype);
+      offset_t offset;
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      if (ret.returncode != is_valid) {
+        *countp = -1;
+        free(offset.data32p);
+        return ret;
+      }
       /* copy to a float */
       uint32 numerator = 0;
       uint32 denominator = 0;
       uint32 * orig_data32p = offset.data32p;
       for (int i = 0; i< entry.count; i++) {
-          numerator = *(orig_data32p++);
-          denominator = *(orig_data32p++);
-          //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
-          float v;
-          if (denominator == 0) {
-            v=NAN;
-          } else {
-            v = (float) numerator / (float) denominator;
-          }
-          // printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
-          (*(float_pp))[i]=v;
+        numerator = *(orig_data32p++);
+        denominator = *(orig_data32p++);
+        //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
+        float v;
+        if (denominator == 0) {
+          v=NAN;
+        } else {
+          v = (float) numerator / (float) denominator;
+        }
+        // printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
+        (*(float_pp))[i]=v;
       }
       free( offset.data32p );
       offset.data32p=NULL;
-
-      return (entry.count);
+      *(countp) = entry.count;
+      ret.returncode=is_valid;
+      return ret;
     }
   }
-  return -1;
+  ret.returncode = tag_does_not_exist;
+  return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

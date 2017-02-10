@@ -19,13 +19,16 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
   ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
   if (a > b) { unsigned int c=a; a=b; b=c; }
     TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
     switch (datatype) {
       case TIFF_LONG: {
                         uint32 * valp = NULL;
                         uint32 val;
-                        int found=TIFFGetFieldLONG(ctif, tag, &valp);
+                        int found;
+                        ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
                         if (1 == found) {
                           val = *valp;
                           if ((val >= a && val <= b )) {
@@ -54,7 +57,8 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
       case TIFF_SHORT: {
                          uint16 * valp = NULL;
                          uint16 val;
-                         int found=TIFFGetFieldSHORT(ctif, tag, &valp);
+                         int found;
+                         ret =TIFFGetFieldSHORT(ctif, tag, &valp, &found);
                          if (1 == found) {
                            val = *valp;
                            if ((val >= a && val <= b )) {
@@ -83,7 +87,8 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
       case TIFF_RATIONAL: {
                             float * valp = NULL;
                             float val;
-                            int found=TIFFGetFieldRATIONAL(ctif, tag, &valp);
+                            int found;
+                            ret=TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
                             if (1 == found) {
                               val = * valp;
                               if ((val >= a && val <= b )) {

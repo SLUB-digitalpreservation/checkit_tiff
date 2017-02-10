@@ -15,6 +15,8 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
   ret_t ret = get_empty_ret();
 
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
 
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
