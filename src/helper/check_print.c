@@ -47,7 +47,7 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
    memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
    strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
    actual_render->next->rm_type = src_type;
-   fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
+   // fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
    actual_render = actual_render->next;
    assert(actual_render != NULL);
    assert(actual_render->rm_msg != NULL);
