@@ -130,6 +130,8 @@ int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IF
     case unknown_tag_order:
       {
         ctif->tagorder=has_sorted_tags;
+        int count = get_ifd0_count( ctif);
+        if (0 == count) { return -1; }
         tag_t last = TIFFGetRawTagListEntry(ctif, 0);
         for (int i= 1; i < get_ifd0_count( ctif ); i++) {
          tag_t current = TIFFGetRawTagListEntry( ctif, i );
@@ -362,6 +364,7 @@ int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
 tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   int byteswapped = is_byteswapped(ctif);
   int count = get_ifd0_count( ctif);
+  assert( count > 0);
   /* ct_read count of tags (2 Bytes) */
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
