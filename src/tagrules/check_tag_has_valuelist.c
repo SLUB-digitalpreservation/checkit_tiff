@@ -122,7 +122,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
                       }
 
   }
-  ret.returncode=should_not_occure;
+  ret.returncode=is_valid;
   return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
