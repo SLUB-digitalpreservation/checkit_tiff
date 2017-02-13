@@ -19,9 +19,9 @@
 #define YY_CTX_LOCAL
 
 /*
-#define EXE_DEBUG 1
 #define RULE_DEBUG 1
 #define DEBUG 1
+#define EXE_DEBUG 1
 #define YY_DEBUG 1
 */
 
@@ -158,6 +158,8 @@ void reduce_results() {
   for (int i = 0; i < parser_state.result_stackp; i++) {
     full_res_t full_result = parser_state.result_stack[i];
     int logical_or_count = full_result.logical_or_count;
+    
+    
 #ifdef DEBUG
     printf("reduce i=%i tmpc=%i logc=%i fclogc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.logical_or_count, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
     if (full_result.found_value != NULL) { printf("\tvalue='%s'\n", full_result.found_value);}
@@ -196,13 +198,19 @@ printf("\tlogc'=%i", logc);
 #ifdef DEBUG
           printf("j=%i\n", j);
 #endif
-          if (parser_state.result_stack[j].function != fc_internal_logic_combine && parser_state.result_stack[j].returncode == is_valid) {
+          if (
+              (parser_state.result_stack[j].function != fc_internal_logic_combine) &&
+              (parser_state.result_stack[j].returncode == is_valid)) {
+#ifdef DEBUG
+            printf("cp full @j=%i\n", j);
+#endif
             full_result = parser_state.result_stack[j];
             tmp[tmpc++]=full_result;
           }
           parser_state.result_stack[j].returncode=is_valid;
         }
         i+=(logc-1);
+        logc=0;
       }
     }  else
     if (full_result.returncode != is_valid) {
@@ -224,7 +232,6 @@ printf("\tlogc'=%i", logc);
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
-
 
 /* stack function for parser */
 void exe_i_push (internal_entry_t * ep, unsigned int i) {
@@ -684,16 +691,34 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
       case ifdepends: {
                         internal_entry_t p = prepare_internal_entry();
                         exe_push(e);
+                        if (parser_state.mode & mode_enable_type_checks) {
+                          internal_entry_t z = e;
+                          z.is_precondition=0;
+                          z.function = fc_tag_has_valid_type;
+                          exe_push(z);
+                        }
                         exe_push(p);
                         break;
                       }
       case mandatory: {
                         exe_push(e);
+                        if (parser_state.mode & mode_enable_type_checks) {
+                          internal_entry_t z = e;
+                          z.is_precondition=0;
+                          z.function = fc_tag_has_valid_type;
+                          exe_push(z);
+                        }
                         break;
                       }
       case optional: {
                        internal_entry_t p = prepare_internal_entry();
                        exe_push(e);
+                       if (parser_state.mode & mode_enable_type_checks) {
+                         internal_entry_t z = e;
+                          z.is_precondition=0;
+                          z.function = fc_tag_has_valid_type;
+                          exe_push(z);
+                       }
                        exe_push(p);
                        break;
                      }
@@ -708,6 +733,12 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
 
                          internal_entry_t p = prepare_internal_entry();
                          exe_push(e);
+                         if (parser_state.mode & mode_enable_type_checks) {
+                             internal_entry_t z = e;
+                          z.is_precondition=0;
+                          z.function = fc_tag_has_valid_type;
+                          exe_push(z);
+                         }
                          exe_push(p);
                          exe_push(pp);
                          break;
@@ -874,19 +905,6 @@ void rule_addtag_config() {
     e.lineno=getlineno();
     e.is_precondition=1; /*  no precondition as default */
     e.tag = parser_state.tag;
-
-    if (parser_state.mode & mode_enable_type_checks) {
-      internal_entry_t p;
-      p.i_stackp=0;
-      p.regex_stackp=0;
-      p.lineno=getlineno();
-      p.is_precondition=0;
-      p.tag=parser_state.tag;
-      p.function=fc_tag_quiet;
-      e.function = fc_tag_has_valid_type;
-      exe_push(e); /* first push execute function */
-      exe_push(p); /*  then push preconditions */
-    }
 
 #ifdef RULE_DEBUG
     printf( "try to match tagline at line %i\n", e.lineno);
@@ -1136,7 +1154,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
   for (int i=parser_state.result_stackp-1; i >= 0; --i) {
    full_res_t parser_result = parser_state.result_stack[i];
 #ifdef DEBUG
-   printf( "i=%i retcode=%i lineno=%i tag=%i %s\n", i, parser_result.result.returncode, parser_result.lineno,  parser_result.tag,  parser_result.result.value_found);
+   printf( "i=%i retcode=%s (%i) lineno=%i tag=%i %s\n", i, get_parser_error_description(parser_result.returncode), parser_result.returncode, parser_result.lineno,  parser_result.tag,  parser_result.found_value);
 #endif
    returncode_t returncode =  parser_result.returncode;
    /* fill render pipeline */
