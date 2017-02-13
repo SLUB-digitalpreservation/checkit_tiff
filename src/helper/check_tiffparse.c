@@ -440,13 +440,13 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
       TIFFSwabLong( address );
     }
 }
-
 /*  get count-data datastream from offset-address */
 ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype, offset_t * offset_p) {
   assert(NULL !=  offset_p);
   offset_p->count = count;
   offset_p->datatype = datatype;
   ret_t ret = get_empty_ret();
+  ret.returncode = is_valid;
   /* ct_read and seek to IFD address */
   if (ct_seek(ctif, address, SEEK_SET) != address) {
     offset_p->count = -1;
@@ -524,6 +524,10 @@ ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 data
         return ret;
       }
   };
+#ifdef DEBUG
+  printf ("is valid offset\n");
+  printf ("RET=%s\n", get_parser_error_description(ret.returncode));
+#endif
   return ret;
 }
 
@@ -844,6 +848,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *countp = entry.count;
     *(string_pp) = malloc( sizeof(char) * entry.count);
     if (NULL == (* string_pp)) {
       ret.returncode=could_not_allocate_memory;
@@ -856,7 +861,6 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       for (int i=0; i<entry.count; i++) {
         (*string_pp)[i]=entry.data8[i];
       }
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     } else if (entry.value_or_offset == is_offset) {
@@ -864,7 +868,6 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        *countp = -1;
         free(offset.datacharp);
         return ret;
       }
@@ -878,7 +881,6 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       }
       //printf("ASCII='%s'\n", *(string_pp));
       free(offset.datacharp);
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     }
@@ -895,6 +897,7 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * count
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *countp = entry.count;
     *(long_pp) = malloc( sizeof(uint32) * entry.count);
     if (NULL == (*long_pp)) {
       ret.returncode=could_not_allocate_memory;
@@ -905,7 +908,6 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * count
       assert (entry.count >= 0 && entry.count <= 1);
       //printf("LONG (direct)=%lu\n", entry.data32);
       memcpy((void *) (*long_pp), (void *) &entry.data32, (sizeof(uint32)*entry.count));
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     } else if (entry.value_or_offset == is_offset) {
@@ -913,14 +915,12 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * count
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        *countp = -1;
         free(offset.datacharp);
         return ret;
       }
       //printf("LONG (offset)=%lu\n", *offset.datacharp);
       memcpy((void *) (*long_pp), (void *) offset.datacharp, (sizeof(uint32)*offset.count));
       free(offset.datacharp);
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     }
@@ -937,6 +937,7 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    *countp = entry.count;
     *(short_pp) = malloc( sizeof(uint16) * entry.count);
     if (NULL == *(short_pp)) {
       ret.returncode=could_not_allocate_memory;
@@ -947,7 +948,6 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
       assert (entry.count >= 0 && entry.count <= 2);
       memcpy((void *) (*short_pp), (void *) &entry.data16, (sizeof(uint16)*entry.count));
       //printf("SHORT (direct)=%u %u\n", entry.data32, **short_pp);
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     } else if (entry.value_or_offset == is_offset) {
@@ -955,7 +955,6 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        *countp = -1;
         free(offset.datacharp);
         return ret;
       }
@@ -963,8 +962,6 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
       memcpy((void *) (*short_pp), (void *)offset.datacharp, (sizeof(uint16)*offset.count));
       free( offset.datacharp );
       offset.datacharp=NULL;
-
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     }
@@ -981,7 +978,8 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-    // printf("entry.count=%i\n", entry.count);
+    //printf("entry.count=%i\n", entry.count);
+    *countp = entry.count;
     *(float_pp) = malloc( sizeof(float) * (entry.count));
     if (NULL == *(float_pp)) {
       ret.returncode=could_not_allocate_memory;
@@ -995,9 +993,9 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
       offset_t offset;
+      printf("data32offset=%u count=%i\n", data32offset, entry.count);
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        *countp = -1;
         free(offset.data32p);
         return ret;
       }
@@ -1008,19 +1006,18 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
       for (int i = 0; i< entry.count; i++) {
         numerator = *(orig_data32p++);
         denominator = *(orig_data32p++);
-        //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
+        printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
         float v;
         if (denominator == 0) {
           v=NAN;
         } else {
           v = (float) numerator / (float) denominator;
         }
-        // printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
+        printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
         (*(float_pp))[i]=v;
       }
       free( offset.data32p );
       offset.data32p=NULL;
-      *(countp) = entry.count;
       ret.returncode=is_valid;
       return ret;
     }
