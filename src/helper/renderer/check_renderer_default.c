@@ -17,6 +17,8 @@ const char * renderer_default ( const retmsg_t * ret ) {
   if (NULL == res) {
     exit(could_not_allocate_memory);
   }
+  memset( res, '\0', RENDERSIZE);
+  secstrcat( res, "\t", RENDERSIZE  );
   const retmsg_t * startp = ret;
   while (NULL != startp) {
     assert(startp->rm_msg != NULL);

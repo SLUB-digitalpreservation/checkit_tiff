@@ -12,10 +12,12 @@
 
 
 const char * renderer_xml ( const retmsg_t * ret ) {
+  assert (ret != NULL);
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
     exit(could_not_allocate_memory);
-  } 
+  }
+  memset( res, '\0', RENDERSIZE);
   secstrcat( res, "\t", RENDERSIZE  );
   const retmsg_t * startp = ret;
   while (NULL != startp && NULL != startp->next) {
