@@ -132,7 +132,11 @@ const char * renderer_ansi ( ret_t ret ) {
   }
   retmsg_t * startp = ret.returnmsg;
   int c = 0;
-  while (NULL != startp && NULL != startp->rm_msg && c < ret.count) {
+  while (
+      (c < ret.count) &&
+      (NULL != startp) &&
+      (NULL != startp->rm_msg)
+      ) {
         switch (startp->rm_type) {
           case rm_rule:       secstrcat( res, ANSI_NORMAL   , 1024); break;
           case rm_tag:        secstrcat( res, ANSI_BOLD     , 1024); break;
