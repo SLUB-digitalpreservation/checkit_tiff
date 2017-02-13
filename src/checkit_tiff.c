@@ -164,7 +164,7 @@ int main (int argc, char * argv[]) {
     if (flag_check_directory == FLAGGED) {
       /* iterate through all files */
       size_t len = strlen( tiff_file_or_dir);
-      char tiff_dir [ len ];
+      char tiff_dir [ len+1 ];
       strncpy(tiff_dir, tiff_file_or_dir, len);
       tiff_dir[  len ] = 0; 
       DIR *dir;
