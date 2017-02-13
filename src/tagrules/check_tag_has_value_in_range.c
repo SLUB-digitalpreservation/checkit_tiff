@@ -38,7 +38,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                           } else {
                             free(valp);
                             char value[VALUESTRLEN];
-                            snprintf(value, sizeof(value), "%u", val);
+                            snprintf(value, sizeof(value), "found value %u", val);
                             ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
@@ -48,7 +48,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             free(valp);
                             valp=NULL;
                           }
-                          ret.returncode = tagerror_value_not_found;
+                          char value[VALUESTRLEN];
+                          snprintf(value, sizeof(value), "found %i values", found);
+                          ret = set_value_found_ret (&ret, value);
+                          ret.returncode = tagerror_value_differs;
                           return ret;
                         }
 
@@ -68,7 +71,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                            } else {
                              free( valp);
                              char value[VALUESTRLEN];
-                             snprintf(value, sizeof(value), "%u", val);
+                             snprintf(value, sizeof(value), "found value %u", val);
                              ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
@@ -78,7 +81,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                              free(valp);
                              valp=NULL;
                            }
-                           ret.returncode = tagerror_value_not_found;
+                           char value[VALUESTRLEN];
+                           snprintf(value, sizeof(value), "found %i values", found);
+                           ret = set_value_found_ret (&ret, value);
+                           ret.returncode = tagerror_value_differs;
                            return ret;
                          }
 
@@ -98,7 +104,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                               } else {
                                 free( valp);
                                 char value[VALUESTRLEN];
-                                snprintf(value, sizeof(value), "%f", val);
+                                snprintf(value, sizeof(value), "found value %f", val);
                                 ret = set_value_found_ret (&ret, value);
                                 ret.returncode = tagerror_value_differs;
                                 return ret;
@@ -108,7 +114,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                                 free(valp);
                                 valp=NULL;
                               }
-                              ret.returncode = tagerror_value_not_found;
+                              char value[VALUESTRLEN];
+                              snprintf(value, sizeof(value), "found %i values", found);
+                              ret = set_value_found_ret (&ret, value);
+                              ret.returncode = tagerror_value_differs;
                               return ret;
                             }
 
