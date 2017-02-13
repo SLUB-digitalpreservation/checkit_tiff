@@ -15,10 +15,10 @@ const char * get_parser_function_description( function_t f ) {
     case fc_tag_has_valuelist: return "Tag should have a list of values"; break;
     case fc_tag_has_value_in_range: return "Tag should have a value in a range of"; break;
     case fc_tag_has_value: return "Tag should have one exact value."; break;
-    case fc_tag_has_value_quiet: return "tag_has_value_quiet"; break;
+    case fc_tag_has_value_quiet: return "Tag should have one exact value."; break;
     case fc_tag: return "TIFF should contain this tag."; break;
-    case fc_tag_quiet: return "fc_tag_quiet"; break;
-    case fc_notag: return "fc_notag"; break;
+    case fc_tag_quiet: return "TIFF should contain this tag."; break;
+    case fc_notag: return "Tag is not whitelisted in configuration, but exists in TIFF."; break;
     case fc_tag_has_valid_type: return "Tag should have a valid and correct type."; break;
     case fc_datetime: return "DateTime tag should contain a valid value."; break;
     case fc_icc: return "ICC profile should be valid."; break;
@@ -29,8 +29,8 @@ const char * get_parser_function_description( function_t f ) {
     case fc_all_offsets_are_word_aligned: return "All tag offsets should be word aligned."; break;
     case fc_all_offsets_are_used_once_only: return "All offsets should only be used once."; break;
     case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned."; break;
-    case fc_internal_logic_combine: return "fc_internal_logic_combine"; break;
-    case fc_dummy: return "fc_dummy"; break;
+    case fc_internal_logic_combine: return "One or more conditions in a logical_or operation were false."; break;
+    case fc_dummy: return "Dummy."; break;
   }
   return "should not occur";
 }
@@ -38,13 +38,13 @@ const char * get_parser_function_description( function_t f ) {
 const char * get_parser_error_description( returncode_t r ) {
   switch (r) {
     case is_valid: return "is valid"; break; /* no problems detected */
-    case calling_error_count_size: return "calling_error_count_size"; break; /* a called function has wrong arguments */
+    case calling_error_count_size: return "Internal error: function called with the wrong number of arguments."; break; /* a called function has wrong arguments */
     case could_not_allocate_memory: return "Could not allocate memory."; break; /* malloc fails */
     case could_not_print: return "Could not print"; break; /* snprintf, fprintf, print fails */
     case should_not_occure: return "This should not occur."; break; /* dummy, for dead code */
     case tagerror_expected_count_differs: return "unexpected tag value count"; break; /* if a tag reports count=m, but the rule expects count=n */
     case tagerror_expected_count_iszero: return "Tag value count is zero, but expected to be greater than zero."; break; /* if a tag reports count=0, but the rule expects count=n */
-    case tagerror_expected_count_isgreaterone: return "tagerror_expected_count_isgreaterone"; break;
+    case tagerror_expected_count_isgreaterone: return "Single value expected but list of values found."; break;
     case tagerror_value_differs: return "Unexpected tag value."; break; /* if a tag reports value=m, but the rule expects value=n */
     case tagerror_unexpected_type_found: return "Unexpected tag type."; break; /* if a tag reports a type=m, but a type=n was expected */
     case tagerror_datetime_not_plausible: return "DateTime value not plausible."; break; /* if a datetime tag has date values out of range */
@@ -68,8 +68,8 @@ const char * get_parser_error_description( returncode_t r ) {
     case iccerror_colorspacedata: return "Value of ICC colorspacedata is not part of controlled vocabulary."; break; /* colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'" */
     case iccerror_connectionspacedata: return "Value of ICC connectionspacedata is not part of controlled vocabulary."; break; /* "connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '" */
     case iccerror_primaryplatformsignature: return "Value of ICC primaryplatformsignature is not part of controlled vocabulary."; break; /* primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT' */
-    case iccerror_header_1v43_2010: return "Invalid ICC profile version string 1v43_2010 found."; break; /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
-    case iccerror_header_v240_v430: return "Invalid ICC profile version string v240_v430 found."; break; /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
+    case iccerror_header_1v43_2010: return "Invalid header in ICC profile of type 1v43_2010 found."; break; /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
+    case iccerror_header_v240_v430: return "Invalid header in ICC profile of type v240_v430 found."; break; /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
     case iccerror_header_generic: return "Invalid ICC header (size < 10)."; break; /* size < 10 */
     case iccerror_preferredcmmtype: return "Value of ICC preferredcmmtype is not part of controlled vocabulary."; break; /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
     case iccerror_committed_size_differs   : return "ICC profile size given in ICC header differs from size given in TIFF tag."; break;
@@ -79,12 +79,12 @@ const char * get_parser_error_description( returncode_t r ) {
     case tiff_read_error_offset: return "Couldn't read from TIFF data position (seek operation failed)."; break;
     case tiff_byteorder_error: return "Unexpected byteorder."; break; /* not an expected byteorder found */
     case tiff_ifd0_offset_must_be_greater_than_eight: return "The offset to IFD0 given in the TIFF header must be greater than 8 bytes."; break; /* must be greater than 8, because first 8 Bytes contains the TIFF header */
-    case code_error_streampointer_empty: return "Empty streampointer."; break;
-    case code_error_filedescriptor_empty: return "Empty filedescriptor."; break;
-    case code_error_ctif_empty: return "code_error_ctif_empty"; break;
-    case parser_error_wrong_function_found_in_parser_state_exe_stack: return "parser_error_wrong_function_found_in_parser_state_exe_stack"; break;
-    case parser_logicalor_error: return "parser error in logical_or rule"; break;
-    case tagerror_expected_offsetdata: return "tagerror_expected_offsetdata"; break;
+    case code_error_streampointer_empty: return "Internal error: empty streampointer."; break;
+    case code_error_filedescriptor_empty: return "Internal error: empty filedescriptor."; break;
+    case code_error_ctif_empty: return "Internal error: unable to get ctif-structure"; break;
+    case parser_error_wrong_function_found_in_parser_state_exe_stack: return "internal error: current stack function name not part of predefined name enumeration."; break;
+    case parser_logicalor_error: return "internal error: parser error in logical_or rule"; break;
+    case tagerror_expected_offsetdata: return "Expected offset data but found actual values encoded in tag."; break;
 
   }
   return "should not occur";
