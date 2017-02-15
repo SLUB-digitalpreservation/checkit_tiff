@@ -107,7 +107,9 @@ ret_t set_value_found_ret (ret_t * rp, const char * msg) {
     rp->returncode=could_not_allocate_memory;
   } else {
     memset(rp->value_found, '\0', VALUESTRLEN);
+    // printf("DEBUG='%s'\n", msg);
     strncpy(rp->value_found, msg, VALUESTRLEN-1);
+    // printf("DEBUG2='%s'\n", rp->value_found);
   }
   return *rp;
 }
