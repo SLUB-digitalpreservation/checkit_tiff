@@ -993,7 +993,7 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
       offset_t offset;
-      printf("data32offset=%u count=%i\n", data32offset, entry.count);
+      //printf("data32offset=%u count=%i\n", data32offset, entry.count);
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
         free(offset.data32p);
