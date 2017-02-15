@@ -412,15 +412,13 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   return ret;
 }
 
-#define offset_malloc(fd, of, os, count ) {\
-  of = NULL; of = malloc ( sizeof(os) * count);\
-  if ( ct_read( ctif, of, sizeof(os) * count) != (sizeof(os) *count) ) {\
-    /* \
-       fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count);\
+#define OFFSET_MALLOC(ctif, offsetdata, offset_type, count ) {\
+  offsetdata = NULL; offsetdata = malloc ( sizeof(offset_type) * count);\
+  if ( ct_read( ctif, offsetdata, sizeof(offset_type) * count) != (sizeof(offset_type) *count) ) {\
+       fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count);\
        exit( EXIT_FAILURE );\
-       */ \
     char msg[VALUESTRLEN]; \
-    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(os) * count); \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); \
     ret = set_value_found_ret( &ret, msg); \
     ret.returncode = tiff_read_error_offset; \
     return ret; \
@@ -465,34 +463,34 @@ ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 data
       if (ct_read(fd, offset_p->data8p,  sizeof(uint8) * count) != sizeof(uint8) *count)
         perror ("TIFF Offset ct_read error");
       */
-      offset_malloc(fd, offset_p->data8p, uint8, count)
+      OFFSET_MALLOC(ctif, offset_p->data8p, uint8, count)
       break;
     case 2: /* 8-bit bytes w/ last byte null */
       assert( sizeof(char) == sizeof(uint8));
-      offset_malloc(fd, offset_p->datacharp, char, count)
+      OFFSET_MALLOC(ctif, offset_p->datacharp, char, count)
       break;
     case 6: /* !8-bit signed integer */
-      offset_malloc(fd, offset_p->datas8p, int8, count)
+      OFFSET_MALLOC(ctif, offset_p->datas8p, int8, count)
       break;
     case 3: /* 16-bit unsigned integer */
-      offset_malloc(fd, offset_p->data16p, uint16, count)
+      OFFSET_MALLOC(ctif, offset_p->data16p, uint16, count)
       offset_swabshort(ctif, offset_p->data16p, count);
       break;
     case 8: /* !16-bit signed integer */
-      offset_malloc(fd, offset_p->datas16p, int16, count)
+      OFFSET_MALLOC(ctif, offset_p->datas16p, int16, count)
       offset_swabshort(ctif, (uint16 *) offset_p->datas16p, count);
       break;
     case 4: /* 32-bit unsigned integer */
     case 13: /* %32-bit unsigned integer (offset) */
-      offset_malloc(fd, offset_p->data32p, uint32, count)
+      OFFSET_MALLOC(ctif, offset_p->data32p, uint32, count)
       offset_swablong(ctif, offset_p->data32p, count);
       break;
     case 9: /* !32-bit signed integer */
-      offset_malloc(fd, offset_p->datas32p, uint32, count)
+      OFFSET_MALLOC(ctif, offset_p->datas32p, uint32, count)
       offset_swablong(ctif, (uint32 *) offset_p->data32p, count);
       break;
     case 5: /* 64-bit unsigned fraction */
-      offset_malloc(fd, offset_p->data32p, uint32, 2*count) /* because numerator + denominator */
+      OFFSET_MALLOC(ctif, offset_p->data32p, uint32, 2*count) /* because numerator + denominator */
       offset_swablong(ctif, offset_p->data32p, 2*count);
       break;
     case 10: /* !64-bit signed fraction */
@@ -500,20 +498,20 @@ ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 data
       exit(EXIT_FAILURE);
     case 11: /* !32-bit IEEE floating point */
       assert( sizeof(float) == 4);
-      offset_malloc(fd, offset_p->datafloatp, float, count)
+      OFFSET_MALLOC(ctif, offset_p->datafloatp, float, count)
       break;
     case 12: /* !64-bit IEEE floating point */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset_p->datadoublep, double, count)
+      OFFSET_MALLOC(ctif, offset_p->datadoublep, double, count)
       break;
     case 16: /* BigTIFF 64-bit unsigned integer */
     case 18: /* BigTIFF 64-bit unsigned integer (offset) */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset_p->data64p, uint64, count)
+      OFFSET_MALLOC(ctif, offset_p->data64p, uint64, count)
       break;
     case 17: /* BigTIFF 64-bit signed integer */
       assert( sizeof(double) == 8);
-      offset_malloc(fd, offset_p->datas64p, int64, count)
+      OFFSET_MALLOC(ctif, offset_p->datas64p, int64, count)
         break;
     default: /*  should not occure */
       {
@@ -663,7 +661,7 @@ printf("\ncount=%0x\n\n", count);
       }
       free( ifdentries );
 #ifdef DEBUG
-      printf("tag idx=%i, tag=%u (0x%04x) tagtype=0x%04x is_offset=%s count=%d value_or_offset=0x%08x\n", i, tagid, tagid, tagtype, (ifd_entry.value_or_offset==is_offset ? "true" : "false"), count, value_or_offset);
+      printf("tag idx=%i, tag=%u (0x%04x) tagtype=0x%04x is_offset=%s count=%lu value_or_offset=0x%08x\n", i, tagid, tagid, tagtype, (ifd_entry.value_or_offset==is_offset ? "true" : "false"), count, value_or_offset);
 #endif
       return ifd_entry;
     }
@@ -673,7 +671,6 @@ printf("\ncount=%0x\n\n", count);
   free( ifdentries );
   return ifd_entry;
 }
-
 
 /*  TODO */
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag) {
@@ -848,14 +845,14 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    assert (entry.datatype == TIFF_ASCII);
     *countp = entry.count;
-    *(string_pp) = malloc( sizeof(char) * entry.count);
+    *(string_pp) = malloc( sizeof(char) * entry.count +1);
     if (NULL == (* string_pp)) {
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
-    memset(*string_pp, '\0', entry.count);
-    assert (entry.datatype == TIFF_ASCII);
+    memset(*string_pp, '\0', entry.count+1);
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 4);
       for (int i=0; i<entry.count; i++) {
@@ -868,7 +865,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        free(offset.datacharp);
+        /*  FIXME: free(offset.datacharp); */
         return ret;
       }
       char * p = offset.datacharp;
@@ -915,7 +912,7 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * count
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        free(offset.datacharp);
+        /*  FIXME: free(offset.datacharp); */
         return ret;
       }
       //printf("LONG (offset)=%lu\n", *offset.datacharp);
@@ -955,7 +952,7 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
       offset_t offset;
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        free(offset.datacharp);
+        /*  FIXME: free(offset.datacharp); */
         return ret;
       }
       //printf("SHORT (offset)=%u\n", *offset.datacharp);
@@ -996,7 +993,7 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
       //printf("data32offset=%u count=%i\n", data32offset, entry.count);
       ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
       if (ret.returncode != is_valid) {
-        free(offset.data32p);
+        /*  FIXME: free(offset.datacharp); */
         return ret;
       }
       /* copy to a float */
