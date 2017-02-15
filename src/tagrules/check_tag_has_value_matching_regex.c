@@ -20,6 +20,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                        char * val=NULL;
                        int count;
                        ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
+                       if (ret.returncode != is_valid) return ret;
                        if (0 < count) {
 #define OVECCOUNT 30    /* should be a multiple of 3 */
                          pcre *re;

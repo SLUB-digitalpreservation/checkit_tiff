@@ -29,6 +29,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                         uint32 val;
                         int found;
                         ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
+                        if (ret.returncode != is_valid) return ret;
                         if (1 == found) {
                           val = *valp;
                           if ((val >= a && val <= b )) {
@@ -62,6 +63,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                          uint16 val;
                          int found;
                          ret =TIFFGetFieldSHORT(ctif, tag, &valp, &found);
+                         if (ret.returncode != is_valid) return ret;
                          if (1 == found) {
                            val = *valp;
                            if ((val >= a && val <= b )) {
@@ -95,6 +97,7 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             float val;
                             int found;
                             ret=TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
+                            if (ret.returncode != is_valid) return ret;
                             if (1 == found) {
                               val = * valp;
                               if ((val >= a && val <= b )) {

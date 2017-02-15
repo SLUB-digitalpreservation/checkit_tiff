@@ -68,6 +68,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
   int count=0;
   char *datetime=NULL;
   ret = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime, &count);
+  if (ret.returncode != is_valid) return ret;
 
   // printf("DATETIME='%s'\n", datetime);
     int day=0;
