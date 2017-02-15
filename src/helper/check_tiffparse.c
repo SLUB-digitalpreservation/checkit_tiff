@@ -1006,14 +1006,14 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
       for (int i = 0; i< entry.count; i++) {
         numerator = *(orig_data32p++);
         denominator = *(orig_data32p++);
-        printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
+        //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
         float v;
         if (denominator == 0) {
           v=NAN;
         } else {
           v = (float) numerator / (float) denominator;
         }
-        printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
+        //printf("DEBUG2: *float_pp[%i]=%f (%u / %u)\n", i, v, numerator, denominator);
         (*(float_pp))[i]=v;
       }
       free( offset.data32p );
