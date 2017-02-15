@@ -90,7 +90,24 @@ void print_plan () {
 
 void result_push(full_res_t r) { PUSH(&parser_state, result, r); }
 full_res_t result_pop() { full_res_t r; POP(&parser_state, result, r); return r; }
-void result_printstack() { PRINT(&parser_state, "%p", result); }
+void result_printstack() {
+  printf("=== BEGIN result_printstack\n");
+
+  for (int i = 0; i < parser_state.result_stackp; i++) {
+    full_res_t full_result = parser_state.result_stack[i];
+    printf("i=%i fclogc=%i lineno=%i tag=%i func=%s (%i) returncode=%s (%i)\n", i,
+        full_result.logical_or_count,
+        full_result.lineno,
+        full_result.tag,
+        get_parser_function_description(full_result.function),
+        full_result.function,
+        get_parser_error_description(full_result.returncode),
+        full_result.returncode 
+        );
+  }
+
+  printf("=== END result_printstack\n");
+}
 void i_printstack () { PRINT(&parser_state, "%i", i); }
 void i_push (unsigned int i) { PUSH(&parser_state, i, i);}
 unsigned int i_pop () { unsigned i; POP(&parser_state, i, i); return i; }
@@ -119,6 +136,7 @@ internal_entry_t exe_pop () { internal_entry_t e; POP(&parser_state, exe, e); re
 void exe_printstack () {
   CHECKOVERFLOW(&parser_state, exe);
   CHECKUNDERFLOW(&parser_state, exe);
+  printf("=== BEGIN exe_printstack\n");
   for (int j=0; j< parser_state.exe_stackp; j++) {
     printf(" exe-stack value[ %i ] --> {\n\tlineno=%i\n\tis_precondition=%i\n\ttag=%i\n\tfunction_used=%s (%i)\n",
         j,
@@ -142,10 +160,16 @@ void exe_printstack () {
     }
     printf("}\n");
   }
+  printf("=== END exe_printstack\n");
 }
 
 /*  reduce results */
 void reduce_results() {
+#ifdef DEBUG
+  printf("---------------------------------------------------------------------\n");
+  printf("begin REDUCE\n");
+  printf("---------------------------------------------------------------------\n");
+#endif
   /*  go forward and eliminate all valid rule results */
   full_res_t * tmp = NULL;
   tmp = malloc(sizeof(full_res_t) * MAXRESULT);
@@ -232,6 +256,7 @@ printf("\tlogc'=%i", logc);
   /* copy size */
   parser_state.result_stackp=tmpc;
 }
+
 
 /* stack function for parser */
 void exe_i_push (internal_entry_t * ep, unsigned int i) {
@@ -734,10 +759,10 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
                          internal_entry_t p = prepare_internal_entry();
                          exe_push(e);
                          if (parser_state.mode & mode_enable_type_checks) {
-                             internal_entry_t z = e;
-                          z.is_precondition=0;
-                          z.function = fc_tag_has_valid_type;
-                          exe_push(z);
+                           internal_entry_t z = e;
+                           z.is_precondition=0;
+                           z.function = fc_tag_has_valid_type;
+                           exe_push(z);
                          }
                          exe_push(p);
                          exe_push(pp);
@@ -846,7 +871,11 @@ void rule_add_logical_config() {
   e.lineno=getlineno();
   e.is_precondition=1;
   e.function=fc_internal_logic_combine;
-  exe_i_push(&e, parser_state.lelist);
+  if (parser_state.mode & mode_enable_type_checks) {
+    exe_i_push(&e, 2*parser_state.lelist); /* because type checking adds a precondition to *each* variant */
+  } else {
+    exe_i_push(&e, parser_state.lelist);
+  }
 
   /* stack should be organized as:
    * [ruleA]
@@ -1149,7 +1178,14 @@ ret_t print_plan_results(retmsg_t * actual_render) {
   printf("reduced\n");
 #endif
 
+#ifdef EXE_DEBUG
+  result_printstack();
+#endif
   reduce_results();
+#ifdef EXE_DEBUG
+  result_printstack();
+#endif
+  
   int count_of_valid_results = 0;
   for (int i=parser_state.result_stackp-1; i >= 0; --i) {
    full_res_t parser_result = parser_state.result_stack[i];
