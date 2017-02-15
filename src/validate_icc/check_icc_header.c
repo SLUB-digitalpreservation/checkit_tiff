@@ -203,7 +203,10 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   assert(errmessage != NULL);
   assert(errsize > 0);
   if (iccsize < 10) FAIL (icc_error_header_generic, "Invalid ICC profile");
-  char profileversion[6]="    "; snprintf(profileversion, 6, "%i.%i.%i", (iccdata[8]) & 0x000f, ((iccdata[9] & 0x00f0) >>4), (iccdata[9] & 0x000f));
+  short a =  (iccdata[8]) & 0x000f;
+  short b = ((iccdata[9] & 0x00f0) >>4);
+  short c =  (iccdata[9] & 0x000f);
+  char profileversion[6]="    "; snprintf(profileversion, 6, "%1i.%1i.%1i", a, b, c);
   INFO("ICC: profileversion='%s'\n", profileversion);
   if (0==strncmp(profileversion, "4.3.0",5))  return parse_icc_v430(iccsize, iccdata, errsize, errmessage);
   else if (0==strncmp(profileversion, "2.4.0",5)) return parse_icc_v240(iccsize,iccdata, errsize, errmessage);
