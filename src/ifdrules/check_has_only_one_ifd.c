@@ -12,7 +12,7 @@
 
 /*  check if only one IFD exists */
 ret_t check_has_only_one_ifd(ctiff_t * ctif) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   /* next commented lines, because TIFFNumberOfDirectories are in endless loop,
    * if the TIFF file from https://github.com/EasyinnovaSL/DPFManager/blob/develop/src/test/resources/IFD%20struct/Circular%20E.tif

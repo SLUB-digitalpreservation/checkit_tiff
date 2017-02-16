@@ -12,7 +12,7 @@
 #include <errno.h>
 
 ret_t check_tagorder(ctiff_t * ctif) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   if (has_sorted_tags != ctif->tagorder) {
     uint32 offset = get_ifd0_pos(ctif);

@@ -13,7 +13,7 @@
 
 /* check if offsets are word aligned */
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   int count = get_ifd0_count( ctif);
   int tagidx;

@@ -14,7 +14,7 @@
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);
   if (ret.returncode != is_valid) return ret;
@@ -28,10 +28,10 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
   int r = 0;
   char * val=NULL;
   if (datatype == TIFF_ASCII) {
-    int count;
+    uint32 count=0;
     ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
     if (0 < count) { /* there exists a tag */
-      for (int i=0; i<count; i++) {
+      for (uint32 i=0; i<count; i++) {
         if (string[i] == '\0') {
           r = i+1;
           break;

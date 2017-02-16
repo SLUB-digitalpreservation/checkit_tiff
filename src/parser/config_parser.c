@@ -329,7 +329,7 @@ void execute_plan (ctiff_t * ctif) {
   exe_printstack();
 #endif
   do {
-    ret_t ret= get_empty_ret();
+    GET_EMPTY_RET(ret)
     char * expected_value=NULL;
 
     internal_entry_t exe = exe_pop();
@@ -403,19 +403,19 @@ void execute_plan (ctiff_t * ctif) {
         case fc_tag_has_value_in_range:         { int a = exe_i_pop(&exe);
                                                   int b = exe_i_pop(&exe);
                                                   expected_value = __ch_malloc(expected_value);
-                                                  snprintf(expected_value, VALUESTRLEN, "%li -- %li", a, b);
+                                                  snprintf(expected_value, VALUESTRLEN, "%i -- %i", a, b);
                                                   ret = check_tag_has_value_in_range(ctif, exe.tag, a, b);
                                                   break;
                                                 }
         case fc_tag_has_value:                  { int a = exe_i_pop(&exe);
                                                   expected_value = __ch_malloc(expected_value);
-                                                  snprintf(expected_value, VALUESTRLEN, "%li", a);
+                                                  snprintf(expected_value, VALUESTRLEN, "%i", a);
                                                   ret = check_tag_has_value(ctif, exe.tag, a);
                                                   break;
                                                 }
         case fc_tag_has_value_quiet:            { int a = exe_i_pop(&exe);
                                                   expected_value = __ch_malloc(expected_value);
-                                                  snprintf(expected_value, VALUESTRLEN, "%li", a);
+                                                  snprintf(expected_value, VALUESTRLEN, "%i", a);
                                                   ret = check_tag_has_value_quiet(ctif, exe.tag, a);
                                                   break;
                                                 }
@@ -444,7 +444,7 @@ void execute_plan (ctiff_t * ctif) {
         case fc_all_IFDs_are_word_aligned:      { ret = check_all_IFDs_are_word_aligned(ctif); break;}
         case fc_internal_logic_combine:         { break; }
         default: {
-                   ret_t res = get_empty_ret();
+                   GET_EMPTY_RET(res)
                    res.value_found = __ch_malloc(res.value_found);
                    fprintf(stderr, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
 #ifdef EXE_DEBUG
@@ -1159,7 +1159,7 @@ void clean_plan_results() {
 
 /* prints a plan (list) of functions and their results*/
 ret_t print_plan_results(retmsg_t * actual_render) {
-  ret_t res = get_empty_ret();
+  GET_EMPTY_RET(res)
 #ifdef DEBUG
   printf("print plan results:\n");
   printf("####################(\n");

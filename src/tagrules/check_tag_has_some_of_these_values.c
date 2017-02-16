@@ -13,12 +13,12 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  ret_t ret= get_empty_ret();
+ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, const unsigned int * values) {
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);
   if (ret.returncode != is_valid) return ret;
-  unsigned int * p = values;
+  const unsigned int * p = values;
 
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
@@ -34,10 +34,10 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                         p++;
                       }
                       uint32 * valp = NULL;
-                      uint32 val;
-                      int count;
-                      ret = TIFFGetFieldLONG(ctif, tag, &valp, &count);
-                      if (count >0) {
+                      uint32 val=0;
+                      uint32 vcount=0;
+                      ret = TIFFGetFieldLONG(ctif, tag, &valp, &vcount);
+                      if (vcount >0) {
                         val = *valp;
                         char value[VALUESTRLEN];
                         snprintf(value, sizeof(value), "%u", val);
@@ -59,10 +59,10 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                          p++;
                        }
                        uint16 * valp = NULL;
-                       uint16 val;
-                       int count;
-                       ret = TIFFGetFieldSHORT(ctif, tag, &valp, &count);
-                       if (count >0) {
+                       uint16 val=0;
+                       uint32 vcount=0;
+                       ret = TIFFGetFieldSHORT(ctif, tag, &valp, &vcount);
+                       if (vcount >0) {
                          val = *valp;
                          char value[VALUESTRLEN];
                          snprintf(value, sizeof(value), "%u", val);
@@ -84,9 +84,9 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                             p++;
                           }
                           float * valp = NULL;
-                          float val;
-                          int count;
-                          ret = TIFFGetFieldRATIONAL(ctif, tag, &valp, &count);
+                          float val=0.0f;
+                          uint32 vcount=0;
+                          ret = TIFFGetFieldRATIONAL(ctif, tag, &valp, &vcount);
                           if (count >0) {
                             val = * valp;
                             char value[VALUESTRLEN];

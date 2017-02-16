@@ -160,12 +160,12 @@ int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IF
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value) {
-  ret_t ret= get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
 
   float * valp = NULL;
   float val;
-  int found;
+  uint32 found;
   ret =TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
   if (1 == found) {
     val = * valp;
@@ -182,12 +182,12 @@ ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value) {
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value) {
-  ret_t ret= get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
 
   uint16 * valp = NULL;
   uint16 val;
-  int found;
+  uint32 found;
   ret=TIFFGetFieldSHORT(ctif, tag, &valp, &found);
   if (1 == found) {
     val = *valp;
@@ -207,13 +207,13 @@ ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value) {
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
-  ret_t ret= get_empty_ret();
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
 
   uint32 * valp = NULL;
   uint32 val;
-  int found;
+  uint32 found;
   ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
   if (1 == found) {
     val = *valp;
@@ -231,7 +231,7 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
 
 
 ret_t parse_header_and_endianess(ctiff_t * ctif) {
-  ret_t ret= get_empty_ret();
+  GET_EMPTY_RET(ret)
 
    /* seek the image file directory (bytes 4-7) */
   //ct_seek(fd, (off_t) 0, SEEK_SET);
@@ -289,7 +289,7 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
 }
 
 ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
-  ret_t ret= get_empty_ret();
+  GET_EMPTY_RET(ret)
   int isByteSwapped = ctif->isbyteswapped;
   /* seek the image file directory (bytes 4-7) */
   if (ct_seek(ctif, 4, SEEK_SET) != 4 ) {
@@ -439,11 +439,11 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
     }
 }
 /*  get count-data datastream from offset-address */
-ret_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype, offset_t * offset_p) {
+ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * offset_p) {
   assert(NULL !=  offset_p);
   offset_p->count = count;
   offset_p->datatype = datatype;
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   ret.returncode = is_valid;
   /* ct_read and seek to IFD address */
   if (ct_seek(ctif, address, SEEK_SET) != address) {
@@ -838,10 +838,10 @@ uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	return offset;
 }
 
-ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * countp ) {
+ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint32 * countp ) {
   assert( *string_pp == NULL);
   assert( countp != NULL);
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
@@ -855,7 +855,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
     memset(*string_pp, '\0', entry.count+1);
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 4);
-      for (int i=0; i<entry.count; i++) {
+      for (uint32 i=0; i<entry.count; i++) {
         (*string_pp)[i]=entry.data8[i];
       }
       ret.returncode=is_valid;
@@ -872,7 +872,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
       char * s = *(string_pp);
       /* DEBUG: */
       //printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
-      for (int i=0; i<entry.count; i++) {
+      for (uint32 i=0; i<entry.count; i++) {
         //printf("P[%i]=%c\n", i, *p);
         *(s++) = *(p++);
       }
@@ -886,14 +886,23 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_pp, int * count
   return ret;
 }
 
-ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * countp) {
+ret_t TIFFGetFieldLONG(ctiff_t * ctif, const tag_t tag, uint32 ** long_pp, uint32 * countp) {
   assert( *long_pp == NULL);
   assert( countp != NULL);
   *countp = -1; /*  init */
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    uint32 overflow =  (0xffffffff / (sizeof(uint32)));
+    if (entry.count > overflow) {
+      char msg[200];
+      snprintf(msg, 200, "count=%u overflow boundary=%u", entry.count, overflow);
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_count_results_in_offsets_overflow;
+      return ret;
+    }
+
     *countp = entry.count;
     *(long_pp) = malloc( sizeof(uint32) * entry.count);
     if (NULL == (*long_pp)) {
@@ -926,14 +935,23 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_pp, int * count
   return ret;
 }
 
-ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * countp) {
+ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** short_pp, uint32 * countp) {
   assert( *short_pp == NULL);
   assert( countp != NULL);
   *countp = -1; /*  init */
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    uint32 overflow =  (0xffffffff / (sizeof(uint16)));
+    if (entry.count > overflow) {
+      char msg[200];
+      snprintf(msg, 200, "count=%u overflow boundary=%u", entry.count, overflow);
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_count_results_in_offsets_overflow;
+      return ret;
+    }
+
     *countp = entry.count;
     *(short_pp) = malloc( sizeof(uint16) * entry.count);
     if (NULL == *(short_pp)) {
@@ -967,14 +985,22 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_pp, int * cou
   return ret;
 }
 
-ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * countp) {
+ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** float_pp, uint32 * countp) {
   assert( *float_pp == NULL);
   assert( countp != NULL);
-  *countp = -1; /*  init */
-  ret_t ret = get_empty_ret();
+  *countp = 0; /*  init */
+  GET_EMPTY_RET(ret)
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
+    uint32 overflow =  (0xffffffff / (2*sizeof(uint32)));
+    if (entry.count > overflow) {
+      char msg[200];
+      snprintf(msg, 200, "count=%u overflow boundary=%u", entry.count, overflow);
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_count_results_in_offsets_overflow;
+      return ret;
+    }
     //printf("entry.count=%i\n", entry.count);
     *countp = entry.count;
     *(float_pp) = malloc( sizeof(float) * (entry.count));
@@ -1000,10 +1026,10 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_pp, int * c
       uint32 numerator = 0;
       uint32 denominator = 0;
       uint32 * orig_data32p = offset.data32p;
-      for (int i = 0; i< entry.count; i++) {
-        numerator = *(orig_data32p++);
-        denominator = *(orig_data32p++);
-        //printf("DEBUG: numerator=%i denumeator=%i\n", numerator, denominator);
+      for (uint32 i = 0; i< entry.count; i++, orig_data32p+=2) {
+        numerator = *(orig_data32p);
+        denominator = *(orig_data32p+1);
+        //printf("DEBUG: numerator=%u denumeator=%u\n", numerator, denominator);
         float v;
         if (denominator == 0) {
           v=NAN;

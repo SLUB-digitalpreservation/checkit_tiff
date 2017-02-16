@@ -32,7 +32,7 @@ const char * get_parser_function_description( function_t f ) {
     case fc_internal_logic_combine: return "One or more conditions in a logical_or operation were false."; break;
     case fc_dummy: return "Dummy."; break;
   }
-  return "should not occur";
+  return "missed function description, should not occur";
 }
 
 const char * get_parser_error_description( returncode_t r ) {
@@ -85,9 +85,10 @@ const char * get_parser_error_description( returncode_t r ) {
     case parser_error_wrong_function_found_in_parser_state_exe_stack: return "internal error: current stack function name not part of predefined name enumeration."; break;
     case parser_logicalor_error: return "internal error: parser error in logical_or rule"; break;
     case tagerror_expected_offsetdata: return "Expected offset data but found actual values encoded in tag."; break;
+    case tagerror_count_results_in_offsets_overflow: return "Tag counts n elements, but resulting offset exceeds 4GB size"; break;
 
   }
-  return "should not occur";
+  return "missed error description, should not occur";
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

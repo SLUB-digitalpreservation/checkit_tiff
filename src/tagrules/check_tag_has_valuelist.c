@@ -15,8 +15,8 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  ret_t ret = get_empty_ret();
+ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsigned int * values) {
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);
@@ -39,7 +39,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, unsigned int
   char value[VALUESTRLEN];
   memset(value, '\0', VALUESTRLEN);
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
-  if (count != ifd_entry.count) {
+  if ((uint32) count != ifd_entry.count) {
     snprintf(value, sizeof(value), "has %u values", ifd_entry.count);
     ret = set_value_found_ret (&ret, value);
     ret.returncode = tagerror_expected_count_differs;

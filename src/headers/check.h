@@ -95,6 +95,7 @@ typedef enum {
   parser_error_wrong_function_found_in_parser_state_exe_stack,
   parser_logicalor_error,
   tagerror_expected_offsetdata,
+  tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
 
 
 } returncode_t;
@@ -216,8 +217,8 @@ const char* frac2str(int d, int n);
 const char* range2str(int d, int n);
 off_t ct_seek(ctiff_t * ctif, off_t pos, int whence);
 ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count);
-ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
-ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
+ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
+ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value);

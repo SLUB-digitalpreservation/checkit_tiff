@@ -13,7 +13,7 @@
 /** checks a ICC tag, see Annex B of http://www.color.org/specification/ICC1v43_2010-12.pdf
  */
 ret_t check_icc(ctiff_t * ctif ) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
 
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);

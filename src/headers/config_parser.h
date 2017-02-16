@@ -75,8 +75,8 @@ typedef struct full_res_s {
   int lineno;
   tag_t tag;
   function_t function;
-  const char * expected_value;
-  const char * found_value;
+  char * expected_value;
+  char * found_value;
   int logical_or_count;
   returncode_t returncode;
   

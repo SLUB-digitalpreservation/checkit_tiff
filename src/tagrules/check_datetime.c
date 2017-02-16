@@ -50,7 +50,7 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  */
 ret_t check_datetime(ctiff_t * ctif ) {
 
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
   ret_t rc=check_tag_quiet(ctif, TIFFTAG_DATETIME);
@@ -65,7 +65,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     ret.returncode = tagerror_unexpected_type_found;
     return ret;
   }
-  int count=0;
+  uint32 count=0;
   char *datetime=NULL;
   ret = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime, &count);
   if (ret.returncode != is_valid) return ret;
@@ -78,7 +78,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     int min=0;
     int sec=0;
     int r = 0;
-    for (int i=0; i<count; i++) {
+    for (uint32 i=0; i<count; i++) {
         if ((datetime[i] == '\0') && (i != 19)) { /* \0 at 20th byte  allowed */
           r = i+1;
           break;

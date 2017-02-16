@@ -12,7 +12,7 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);

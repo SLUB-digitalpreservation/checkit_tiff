@@ -90,13 +90,6 @@ long long fsize(int fd) {
   return st.st_size;
 }
 
-ret_t get_empty_ret () {
-  ret_t ret;
-  ret.value_found = NULL;
-  ret.logical_or_count = 0;
-  ret.returncode = should_not_occure;
-  return ret;
-}
 
 ret_t set_value_found_ret (ret_t * rp, const char * msg) {
   assert( NULL != rp);

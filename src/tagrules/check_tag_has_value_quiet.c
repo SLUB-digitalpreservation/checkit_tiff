@@ -17,7 +17,7 @@
 
 
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);
   if (ret.returncode != is_valid) return ret;

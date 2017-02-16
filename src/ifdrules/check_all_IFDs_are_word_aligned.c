@@ -14,7 +14,7 @@
 
 /* check if IFDs are word aligned */
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif) {
-  ret_t ret = get_empty_ret();
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
 
   uint32 ifd = get_ifd0_pos( ctif ); /*  TODO: check all other IFDs, too */
