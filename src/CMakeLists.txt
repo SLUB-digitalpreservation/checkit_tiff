@@ -33,8 +33,18 @@ execute_process( COMMAND git rev-parse HEAD OUTPUT_VARIABLE BUILD_REV_ID OUTPUT_
 execute_process( COMMAND git describe --long --tags --dirty --always OUTPUT_VARIABLE BUILD_REV_ID_SHORT OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions(-DVERSION="${BUILD_BRANCH}")
 add_definitions(-DREPO_REVISION="${REPO_REVISION}")
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -std=gnu11" CACHE STRING "c flags")
-set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -Wall -Wgnu-zero-line-directive " CACHE STRING "c flags")
+
+
+# Check for compatibility with gnu11
+# Compile with gnu11 support.
+include(CheckCCompilerFlag)
+CHECK_C_COMPILER_FLAG("-std=gnu11" COMPILER_SUPPORTS_GNU11)
+if(COMPILER_SUPPORTS_GNU11)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+else()
+    message(STATUS "Your compiler (${CMAKE_C_COMPILER}) has no gnu11 support. If you are using clang on Apple OS X, please switch to gcc (version > 4.7) which is compliant with the C11 standard.")
+endif()
+
 if(WIN32)
   add_definitions(-D__WIN32__=1)
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
