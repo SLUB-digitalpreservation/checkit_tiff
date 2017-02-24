@@ -18,17 +18,17 @@ const char * get_parser_function_description( function_t f ) {
     case fc_tag_has_value_quiet: return "Tag should have one exact value."; break;
     case fc_tag: return "TIFF should contain this tag."; break;
     case fc_tag_quiet: return "TIFF should contain this tag."; break;
-    case fc_notag: return "Tag is not whitelisted in configuration, but exists in TIFF."; break;
+    case fc_notag: return "Tag needs to be whitelisted in configuration,"; break;
     case fc_tag_has_valid_type: return "Tag should have a valid and correct type."; break;
     case fc_datetime: return "DateTime tag should contain a valid value."; break;
-    case fc_icc: return "ICC profile should be valid."; break;
-    case fc_has_only_one_ifd: return "TIFF should have just one IFD."; break;
-    case fc_tagorder: return "Tags should be sorted in ascending order."; break;
+    case fc_icc: return "ICC profile should be valid,"; break;
+    case fc_has_only_one_ifd: return "TIFF should have just one IFD,"; break;
+    case fc_tagorder: return "Tags should be sorted in ascending order,"; break;
     case fc_tag_has_valid_asciivalue: return "Tag should have valid ASCII value."; break;
-    case fc_tag_has_value_matching_regex: return "Tag should have a value that matches the RegEx."; break;
-    case fc_all_offsets_are_word_aligned: return "All tag offsets should be word aligned."; break;
-    case fc_all_offsets_are_used_once_only: return "All offsets should only be used once."; break;
-    case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned."; break;
+    case fc_tag_has_value_matching_regex: return "Tag should have a value that matches the RegEx,"; break;
+    case fc_all_offsets_are_word_aligned: return "All tag offsets should be word aligned,"; break;
+    case fc_all_offsets_are_used_once_only: return "All offsets may only be used once,"; break;
+    case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned,"; break;
     case fc_internal_logic_combine: return "One or more conditions in a logical_or operation were false."; break;
     case fc_dummy: return "Dummy."; break;
   }
@@ -52,27 +52,27 @@ const char * get_parser_error_description( returncode_t r ) {
     case tagerror_datetime_wrong_size: return "DateTime tag has wrong size."; break; /* if a datetime tag has date with wrong size */
     case tagerror_value_not_found: return "The value for this tag was not found."; break; /* if a value of a given tag is not found */
     case tagwarn_type_of_unknown_tag_could_not_be_checked: return "The type of this unknown tag could not be checked: no rule defined."; break; /* there is no explicite type check defined yet */
-    case tag_exist: return "Non-whitelisted tag found."; break; /* if a tag exists, but should not (only used by fc_notag) */
+    case tag_exist: return "but isn't."; break; /* if a tag exists, but should not (only used by fc_notag) */
     case tag_does_not_exist: return "Tag expected."; break; /* if a tag does not exist, but should (only used by fc_tag_quiet) */
     case tagerror_encoded_as_value_excited_space: return "Tag value encoded as value but exceeded available space."; break; /* tag encoded as value instead as offset, but there is no enough space to hold it, pE. ICC-Profile encoded without offset */
-    case tagerror_pcre_nomatch: return "String value does not match RegEx."; break; /*  regex does not match value */
+    case tagerror_pcre_nomatch: return "but doesn't."; break; /*  regex does not match value */
     case pcre_compile_error: return "The predefined Regex is invalid."; break; /* regex is wrong */
     case tagerror_multiple_zeros_in_asciivalue: return "Multiple NULL-Bytes (\0) found in ASCII value."; break; /* doubled \0 in string */
     case tagerror_denominator_is_zero_in_fract: return "Denominator in fraction tag value is zero."; break;
-    case ifderror_offset_used_twice: return "The offset was used twice."; break;
-    case ifderror_multiple_ifd_detected: return "Multiple IFDs were detected."; break;
-    case ifderror_tags_not_in_ascending_order: return "Tags are not sorted in ascending order."; break;
-    case tagerror_offset_not_word_aligned: return "Tag offset is not word aligned."; break;
-    case ifderror_offset_not_word_aligned: return "IFD offset is not word aligned."; break;
-    case iccerror_profileclass: return "Value of ICC profileclass is not part of controlled vocabulary."; break; /* profile class ('%s'), should be one of following strings for device classes: 'scnr', 'mntr', 'prtr' or for profile classes: 'link', 'spac', 'abst', 'nmcl'" */
-    case iccerror_colorspacedata: return "Value of ICC colorspacedata is not part of controlled vocabulary."; break; /* colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'" */
-    case iccerror_connectionspacedata: return "Value of ICC connectionspacedata is not part of controlled vocabulary."; break; /* "connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '" */
-    case iccerror_primaryplatformsignature: return "Value of ICC primaryplatformsignature is not part of controlled vocabulary."; break; /* primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT' */
-    case iccerror_header_1v43_2010: return "Invalid header in ICC profile of type 1v43_2010 found."; break; /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
-    case iccerror_header_v240_v430: return "Invalid header in ICC profile of type v240_v430 found."; break; /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
-    case iccerror_header_generic: return "Invalid ICC header (size < 10)."; break; /* size < 10 */
-    case iccerror_preferredcmmtype: return "Value of ICC preferredcmmtype is not part of controlled vocabulary."; break; /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
-    case iccerror_committed_size_differs   : return "ICC profile size given in ICC header differs from size given in TIFF tag."; break;
+    case ifderror_offset_used_twice: return "but this offset was used twice."; break;
+    case ifderror_multiple_ifd_detected: return "but multiple IFDs were found."; break;
+    case ifderror_tags_not_in_ascending_order: return "but aren't."; break;
+    case tagerror_offset_not_word_aligned: return "but this one isn't."; break;
+    case ifderror_offset_not_word_aligned: return "but aren't."; break;
+    case iccerror_profileclass: return "but value found for ICC profileclass is not part of controlled vocabulary."; break; /* profile class ('%s'), should be one of following strings for device classes: 'scnr', 'mntr', 'prtr' or for profile classes: 'link', 'spac', 'abst', 'nmcl'" */
+    case iccerror_colorspacedata: return "but value found for ICC colorspacedata is not part of controlled vocabulary."; break; /* colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'" */
+    case iccerror_connectionspacedata: return "but value found for ICC connectionspacedata is not part of controlled vocabulary."; break; /* "connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '" */
+    case iccerror_primaryplatformsignature: return "but value found for ICC primaryplatformsignature is not part of controlled vocabulary."; break; /* primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT' */
+    case iccerror_header_1v43_2010: return "but invalid header in ICC profile of type 1v43_2010 found."; break; /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
+    case iccerror_header_v240_v430: return "but invalid header in ICC profile of type v240_v430 found."; break; /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
+    case iccerror_header_generic: return "but the ICC header is too short (size < 10)."; break; /* size < 10 */
+    case iccerror_preferredcmmtype: return "but value found for ICC preferredcmmtype is not part of controlled vocabulary."; break; /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
+    case iccerror_committed_size_differs   : return "but ICC profile size given in ICC header differs from size given in TIFF tag."; break;
     case tiff_seek_error_header: return "Couldn't jump to TIFF header position (seek operation failed)."; break;
     case tiff_read_error_header: return "Couldn't read from TIFF header position (read operation failed)."; break;
     case tiff_seek_error_offset: return "Couldn't jump to TIFF data position (seek operation failed)."; break;
