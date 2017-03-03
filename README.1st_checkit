@@ -7,7 +7,7 @@ hardcoded rule set with predefined values, you are able to define tags and
 corresponding values more fine granulary. The rulesets are human readable and 
 could be adapted to own needs.
 
-The "checkit_tiff" works on commandline and therefore it is embedable in scripts
+The "checkit_tiff" works on commandline and therefore it is embeddable in scripts
 
 The tools are developed for purposes of curation and longterm preservation
 

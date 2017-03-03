@@ -3,7 +3,7 @@ About general function
 
 The checkit-tool validates TIFF-files against a set of rules (see below). The
 set of rules works as a whitelist. This means that TIFF tags that are used in
-the file but not explicitely checked by a specific rule (not considering if
+the file but not explicitly checked by a specific rule (not considering if
 successful or not) are not allowed. In cases where a rule is executed only
 if a predicate is set, the tag is only allowed if the predicate check succeeded.
 
