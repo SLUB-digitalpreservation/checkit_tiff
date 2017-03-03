@@ -5,7 +5,7 @@ This affects also the tags used for EXIF data. Our interpretation is, if you hav
 
 == offsets on word boundary ==
 
-The specification is very clear. Offsets should only point to odd adresses. We think this is important for longterm preservation, because it makes the TIFF format more robust and repairable if some bit flipping occurs.
+The specification is very clear. Offsets should only point to odd addresses. We think this is important for longterm preservation, because it makes the TIFF format more robust and repairable if some bit flipping occurs.
 
 == tags in ascending order ==
 
