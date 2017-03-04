@@ -1,6 +1,6 @@
 = RegEx =
 
-the program uses the pcre-library for regular expressions in ascii mathcing
+the program uses the pcre-library for regular expressions in ascii matching
 rules (in config file). 
 
 If you use a regex similar  to "^[:print:]*$" it does not match on
