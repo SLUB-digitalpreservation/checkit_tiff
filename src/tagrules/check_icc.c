@@ -70,10 +70,11 @@ ret_t check_icc(ctiff_t * ctif ) {
     case icc_error_header_generic: ret.returncode = iccerror_header_generic; break; 
     case icc_error_preferredcmmtype: ret.returncode = iccerror_preferredcmmtype; break;
     case icc_error_committed_size_differs: ret.returncode = iccerror_committed_size_differs; break;
-    case icc_should_not_occure:  ret.returncode = should_not_occure; break;
+    case icc_should_not_occur:  ret.returncode = should_not_occur; break;
   }
   ret = set_value_found_ret(&ret, errmessage);
   free (errmessage);
+  assert( ret.returncode != should_not_occur);
   return ret;
 }
 

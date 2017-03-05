@@ -109,7 +109,8 @@ ret_t check_datetime(ctiff_t * ctif ) {
         return ret;
     }
     free(datetime);
-    ret.returncode = should_not_occure;
+    ret.returncode = should_not_occur;
+    assert( ret.returncode != should_not_occur);
     return ret;
 }
 

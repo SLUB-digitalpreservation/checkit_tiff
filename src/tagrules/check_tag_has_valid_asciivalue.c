@@ -56,7 +56,8 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
     ret.returncode=is_valid;
     return ret;
   }
-  ret.returncode=should_not_occure;
+  ret.returncode=should_not_occur;
+  assert( ret.returncode != should_not_occur);
   return ret;
 }
 

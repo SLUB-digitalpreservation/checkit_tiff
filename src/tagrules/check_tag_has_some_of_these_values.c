@@ -104,7 +104,8 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, c
                           return ret;
                         }
   }
-  ret.returncode=should_not_occure;
+  ret.returncode=should_not_occur;
+  assert( ret.returncode != should_not_occur);
   return ret;
 }
 

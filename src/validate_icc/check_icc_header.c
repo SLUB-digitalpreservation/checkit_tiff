@@ -213,7 +213,7 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   else {
         return parse_icc_header_v240_v430(iccsize,iccdata, errsize, errmessage);
   }
-  return icc_should_not_occure;
+  return icc_should_not_occur;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

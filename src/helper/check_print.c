@@ -269,7 +269,7 @@ returncode_t tifp_check( ctiff_t * ctif) {
   if (NULL == ctif) { return code_error_ctif_empty; };
   if (0 > ctif->fd) { return code_error_filedescriptor_empty; };
   if (NULL == ctif->streamp) { return code_error_streampointer_empty; };
-  return should_not_occure;
+  return should_not_occur;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

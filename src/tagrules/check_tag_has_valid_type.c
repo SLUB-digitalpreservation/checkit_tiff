@@ -8,6 +8,7 @@
 
 #include "check.h"
 #include "check_helper.h"
+#include <assert.h>
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
@@ -16,6 +17,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
 
   tifp_check( ctif);
   ret=check_tag_quiet(ctif, tag);
+  assert(ret.returncode != should_not_occur);
   if (ret.returncode != is_valid) return ret;
 
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
@@ -92,7 +94,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_XRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     case TIFFTAG_YRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     default: {
-#ifdef WARN
+#ifdef DEBUG
                printf("for tag %i no explicite type check implemented\n");
 #endif
                ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
@@ -109,7 +111,8 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
                return ret;
   }
   /* we check only count, because we evaluate only int-values */
-  ret.returncode = should_not_occure;
+  ret.returncode = should_not_occur;
+  assert(ret.returncode != should_not_occur);
   return ret;
 }
 
