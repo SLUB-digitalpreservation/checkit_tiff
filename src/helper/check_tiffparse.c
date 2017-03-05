@@ -141,13 +141,13 @@ int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IF
           }
           last = current;
         };
-        if (has_sorted_tags == ctif->tagorder) {
+        /* if (has_sorted_tags == ctif->tagorder) { */
           for (int i= 0; i < get_ifd0_count( ctif ); i++) {
             tag_t tag = TIFFGetRawTagListEntry( ctif, i );
             ctif->tag_cache[tag] = i;
           }
           return ctif->tag_cache[tag];
-        }
+        /* } */
       }
       break;
     case has_unsorted_tags:
@@ -284,7 +284,8 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     ret.returncode = tiff_byteorder_error; 
     return ret;
   }
-  ret.returncode = should_not_occure;
+  ret.returncode = should_not_occur;
+  assert( ret.returncode != should_not_occur);
   return ret;
 }
 
@@ -518,7 +519,8 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
         char msg[VALUESTRLEN];
         snprintf(msg, VALUESTRLEN, "offsetdata datatype=%i not supported yet", datatype);
         ret = set_value_found_ret(&ret, msg);
-        ret.returncode = should_not_occure;
+        ret.returncode = should_not_occur;
+        assert( ret.returncode != should_not_occur);
         return ret;
       }
   };
