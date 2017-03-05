@@ -60,7 +60,7 @@ typedef enum {
 #define INTERNALSTACKDEPTH 10
 typedef struct internal_entry_s {
   int lineno;
-  int is_precondition;
+  bool_t is_precondition;
   tag_t tag;
   function_t function;
   values_t val_stack[INTERNALSTACKDEPTH];
@@ -112,7 +112,7 @@ void _helper_push_result(full_res_t res);
 full_res_t _helper_pop_result();
 void _helper_mark_top_n_results(int n, returncode_t type);
 full_res_t _helper_get_nth(int n);
-
+ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep);
 void set_parse_error(char * msg, char * yytext);
 void execute_plan (ctiff_t * ctif);
 void print_plan ();
