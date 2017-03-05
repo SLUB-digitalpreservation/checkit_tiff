@@ -18,6 +18,8 @@ typedef int thandle_t;
 
 typedef uint16 tag_t;
 
+typedef enum{ true=1, false=0 } bool_t;
+
 typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
 
 typedef enum{ has_sorted_tags, has_unsorted_tags, unknown_tag_order } tagorder_t;
@@ -51,7 +53,7 @@ typedef enum {
   calling_error_count_size, /* a called function has wrong arguments */
   could_not_allocate_memory, /* malloc fails */
   could_not_print, /* snprintf, fprintf, print fails */
-  should_not_occure, /* dummy, for dead code */
+  should_not_occur, /* dummy, for dead code */
   tagerror_expected_count_differs, /* if a tag reports count=m, but the rule expects count=n */
   tagerror_expected_count_iszero, /* if a tag reports count=0, but the rule expects count=n */
   tagerror_expected_count_isgreaterone,
@@ -96,6 +98,7 @@ typedef enum {
   parser_logicalor_error,
   tagerror_expected_offsetdata,
   tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
+  parser_logical_combine, /* if fc_logicalcombine was called first (no error) */
 
 
 } returncode_t;
