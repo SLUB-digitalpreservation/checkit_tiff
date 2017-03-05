@@ -16,12 +16,14 @@ echo STABLE  =$STABLE CONFIG=$CONFIGSTABLE
 echo UNSTABLE=$UNSTABLE CONFIG=$CONFIGUNSTABLE
 echo TIFFDIR=$TIFFDIR
 
+# diff -i -w -B -y "$RES_STABLE" "$RES_UNSTABLE"
 function resultcompare {
 RES_STABLE=/tmp/res_stable
 RES_UNSTABLE=/tmp/res_unstable
-$STABLE "$1" "$CONFIGSTABLE" 2>&1 | sed -e "" > "$RES_STABLE"
-$UNSTABLE "$CONFIGUNSTABLE" "$1" 2>&1 | fgrep -v "(./)" | sed -e ""  > "$RES_UNSTABLE"
-diff -i -w -B -y "$RES_STABLE" "$RES_UNSTABLE"
+$STABLE "$1" "$CONFIGSTABLE" 2>&1 | fgrep -v "version:" | fgrep -v "licensed under"| sed -e "" > "$RES_STABLE"
+$UNSTABLE "$CONFIGUNSTABLE" "$1" 2>&1 | fgrep -v "(./)" | fgrep -v "version:" | fgrep -v "licensed under" |sed -e ""  > "$RES_UNSTABLE"
+diff  -i -w -B -y  "$RES_STABLE" "$RES_UNSTABLE"
+
 rm -f $RES_STABLE
 rm -f $RES_UNSTABLE
 }
