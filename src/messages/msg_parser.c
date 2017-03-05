@@ -6,6 +6,7 @@
  *
  */
 #include "config_parser.h"
+#include <assert.h>
 
 const char * get_parser_function_description( function_t f ) {
   switch (f) {
@@ -29,7 +30,7 @@ const char * get_parser_function_description( function_t f ) {
     case fc_all_offsets_are_word_aligned: return "All tag offsets should be word aligned,"; break;
     case fc_all_offsets_are_used_once_only: return "All offsets may only be used once,"; break;
     case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned,"; break;
-    case fc_internal_logic_combine: return "One or more conditions in a logical_or operation were false."; break;
+    case fc_internal_logic_combine: return "One or more conditions needs to be combined in a logical_or operation"; break;
     case fc_dummy: return "Dummy."; break;
   }
   return "missed function description, should not occur";
@@ -41,7 +42,7 @@ const char * get_parser_error_description( returncode_t r ) {
     case calling_error_count_size: return "Internal error: function called with the wrong number of arguments."; break; /* a called function has wrong arguments */
     case could_not_allocate_memory: return "Could not allocate memory."; break; /* malloc fails */
     case could_not_print: return "Could not print"; break; /* snprintf, fprintf, print fails */
-    case should_not_occure: return "This should not occur."; break; /* dummy, for dead code */
+    case should_not_occur: return "This should not occur."; break; /* dummy, for dead code */
     case tagerror_expected_count_differs: return "unexpected tag value count"; break; /* if a tag reports count=m, but the rule expects count=n */
     case tagerror_expected_count_iszero: return "Tag value count is zero, but expected to be greater than zero."; break; /* if a tag reports count=0, but the rule expects count=n */
     case tagerror_expected_count_isgreaterone: return "Single value expected but list of values found."; break;
@@ -86,8 +87,10 @@ const char * get_parser_error_description( returncode_t r ) {
     case parser_logicalor_error: return "internal error: parser error in logical_or rule"; break;
     case tagerror_expected_offsetdata: return "Expected offset data but found actual values encoded in tag."; break;
     case tagerror_count_results_in_offsets_overflow: return "Tag counts n elements, but resulting offset exceeds 4GB size"; break;
+    case parser_logical_combine: return "combine multiple rules with logical or"; break;
 
   }
+  assert( r == is_valid ); /* missed error description, should not occur */
   return "missed error description, should not occur";
 }
 
