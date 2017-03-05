@@ -232,6 +232,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 34030 */ case TIFFTAG_IT8HCUSAGE: return ("IT8HCUSAGE");
     /* 34031 */ case TIFFTAG_IT8TRAPINDICATOR: return ("IT8TRAPINDICATOR");
     /* 34032 */ case TIFFTAG_IT8CMYKEQUIVALENT: return ("IT8CMYKEQUIVALENT");
+    /* 34152 */ case 34152: return ("RichTIFFIPTC / NAA (deprecated)"); /* same as in Tag 33723, see http://www.nilesritter.com/webdocs/tiff/richtiff.html */						
     /* 34232 */ case TIFFTAG_FRAMECOUNT: return ("FRAMECOUNT");
     /* 34264 */ case 34264: return ("Geotiff ModelTransformationTag (JPL Carto Group)"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag*/
     /* 34310 */ case 34310: return ("Leaf MOS PKTS tag (Raw camera)"); /*  see http://fileformats.archiveteam.org/wiki/Leaf_MOS */
