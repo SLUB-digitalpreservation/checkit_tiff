@@ -58,6 +58,9 @@ icc_returncode_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdat
       (0 != strncmp("TCMM", preferredcmmtype, 4))  &&
       (0 != strncmp("32BT", preferredcmmtype, 4))  &&
       (0 != strncmp("WTG ", preferredcmmtype, 4))  &&
+#ifdef ALLOW_CMMTYPE_LINO
+      (0 != strncmp("LINO", preferredcmmtype, 4))  &&
+#endif
       (0 != strncmp("zc00", preferredcmmtype, 4))
 
      ) FAIL(icc_error_preferredcmmtype, "preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'", preferredcmmtype);
