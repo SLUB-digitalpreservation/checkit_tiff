@@ -43,7 +43,6 @@ syntax:
 *** 'any' (which means any match) or
 *** a decimal value or
 *** 'range(START, END)', where START and END are decimal values
-*** 'any', which means any match
 *** 'only(VALUE)', where VALUE is a decimal value
 *** 'ntupel(VALUE, ..), decimal values as n-tupel enclosed in brackets
 *** 'regex("REGEX")', where REGEX is a Perl compatible regular expression (PCRE) with escaped '"' and '\', it only works with tags of type ascii
