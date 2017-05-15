@@ -5,6 +5,7 @@ use File::Path;
 use File::Slurp;
 use Testcall;
 use Test::More tests => 11;
+use POSIX;
 
 my $testdir=prepare();
 
@@ -15,6 +16,7 @@ my $smalltiff="$tiffdir/minimal_valid.tiff";
 
 
 ok ( call_checkit_tiff( $cfgfile, $baselinetiff), "call ($cfgfile, $baselinetiff), TIFF6 baseline" );
+
 
 ## all mandatory
 my $cfg=<<ALL_MANDATORY;
@@ -58,7 +60,7 @@ $cfg=<<LOGICAL_FIRST_MATCH;
 296; mandatory; any
 LOGICAL_FIRST_MATCH
 write_file("$testdir/test.cfg2", $cfg) || die "could not write $testdir/test.cfg2, $!\n";
-ok ( call_checkit_tiff( "$testdir/test.cfg2", $baselinetiff), "call ($testdir/test.cfg2, $baselinetiff), logical first match (20,15,10)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg2", $baselinetiff), "call ($testdir/test.cfg2, $baselinetiff), logical first match (20,10)" );
 
 $cfg=<<LOGICAL_LAST_MATCH;
 # simple any test for minimal_valid_baseline.tiff
@@ -79,7 +81,7 @@ $cfg=<<LOGICAL_LAST_MATCH;
 296; mandatory; any
 LOGICAL_LAST_MATCH
 write_file("$testdir/test.cfg3", $cfg) || die "could not write $testdir/test.cfg3, $!\n";
-ok ( call_checkit_tiff( "$testdir/test.cfg3", $baselinetiff), "call ($testdir/test.cfg3, $baselinetiff), logical last match (10,15,20)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg3", $baselinetiff), "call ($testdir/test.cfg3, $baselinetiff), logical last match (10,20)" );
 
 $cfg=<<'REGEX_TEST';
 # simple any test for minimal_valid.tiff
@@ -255,7 +257,7 @@ mode(enable_ifd_checks)
 296; mandatory; only(2)
 TAILORED_TEST
 write_file("$testdir/test.cfg10", $cfg) || die "could not write $testdir/test.cfg10, $!\n";
-ok ( call_checkit_tiff( "$testdir/test.cfg10", "$tiffdir/bigendian/minimal_valid_baseline_BigEndian.tiff"), "call ($testdir/test.cfg10,  $tiffdir/baseline/minimal_valid_baseline_BigEndian.tiff), tailored w modes" );
+ok ( call_checkit_tiff( "$testdir/test.cfg10", "$tiffdir/bigendian/minimal_valid_baseline_BigEndian.tiff"), "call ($testdir/test.cfg10,  $tiffdir/bigendian/minimal_valid_baseline_BigEndian.tiff), tailored w modes" );
 
 
 
