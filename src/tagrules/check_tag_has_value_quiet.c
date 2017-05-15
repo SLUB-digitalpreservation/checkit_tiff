@@ -17,25 +17,22 @@
 
 
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
+
 
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, tag);
   if (ifd_entry.count > 1) {
-     ret.value_found = strncpy(ret.value_found, int2str(ifd_entry.count), VALUESTRLEN);
+     ret = set_value_found_ret(&ret, int2str(ifd_entry.count));
      ret.returncode = tagerror_expected_count_isgreaterone;
      return ret;
   }
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
                       if (expected_value != ifd_entry.data32) {
-                        ret.value_found = strncpy(ret.value_found, int2str(ifd_entry.data32), VALUESTRLEN);
+                        ret = set_value_found_ret(&ret, int2str(ifd_entry.data32));
                         ret.returncode = tagerror_value_differs;
                         return ret;
                       }
@@ -43,7 +40,7 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected
                     }
     case TIFF_SHORT: {
                        if (expected_value != ifd_entry.data16[0])  {
-                         ret.value_found = strncpy(ret.value_found, int2str(ifd_entry.data16[0]), VALUESTRLEN);
+                         ret = set_value_found_ret(&ret, int2str(ifd_entry.data16[0]));
                          ret.returncode = tagerror_value_differs;
                          return ret;
                        }
@@ -51,19 +48,21 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected
                      }
     case TIFF_RATIONAL: {
                           if (0 == ifd_entry.data16[1]) {
-                            snprintf(ret.value_found, VALUESTRLEN, "%i/%i", ifd_entry.data16[0], ifd_entry.data16[1]);
+                            char msg[VALUESTRLEN];
+                            snprintf(msg, VALUESTRLEN, "%i/%i", ifd_entry.data16[0], ifd_entry.data16[1]);
+                            ret = set_value_found_ret(&ret, msg);
                             ret.returncode = tagerror_denominator_is_zero_in_fract;
                             return ret;
                             break;
                           } else if (expected_value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
-                            ret.value_found = strncpy(ret.value_found, frac2str( ifd_entry.data16[0], ifd_entry.data16[1]), VALUESTRLEN);
+                            ret = set_value_found_ret(&ret, frac2str( ifd_entry.data16[0], ifd_entry.data16[1]));
                             ret.returncode = tagerror_value_differs;
                             return ret;
                             break;
                           }
                         };
     default: { /*  none */
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(ifd_entry.datatype), VALUESTRLEN);
+               ret = set_value_found_ret(&ret, TIFFTypeName(ifd_entry.datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
                break;

@@ -16,21 +16,20 @@
 */
 
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
   if (a > b) { unsigned int c=a; a=b; b=c; }
     TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
     switch (datatype) {
       case TIFF_LONG: {
                         uint32 * valp = NULL;
-                        uint32 val;
-                        int found=TIFFGetFieldLONG(ctif, tag, &valp);
+                        uint32 val=0;
+                        uint32 found=0;
+                        ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
+                        if (ret.returncode != is_valid) return ret;
                         if (1 == found) {
                           val = *valp;
                           if ((val >= a && val <= b )) {
@@ -40,8 +39,8 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                           } else {
                             free(valp);
                             char value[VALUESTRLEN];
-                            snprintf(value, sizeof(value), "%u", val);
-                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            snprintf(value, sizeof(value), "found value %u", val);
+                            ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
                           }
@@ -50,8 +49,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             free(valp);
                             valp=NULL;
                           }
-                          ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
-                          ret.returncode = tagerror_value_not_found;
+                          char value[VALUESTRLEN];
+                          snprintf(value, sizeof(value), "found %i values", found);
+                          ret = set_value_found_ret (&ret, value);
+                          ret.returncode = tagerror_value_differs;
                           return ret;
                         }
 
@@ -60,7 +61,9 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
       case TIFF_SHORT: {
                          uint16 * valp = NULL;
                          uint16 val;
-                         int found=TIFFGetFieldSHORT(ctif, tag, &valp);
+                         uint32 found=0;
+                         ret =TIFFGetFieldSHORT(ctif, tag, &valp, &found);
+                         if (ret.returncode != is_valid) return ret;
                          if (1 == found) {
                            val = *valp;
                            if ((val >= a && val <= b )) {
@@ -70,8 +73,8 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                            } else {
                              free( valp);
                              char value[VALUESTRLEN];
-                             snprintf(value, sizeof(value), "%u", val);
-                             ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                             snprintf(value, sizeof(value), "found value %u", val);
+                             ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
                            }
@@ -80,8 +83,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                              free(valp);
                              valp=NULL;
                            }
-                           ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
-                           ret.returncode = tagerror_value_not_found;
+                           char value[VALUESTRLEN];
+                           snprintf(value, sizeof(value), "found %i values", found);
+                           ret = set_value_found_ret (&ret, value);
+                           ret.returncode = tagerror_value_differs;
                            return ret;
                          }
 
@@ -90,7 +95,9 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
       case TIFF_RATIONAL: {
                             float * valp = NULL;
                             float val;
-                            int found=TIFFGetFieldRATIONAL(ctif, tag, &valp);
+                            uint32 found=0;
+                            ret=TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
+                            if (ret.returncode != is_valid) return ret;
                             if (1 == found) {
                               val = * valp;
                               if ((val >= a && val <= b )) {
@@ -100,8 +107,8 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                               } else {
                                 free( valp);
                                 char value[VALUESTRLEN];
-                                snprintf(value, sizeof(value), "%f", val);
-                                ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                                snprintf(value, sizeof(value), "found value %f", val);
+                                ret = set_value_found_ret (&ret, value);
                                 ret.returncode = tagerror_value_differs;
                                 return ret;
                               }
@@ -110,8 +117,10 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                                 free(valp);
                                 valp=NULL;
                               }
-                              ret.value_found = strncpy(ret.value_found, "not found", VALUESTRLEN);
-                              ret.returncode = tagerror_value_not_found;
+                              char value[VALUESTRLEN];
+                              snprintf(value, sizeof(value), "found %i values", found);
+                              ret = set_value_found_ret (&ret, value);
+                              ret.returncode = tagerror_value_differs;
                               return ret;
                             }
 
@@ -119,12 +128,13 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                           }
       default: /*  none */
                           {
-                            ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+                            ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                             ret.returncode = tagerror_unexpected_type_found;
                             return ret;
                           }
     }
-    ret.returncode=should_not_occure;
+    ret.returncode=should_not_occur;
+    assert( ret.returncode != should_not_occur);
     return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

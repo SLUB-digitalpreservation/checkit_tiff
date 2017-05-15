@@ -89,4 +89,21 @@ long long fsize(int fd) {
   fstat(fd, &st);
   return st.st_size;
 }
+
+
+ret_t set_value_found_ret (ret_t * rp, const char * msg) {
+  assert( NULL != rp);
+  assert( NULL == rp->value_found);
+  assert( NULL != msg);
+  rp->value_found=malloc(sizeof(char) * VALUESTRLEN);
+  if (NULL == rp->value_found) {
+    rp->returncode=could_not_allocate_memory;
+  } else {
+    memset(rp->value_found, '\0', VALUESTRLEN);
+    // printf("DEBUG='%s'\n", msg);
+    strncpy(rp->value_found, msg, VALUESTRLEN-1);
+    // printf("DEBUG2='%s'\n", rp->value_found);
+  }
+  return *rp;
+}
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

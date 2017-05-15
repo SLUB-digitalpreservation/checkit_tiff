@@ -18,6 +18,8 @@ typedef int thandle_t;
 
 typedef uint16 tag_t;
 
+typedef enum{ true=1, false=0 } bool_t;
+
 typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
 
 typedef enum{ has_sorted_tags, has_unsorted_tags, unknown_tag_order } tagorder_t;
@@ -37,7 +39,7 @@ typedef struct ctiff_s {
 	/* TODO: add file size */
 } ctiff_t;
 
-typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_is_valid, rm_endrule, rm_endtiff, rm_mode} rm_type_t;
+typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_logicalor_valid, rm_is_valid, rm_endrule, rm_endtiff, rm_mode, rm_lineno, rm_error_description} rm_type_t;
 typedef struct retmsg_s {
   rm_type_t rm_type;
   char * rm_msg;
@@ -51,7 +53,7 @@ typedef enum {
   calling_error_count_size, /* a called function has wrong arguments */
   could_not_allocate_memory, /* malloc fails */
   could_not_print, /* snprintf, fprintf, print fails */
-  should_not_occure, /* dummy, for dead code */
+  should_not_occur, /* dummy, for dead code */
   tagerror_expected_count_differs, /* if a tag reports count=m, but the rule expects count=n */
   tagerror_expected_count_iszero, /* if a tag reports count=0, but the rule expects count=n */
   tagerror_expected_count_isgreaterone,
@@ -94,6 +96,9 @@ typedef enum {
   code_error_ctif_empty,
   parser_error_wrong_function_found_in_parser_state_exe_stack,
   parser_logicalor_error,
+  tagerror_expected_offsetdata,
+  tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
+  parser_logical_combine, /* if fc_logicalcombine was called first (no error) */
 
 
 } returncode_t;
@@ -191,8 +196,8 @@ typedef struct mem_map_s {
 
 
 #define MAXSTRLEN 1024
-#define EXPECTSTRLEN 160
-#define VALUESTRLEN 160
+#define EXPECTSTRLEN 500
+#define VALUESTRLEN 500
 #define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
 #define MAXRESULT 200000
 returncode_t tifp_check( ctiff_t * ctif);
@@ -215,8 +220,8 @@ const char* frac2str(int d, int n);
 const char* range2str(int d, int n);
 off_t ct_seek(ctiff_t * ctif, off_t pos, int whence);
 ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count);
-ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
-ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
+ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
+ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value);

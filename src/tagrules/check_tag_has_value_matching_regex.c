@@ -9,19 +9,18 @@
 
 
 ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char * regex_string) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
+
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_ASCII: {
                        char * val=NULL;
-                       int count = TIFFGetFieldASCII(ctif, tag, &val);
+                       uint32 count=0;
+                       ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
+                       if (ret.returncode != is_valid) return ret;
                        if (0 < count) {
 #define OVECCOUNT 30    /* should be a multiple of 3 */
                          pcre *re;
@@ -39,7 +38,7 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                            /*  PCRE_NOTEMPTY: An empty string is not a valid match */
                            int rc = pcre_exec( re, NULL, val, count-1, 0,PCRE_NOTEMPTY, ovector, OVECCOUNT);
 #ifdef DEBUG
-                           printf("tag %s with count=%d and value='%s' -> rc=%d\n", TIFFTagName(tag), count, val, rc);
+                           printf("tag %s with count=%u and value='%s' -> rc=%d\n", TIFFTagName(tag), count, val, rc);
 #endif
                            pcre_free( re );
                            if (rc >= 0 ) {
@@ -48,7 +47,8 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                            } else {
                              switch(rc) {
                                case PCRE_ERROR_NOMATCH:
-                                 ret.value_found = strncpy(ret.value_found, val, VALUESTRLEN);
+                                 ret = set_value_found_ret(&ret, val);
+                                 free(val);
                                  ret.returncode = tagerror_pcre_nomatch;
                                  return ret;
                                  break;
@@ -56,22 +56,24 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
                                     Handle other special cases if you like
                                     */
                              }
-                         }
+                           }
                          } else {
                            char array[VALUESTRLEN];
                            snprintf(array, sizeof(array), "regex '%s' compile error: %s at offset: %i\n",regex_string, errorcode, erroffset);
-                           ret.value_found = strncpy(ret.value_found, array, VALUESTRLEN);
+                           ret = set_value_found_ret(&ret, array);
                            ret.returncode = pcre_compile_error;
+                           free(val);
                            return ret;
                          }
                        } else {
                          ret.returncode = tagerror_expected_count_iszero;
+                         free(val);
                          return ret;
                        }
                      }
     default:  /*  none */
                      {
-                       ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+                       ret = set_value_found_ret( &ret, TIFFTypeName(datatype));
                        ret.returncode = tagerror_unexpected_type_found;
                        return ret;
                      }

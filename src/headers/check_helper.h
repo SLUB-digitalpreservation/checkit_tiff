@@ -16,7 +16,6 @@
 void TIFFSwabShort(uint16 *a);
 void TIFFSwabLong(uint32 *a);
 
-typedef enum{ render_default, render_debug, render_ansi, render_xml} render_type;
 /* helper */
 long long fsize(int fd);
 ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value);
@@ -29,14 +28,11 @@ TIFFDataType TIFFGetRawTagType(ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawIFDEntry( ctiff_t * ctif, tag_t tag);
 ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx );
 int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag);
-int TIFFGetFieldASCII(ctiff_t * ctif, tag_t tag, char** string_p);
-int TIFFGetFieldLONG(ctiff_t * ctif, tag_t tag, uint32 ** long_p);
-int TIFFGetFieldSHORT(ctiff_t * ctif, tag_t tag, uint16 ** short_p);
-int TIFFGetFieldRATIONAL(ctiff_t * ctif, tag_t tag, float ** float_p);
-offset_t read_offsetdata( ctiff_t * ctif, uint32 address, uint32 count, uint16 datatype);
-const char * renderer ( const retmsg_t * ret );
-void set_renderer_to_ansi();
-void set_renderer_to_xml();
+ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** result_string_p, uint32 * result_countp);
+ret_t TIFFGetFieldLONG(ctiff_t * ctif, const tag_t tag, uint32 ** result_long_p, uint32 * result_countp);
+ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** result_short_p, uint32 * result_countp);
+ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** result_float_p, uint32 * result_countp);
+ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * result_offsetp);
 char * secstrcat (char * dest, const char * src, int maxsize);
 ctiff_t * initialize_ctif( const char * tiff_file, ct_ioflag_t );
 void free_ctif( ctiff_t * ctif);
@@ -46,5 +42,13 @@ uint32 get_next_ifd_pos( ctiff_t * ctif, uint32 actual_pos );
 uint16 get_ifd0_count( ctiff_t * ctif );
 char is_byteswapped( ctiff_t * ctif );
 ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd);
+ret_t set_value_found_ret (ret_t * rp, const char * msg);
 returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type);
+void __clean_render_pipeline( retmsg_t * pointer );
+
+#define GET_EMPTY_RET(ret) \
+  ret_t ret; \
+  ret.value_found = NULL; \
+  ret.logical_or_count = 0; \
+  ret.returncode = should_not_occur; \
 #endif

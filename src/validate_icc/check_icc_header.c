@@ -58,6 +58,9 @@ icc_returncode_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdat
       (0 != strncmp("TCMM", preferredcmmtype, 4))  &&
       (0 != strncmp("32BT", preferredcmmtype, 4))  &&
       (0 != strncmp("WTG ", preferredcmmtype, 4))  &&
+#ifdef ALLOW_CMMTYPE_LINO
+      (0 != strncmp("LINO", preferredcmmtype, 4))  &&
+#endif
       (0 != strncmp("zc00", preferredcmmtype, 4))
 
      ) FAIL(icc_error_preferredcmmtype, "preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'", preferredcmmtype);
@@ -203,14 +206,17 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   assert(errmessage != NULL);
   assert(errsize > 0);
   if (iccsize < 10) FAIL (icc_error_header_generic, "Invalid ICC profile");
-  char profileversion[6]="    "; snprintf(profileversion, 6, "%i.%i.%i", (iccdata[8]) & 0x000f, ((iccdata[9] & 0x00f0) >>4), (iccdata[9] & 0x000f));
+  short a =  (iccdata[8]) & 0x000f;
+  short b = ((iccdata[9] & 0x00f0) >>4);
+  short c =  (iccdata[9] & 0x000f);
+  char profileversion[6]="    "; snprintf(profileversion, 6, "%1i.%1i.%1i", a, b, c);
   INFO("ICC: profileversion='%s'\n", profileversion);
   if (0==strncmp(profileversion, "4.3.0",5))  return parse_icc_v430(iccsize, iccdata, errsize, errmessage);
   else if (0==strncmp(profileversion, "2.4.0",5)) return parse_icc_v240(iccsize,iccdata, errsize, errmessage);
   else {
         return parse_icc_header_v240_v430(iccsize,iccdata, errsize, errmessage);
   }
-  return icc_should_not_occure;
+  return icc_should_not_occur;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

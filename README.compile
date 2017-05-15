@@ -6,6 +6,10 @@ mkdir build
 cd build
 cmake ../src/ -DCMAKE_C_FLAGS="-W -Wall -Wextra -ansi -pedantic -O2 -Wno-unused-function"
 make
+###
+# if you want to allow preferred CMM type "LINO", you should use the cmake-call
+# cmake ../src/ -DCMAKE_C_FLAGS="-DALLOW_CMMTYPE_LINO -W -Wall -Wextra -ansi -pedantic -O2 -Wno-unused-function"
+
 ########################################################
 # alternatively for windows crosscompiling using mingw
 ########################################################

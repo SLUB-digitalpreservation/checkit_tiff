@@ -10,6 +10,7 @@
 #include "config_parser.h"
 #include "check.h"
 #include "check_helper.h"
+#include "check_renderer.h"
 #include <unistd.h>
 #include <assert.h>
 #include <dirent.h>
@@ -47,23 +48,11 @@ void help () {
   printf ("\n");
 }
 
-void simplified_result_push(ret_t res, function_t func) {
-        full_res_t full;
-        full.tag = -1;
-        full.function=func;
-        full.lineno=-1;
-        full.result=res;
-        result_push( full );
-}
-
 
 int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
-  ret_t res;
+  GET_EMPTY_RET(res)
   /* init render pipeline */
   retmsg_t * render_pipeline = malloc( sizeof( retmsg_t) );
-  if (NULL == render_pipeline) {
-	  exit (could_not_allocate_memory);
-  }
   retmsg_t * actual_render = render_pipeline;
   actual_render->rm_type = rm_file;
   actual_render->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
@@ -79,6 +68,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   if (res.returncode != is_valid) {
 	  assert(NULL != res.value_found);
 	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
+  printf("res.val='%s'\n", res.value_found);
 	  goto renderer_exit;
   }  
   uint32 offset;
@@ -91,8 +81,18 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   execute_plan(ctif);
   res = print_plan_results( actual_render);
 renderer_exit:
-  printf("%s\n", renderer( render_pipeline ));
+  {
+    const char * render_result_string = renderer( render_pipeline );
+    printf("%s\n", render_result_string);
+    /* free all entries of render pipeline */
+    __clean_render_pipeline( render_pipeline );
+    free((void *) render_result_string);
+  }
   free_ctif( ctif );
+  if (NULL != res.value_found) {
+    free(res.value_found);
+    res.value_found = NULL;
+  }
   return res.returncode;
 }
 
@@ -162,7 +162,7 @@ int main (int argc, char * argv[]) {
     if (flag_check_directory == FLAGGED) {
       /* iterate through all files */
       size_t len = strlen( tiff_file_or_dir);
-      char tiff_dir [ len ];
+      char tiff_dir [ len+1 ];
       strncpy(tiff_dir, tiff_file_or_dir, len);
       tiff_dir[  len ] = 0; 
       DIR *dir;

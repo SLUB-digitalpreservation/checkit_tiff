@@ -13,15 +13,13 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, unsigned int * values) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
-  unsigned int * p = values;
+ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, const unsigned int * values) {
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
+  const unsigned int * p = values;
+
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
@@ -36,13 +34,16 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                         p++;
                       }
                       uint32 * valp = NULL;
-                      uint32 val;
-                      TIFFGetFieldLONG(ctif, tag, &valp);
-                      val = *valp;
-                      char value[VALUESTRLEN];
-                      snprintf(value, sizeof(value), "%u", val);
-                      ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                      ret.returncode = tagerror_value_differs;
+                      uint32 val=0;
+                      uint32 vcount=0;
+                      ret = TIFFGetFieldLONG(ctif, tag, &valp, &vcount);
+                      if (vcount >0) {
+                        val = *valp;
+                        char value[VALUESTRLEN];
+                        snprintf(value, sizeof(value), "%u", val);
+                        ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                        ret.returncode = tagerror_value_differs;
+                      };
                       return ret;
                       break;
                     }
@@ -58,13 +59,16 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                          p++;
                        }
                        uint16 * valp = NULL;
-                       uint16 val;
-                       TIFFGetFieldSHORT(ctif, tag, &valp);
-                       val = *valp;
-                       char value[VALUESTRLEN];
-                       snprintf(value, sizeof(value), "%u", val);
-                       ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                       ret.returncode = tagerror_value_differs;
+                       uint16 val=0;
+                       uint32 vcount=0;
+                       ret = TIFFGetFieldSHORT(ctif, tag, &valp, &vcount);
+                       if (vcount >0) {
+                         val = *valp;
+                         char value[VALUESTRLEN];
+                         snprintf(value, sizeof(value), "%u", val);
+                         ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                         ret.returncode = tagerror_value_differs;
+                       }
                        return ret;
                        break;
                      }
@@ -80,13 +84,16 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                             p++;
                           }
                           float * valp = NULL;
-                          float val;
-                          TIFFGetFieldRATIONAL(ctif, tag, &valp);
-                          val = * valp;
-                          char value[VALUESTRLEN];
-                          snprintf(value, sizeof(value), "%f", val);
-                          ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
-                          ret.returncode = tagerror_value_differs;
+                          float val=0.0f;
+                          uint32 vcount=0;
+                          ret = TIFFGetFieldRATIONAL(ctif, tag, &valp, &vcount);
+                          if (count >0) {
+                            val = * valp;
+                            char value[VALUESTRLEN];
+                            snprintf(value, sizeof(value), "%f", val);
+                            ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
+                            ret.returncode = tagerror_value_differs;
+                          }
                           return ret;
                           break;
                         }
@@ -97,7 +104,8 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, u
                           return ret;
                         }
   }
-  ret.returncode=should_not_occure;
+  ret.returncode=should_not_occur;
+  assert( ret.returncode != should_not_occur);
   return ret;
 }
 

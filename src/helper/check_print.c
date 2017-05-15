@@ -39,22 +39,35 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
      exit( could_not_allocate_memory);
      // return could_not_allocate_memory;
    }
-
    actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
    if (NULL == actual_render->next->rm_msg) {
      exit (could_not_allocate_memory);
      // return could_not_allocate_memory;
    }
    memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
-   // printf("%p -> %p\n", actual_render, actual_render->next);
    strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
    actual_render->next->rm_type = src_type;
+   // fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
    actual_render = actual_render->next;
+   assert(actual_render != NULL);
+   assert(actual_render->rm_msg != NULL);
+   actual_render->next=NULL;
    *pointer = actual_render;
    return is_valid;
 }
 
-
+void __clean_render_pipeline( retmsg_t * pointer ) {
+   assert(pointer != NULL);
+   retmsg_t * next = pointer->next;
+   if (NULL != pointer->rm_msg) {
+     free( pointer->rm_msg);
+     pointer->rm_msg = NULL;
+   }
+   free( pointer );
+   pointer = NULL;
+   if (NULL != next)
+     __clean_render_pipeline( next );
+}
 
 
 /* 
@@ -256,7 +269,7 @@ returncode_t tifp_check( ctiff_t * ctif) {
   if (NULL == ctif) { return code_error_ctif_empty; };
   if (0 > ctif->fd) { return code_error_filedescriptor_empty; };
   if (NULL == ctif->streamp) { return code_error_streampointer_empty; };
-  return should_not_occure;
+  return should_not_occur;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

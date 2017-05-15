@@ -8,18 +8,17 @@
 
 #include "check.h"
 #include "check_helper.h"
+#include <assert.h>
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
-  ret_t ret;
-  ret.value_found = malloc(VALUESTRLEN);
-  if (NULL == ret.value_found) {
-    ret.returncode=could_not_allocate_memory;
-    return ret;
-  }
+  GET_EMPTY_RET(ret)
 
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  assert(ret.returncode != should_not_occur);
+  if (ret.returncode != is_valid) return ret;
 
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
@@ -95,16 +94,16 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_XRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     case TIFFTAG_YRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     default: {
-#ifdef WARN
+#ifdef DEBUG
                printf("for tag %i no explicite type check implemented\n");
 #endif
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagwarn_type_of_unknown_tag_could_not_be_checked;
                return ret;
              };
   }
   if (!res) {
-               ret.value_found = strncpy(ret.value_found, TIFFTypeName(datatype), VALUESTRLEN);
+               ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
   } else {
@@ -112,7 +111,8 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
                return ret;
   }
   /* we check only count, because we evaluate only int-values */
-  ret.returncode = should_not_occure;
+  ret.returncode = should_not_occur;
+  assert(ret.returncode != should_not_occur);
   return ret;
 }
 
