@@ -50,5 +50,5 @@ void __clean_render_pipeline( retmsg_t * pointer );
   ret_t ret; \
   ret.value_found = NULL; \
   ret.logical_or_count = 0; \
-  ret.returncode = should_not_occur; \
+  ret.returncode = should_not_occur;
 #endif
