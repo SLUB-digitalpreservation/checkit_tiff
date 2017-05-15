@@ -193,7 +193,7 @@ void reduce_results() {
     //assert(logc >= 0);
     int has_errors=0;
     if (logical_or_count > 0) {
-      logc= logical_or_count; // + 1;
+      logc= logical_or_count+1; // + 1;
 #ifdef DEBUG
 printf("\tlogc'=%i", logc);
 #endif
