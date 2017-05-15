@@ -31,13 +31,15 @@ ok( call_checkit_check_config("2^8; mandatory; any\n") , "simple 2^8 mandatory a
 ok( call_checkit_check_config("256; mandatory; any\n") , "simple tag mandatory any");
 ok( call_checkit_check_config("256; mandatory; only(1)\n") , "simple tag mandatory only(1)");
 ok( call_checkit_check_config("256; mandatory; ntupel(1,1,1)\n") , "simple tag mandatory ntupel(1,1,1)");
+
+# for supported regexes, see http://www.pcre.org/current/doc/html/pcre2syntax.html
 ok( call_checkit_check_config("256; mandatory; regex(\"string\")\n") , "simple tag mandatory regex(\"string\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"^string\")\n") , "simple tag mandatory regex(\"^string\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"string\$\")\n") , "simple tag mandatory regex(\"string\$\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"^string\$\")\n") , "simple tag mandatory regex(\"^string\$\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"s*\")\n") , "simple tag mandatory regex(\"s*\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"s?\")\n") , "simple tag mandatory regex(\"s?\")");
-ok( call_checkit_check_config("256; mandatory; regex(\"s\\+\")\n") , "simple tag mandatory regex(\"s\\+\")");
+ok( call_checkit_check_config("256; mandatory; regex(\"s+\")\n") , "simple tag mandatory regex(\"s+\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"[A-Z]\")\n") , "simple tag mandatory regex(\"[A-Z]\")");
 ok( call_checkit_check_config("256; mandatory; regex(\"[^A-Z]\")\n") , "simple tag mandatory regex(\"[^A-Z]\")");
 ok( call_checkit_check_config("256; mandatory; range(1,100)\n") , "simple tag mandatory range(1,100)");
