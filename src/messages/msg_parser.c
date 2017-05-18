@@ -30,7 +30,8 @@ const char * get_parser_function_description( function_t f ) {
     case fc_all_offsets_are_word_aligned: return "All tag offsets should be word aligned,"; break;
     case fc_all_offsets_are_used_once_only: return "All offsets may only be used once,"; break;
     case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned,"; break;
-    case fc_internal_logic_combine: return "One or more conditions needs to be combined in a logical_or operation"; break;
+    case fc_internal_logic_combine_open: return "One or more conditions needs to be combined in a logical_or operation (open)"; break;
+    case fc_internal_logic_combine_close: return "One or more conditions needs to be combined in a logical_or operation (close)"; break;
     case fc_dummy: return "Dummy."; break;
   }
   return "missed function description, should not occur";
@@ -87,7 +88,8 @@ const char * get_parser_error_description( returncode_t r ) {
     case parser_logicalor_error: return "internal error: parser error in logical_or rule"; break;
     case tagerror_expected_offsetdata: return "Expected offset data but found actual values encoded in tag."; break;
     case tagerror_count_results_in_offsets_overflow: return "Tag counts n elements, but resulting offset exceeds 4GB size"; break;
-    case parser_logical_combine: return "combine multiple rules with logical or"; break;
+    case parser_logical_combine_open: return "internal parser state, combine multiple rules with logical or opened"; break;
+    case parser_logical_combine_close: return "internal parser state, combine multiple rules with logical or closed"; break;
 
   }
   assert( r == is_valid ); /* missed error description, should not occur */

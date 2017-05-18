@@ -95,8 +95,7 @@ void result_printstack() {
 
   for (int i = 0; i < parser_state.result_stackp; i++) {
     full_res_t full_result = parser_state.result_stack[i];
-    printf("i=%i fclogc=%i lineno=%i tag=%i func=%s (%i) returncode=%s (%i)\n", i,
-        full_result.logical_or_count,
+    printf("i=%i lineno=%i tag=%hu func=%s (%i) returncode=%s (%i)\n", i,
         full_result.lineno,
         full_result.tag,
         get_parser_function_description(full_result.function),
@@ -138,7 +137,7 @@ void exe_printstack () {
   CHECKUNDERFLOW(&parser_state, exe);
   printf("=== BEGIN exe_printstack\n");
   for (int j=0; j< parser_state.exe_stackp; j++) {
-    printf(" exe-stack value[ %i ] --> {\n\tlineno=%i\n\tis_precondition=%s (%i)\n\ttag=%i\n\tfunction_used=%s (%i)\n",
+    printf(" exe-stack value[ %i ] --> {\n\tlineno=%i\n\tis_precondition=%s (%i)\n\ttag=%hu\n\tfunction_used=%s (%i)\n",
         j,
         parser_state.exe_stack[j].lineno,
 		(parser_state.exe_stack[j].is_precondition == true?"true":"false"),
@@ -150,7 +149,7 @@ void exe_printstack () {
     /*  print i_stack */
     if ( parser_state.exe_stack[j].i_stackp >=0 &&  parser_state.exe_stack[j].i_stackp<=MAXSTACKDEPTH) {
       for (int i=0; i < parser_state.exe_stack[j].i_stackp; i++) {
-        printf("\ti_stack[%i]=%i\n", i, parser_state.exe_stack[j].i_stack[i]);
+        printf("\ti_stack[%i]=%u\n", i, parser_state.exe_stack[j].i_stack[i]);
       }
     }
     /*  print regex_stack */
@@ -163,6 +162,8 @@ void exe_printstack () {
   }
   printf("=== END exe_printstack\n");
 }
+
+
 /*  reduce results */
 void reduce_results() {
 #ifdef DEBUG
@@ -178,74 +179,41 @@ void reduce_results() {
     exit(EXIT_FAILURE);
   }
   int tmpc=0;
-  int logc=0;
   for (int i = 0; i < parser_state.result_stackp; i++) {
     full_res_t full_result = parser_state.result_stack[i];
-    int logical_or_count = full_result.logical_or_count;
     
-    
+
 #ifdef DEBUG
-    printf("reduce i=%i tmpc=%i logc=%i fclogc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, logc, full_result.logical_or_count, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
+    printf("reduce i=%i tmpc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
     if (full_result.found_value != NULL) { printf("\tvalue='%s'\n", full_result.found_value);}
 #endif
-    assert(full_result.logical_or_count <= 20);
-    assert(full_result.logical_or_count >= 0);
-    //assert(logc >= 0);
+    if (full_result.returncode == parser_logical_combine_open) {
+        /* check all values until parser_logical_close found */
+        bool_t one_result_is_ok = false;
+        for (int j = i; j < parser_state.result_stackp; j++) {
+            full_res_t l_full_result = parser_state.result_stack[j];
+            if (l_full_result.returncode == parser_logical_combine_close) {
+                if (one_result_is_ok == true) {
+                    i=j+1;
+                    full_result.returncode = is_valid;
+                }
+                break;
+            } else { /* combine results via OR */
+                if (l_full_result.returncode == is_valid) {
+                    one_result_is_ok = true;
+                }
+            }
+        }
+    }
+    
     int has_errors=0;
-    if (logical_or_count > 0) {
-      logc= logical_or_count+1; // + 1;
-#ifdef DEBUG
-printf("\tlogc'=%i", logc);
-#endif
-      /* check from here to end for n entries and mark them as logicalerror if
-       * all fails
-       */
-      for (int j = i+1; j < i+logc; j++) {
-#ifdef DEBUG
-        printf(".... j=%i error=%s\n", j, (parser_state.result_stack[j].returncode != is_valid)?"yes":"no");
-#endif
-        if (parser_state.result_stack[j].returncode != is_valid) {
-          has_errors++;
-        } else if (parser_state.result_stack[j].returncode == is_valid) {
-          break;
-        }
-      }
-#ifdef DEBUG
-      printf("found %i logical or errors (i=%i) logical_or_count=%i\n", has_errors, i, logical_or_count);
-#endif
-      if (logical_or_count > has_errors) { // ok, at least one result is valid
-#ifdef DEBUG
-        printf("\t erasing errors from j=%i < %i\n", i, i+logc);
-#endif
-
-        for (int j = i; j < i+logc; j++) {
-#ifdef DEBUG
-          printf("j=%i\n", j);
-#endif
-          if (
-              (parser_state.result_stack[j].function != fc_internal_logic_combine) &&
-              (parser_state.result_stack[j].returncode == is_valid)) {
-#ifdef DEBUG
-            printf("cp full @j=%i\n", j);
-#endif
-            full_result = parser_state.result_stack[j];
-            tmp[tmpc++]=full_result;
-          }
-          parser_state.result_stack[j].returncode=is_valid;
-        }
-        i+=(logc-1);
-        logc=0;
-      }
-    }  else
-    if (full_result.returncode != is_valid) {
+       if (full_result.returncode != is_valid) {
       /* push to tmp */
-      if (logc > 0) full_result.returncode = parser_logicalor_error;
       tmp[tmpc++]=full_result;
     } else {
       // is valid
 	    tmp[tmpc++]=full_result;
     }
-    logc--;
   }
   /*  copy back */
   for (int i = 0; i <= tmpc; i++) {
@@ -384,14 +352,12 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
 	        case fc_all_offsets_are_word_aligned:   { ret = check_all_offsets_are_word_aligned(ctif); break;}
 	        case fc_all_offsets_are_used_once_only: { ret = check_all_offsets_are_used_once_only(ctif); break;}
 	        case fc_all_IFDs_are_word_aligned:      { ret = check_all_IFDs_are_word_aligned(ctif); break;}
-	        case fc_internal_logic_combine:         { break; }
+	        case fc_internal_logic_combine_open:    { ret.returncode = parser_logical_combine_open ; break; }
+	        case fc_internal_logic_combine_close:   { ret.returncode = parser_logical_combine_close ; break; }
 	        default: {
 	                   GET_EMPTY_RET(res)
 	                   res.value_found = __ch_malloc(res.value_found);
 	                   fprintf(stderr, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
-	#ifdef EXE_DEBUG
-	                   exe_printstack();
-	#endif
 	                   exit(parser_error_wrong_function_found_in_parser_state_exe_stack);
 	                   ;
 	                 }
@@ -421,7 +387,6 @@ void execute_plan (ctiff_t * ctif) {
   int precondition_result=is_valid;
   bool_t last_run_was_a_precondition=false;
   function_t precondition_function=fc_true;
-  int count_of_logical_or=0;
   for (int i = MINTAGS; i<MAXTAGS; i++) { /* mark all tags as "unprocessed" */
     parser_state.called_tags[i]=false;
   }
@@ -458,26 +423,16 @@ void execute_plan (ctiff_t * ctif) {
     printf("should we go in fc call? %s\n",  ( /* last was sucessfull precondition */
 			    should_we_go_in_fc_call)?"true":"false");
     printf("parsing function %s (%i) (linecode=%i)\n", get_parser_function_description( exe.function), exe.function, exe.lineno);
-#endif
-    if (exe.function == fc_internal_logic_combine) {
-      /* TODO: combine n results */
-      int count = exe_i_pop(&exe);
-      count_of_logical_or=count;
-      ret.logical_or_count= count;
-      if (NULL != ret.value_found) {
-        free( ret.value_found );
-        ret.value_found = NULL;
-      }
-      ret.returncode = parser_logical_combine;
-      ret.value_found = __ch_malloc( ret.value_found);
-      snprintf (ret.value_found, VALUESTRLEN-1, "logical_or %i", count);
-    }
 
+ #endif
     if ( should_we_go_in_fc_call ) { /* if true, execute function */
       ret = call_exec_function(ctif,  &ret, &exe );
-      if (exe.function != fc_internal_logic_combine) { ret.logical_or_count = 0; }
 #ifdef EXE_DEBUG
       printf("ret.returncode=%i, exe.is_precondition=%i is_valid=%i", ret.returncode, exe.is_precondition, is_valid);
+      if (exe.function == fc_tag_has_valid_type) {
+        printf("SSS tag %i has valid type: %i==%i (%s)\n", exe.tag, ret.returncode, is_valid, ret.value_found);
+      }
+
 #endif
       if (false == exe.is_precondition) {
 	      if (exe.tag >= MINTAGS && exe.tag <= (MAXTAGS-1)) parser_state.called_tags[exe.tag]=true; /* mark tag that it has a rule */
@@ -510,7 +465,6 @@ void execute_plan (ctiff_t * ctif) {
         full.function=exe.function;
         full.lineno=exe.lineno;
         full.returncode=ret.returncode;
-        full.logical_or_count=ret.logical_or_count;
         full.expected_value=NULL;
         full.found_value=NULL;
         /*
@@ -533,16 +487,31 @@ void execute_plan (ctiff_t * ctif) {
 #ifdef EXE_DEBUG
       printf(" precondition_result=%i\n", precondition_result);
 #endif
-    } else { // if precondition fails, return precondition if they have unexpected value!
-	    if (last_run_was_a_precondition) {
-		    ret.returncode = is_valid;
-	    }
-    }
-    if (count_of_logical_or > 0) {
-	    count_of_logical_or--;
-    } else {
-	    last_run_was_a_precondition=exe.is_precondition;
-    }
+        } else { // if precondition fails, return precondition if they have unexpected value!
+            if (true == last_run_was_a_precondition) {
+#ifdef EXE_DEBUG
+                    printf("\t\t\t\t\t\t\t####################################\n");
+                    printf("exe function: %s\n", get_parser_function_description(exe.function));
+#endif
+                if (exe.function == fc_internal_logic_combine_open) { /* clean logical or if precondition fails */
+                
+                    do {
+                        internal_entry_t l_exe = exe_pop();
+#ifdef EXE_DEBUG
+                        printf("~~~ eliminating Logicals because PRE fails: %s\n", get_parser_function_description(l_exe.function));
+#endif
+
+                        if (l_exe.function == fc_internal_logic_combine_close) break;
+                    } while (parser_state.exe_stackp > 0);
+#ifdef EXE_DEBUG
+                    printf("\t\t\t\t\t\t\t# ende\n");
+#endif
+                }
+
+                ret.returncode = is_valid;
+            }
+        }
+    last_run_was_a_precondition=exe.is_precondition;    
     assert( ret.returncode != should_not_occur );
 #ifdef EXE_DEBUG
     if (ret.returncode == is_valid) {
@@ -573,7 +542,6 @@ void execute_plan (ctiff_t * ctif) {
         full.returncode=res.returncode;
         full.expected_value=NULL;
         full.found_value=NULL;
-        full.logical_or_count=0;
         result_push( full );
       }
     }
@@ -708,16 +676,9 @@ void reset_valuelist() {
 void incr_values () {
   parser_state.valuelist++;
 }
-/* helper function for parser */
-void reset_logical_list() {
-  parser_state.lelist = 0;
-}
-/* helper function for parser */
-void incr_logical_elements () {
-  parser_state.lelist++;
-}
 
 
+/* prepare functions for preconditions */
 internal_entry_t prepare_internal_entry() {
   internal_entry_t p;
   p.i_stackp=0;
@@ -760,84 +721,18 @@ internal_entry_t prepare_internal_entry() {
 }
 
 
-void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
-  switch ( req ) {
-      case ifdepends: {
-                        internal_entry_t p = prepare_internal_entry();
-                        exe_push(e);
-                        if (parser_state.mode & mode_enable_type_checks) {
-                          internal_entry_t z = e;
-                          z.is_precondition=true;
-                          z.function = fc_tag_has_valid_type;
-                          exe_push(z);
-                        }
-                        exe_push(p);
-                        break;
-                      }
-      case mandatory: {
-                        exe_push(e);
-                        if (parser_state.mode & mode_enable_type_checks) {
-                          internal_entry_t z = e;
-                          z.is_precondition=true;
-                          z.function = fc_tag_has_valid_type;
-                          exe_push(z);
-                        }
-                        break;
-                      }
-      case optional: {
-                       internal_entry_t p = prepare_internal_entry();
-                       exe_push(e);
-                       if (parser_state.mode & mode_enable_type_checks) {
-                         internal_entry_t z = e;
-                          z.is_precondition=true;
-                          z.function = fc_tag_has_valid_type;
-                          exe_push(z);
-                       }
-                       exe_push(p);
-                       break;
-                     }
-      case optdepends: {
-                         internal_entry_t pp;
-                         pp.i_stackp=0;
-                         pp.regex_stackp=0;
-                         pp.lineno=getlineno();
-                         pp.is_precondition=true;
-                         pp.tag=e.tag;
-                         pp.function=fc_tag_quiet;
 
-                         internal_entry_t p = prepare_internal_entry();
-                         exe_push(e);
-                         if (parser_state.mode & mode_enable_type_checks) {
-                           internal_entry_t z = e;
-                           z.is_precondition=true;
-                           z.function = fc_tag_has_valid_type;
-                           exe_push(z);
-                         }
-                         exe_push(p);
-                         exe_push(pp);
-                         break;
-                       }
-      default:
-                       {
-                         fprintf(stderr, "unknown parserstate.req (%i), should not occure\n", parser_state.req);
-                         exit(EXIT_FAILURE);
-                       }
-    }
-}
-
-void build_functional_structure(internal_entry_t * e_p, values_t val) {
-   switch ( val ) {
-      case range: {
+void build_functional_structure__range(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                     printf("range found\n");
 #endif
                     exe_i_push(e_p, i_pop() );
                     exe_i_push(e_p, i_pop() );
                     e_p->function=fc_tag_has_value_in_range;
-                    break;
-                  }
-      case ntupel: {
-#ifdef RULE_DEBUG
+}
+
+void build_functional_structure__ntupel(internal_entry_t * e_p) {
+    #ifdef RULE_DEBUG
                     printf("ntupel found\n");
 #endif
                      int c = i_pop();
@@ -846,72 +741,222 @@ void build_functional_structure(internal_entry_t * e_p, values_t val) {
                      }
                      exe_i_push(e_p, c);
                      e_p->function=fc_tag_has_valuelist;
-                     break;
-                   }
-      case only: {
+}
+void build_functional_structure__only(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                     printf("only found\n");
 #endif
                    exe_i_push(e_p, i_pop() );
                    e_p->function=fc_tag_has_value;
-                   break;
-                 }
-      case any: {
+}
+
+void build_functional_structure__any(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                     printf("any found\n");
 #endif
                   e_p->function=fc_tag;
-                  break;
-                }
-      case regex: {
+}
+
+void build_functional_structure__regex(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                     printf("regex found\n");
 #endif
                     exe_regex_push(e_p, r_pop());
                     e_p->function=fc_tag_has_value_matching_regex;
-                    break;
-                  }
-                  /* TODO:
-      case sbit: {
-#ifdef RULE_DEBUG
-                   printf("sbit found\n");
-#endif
-                    exe_regex_push(e_p, r_pop());
-                    e_p->function=fc_tag_has_value;
-                    break;
-                  }
-                  */
-      case iccprofile: {
+}
+
+void build_functional_structure__iccprofile(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                          printf("iccprofile found\n");
 #endif
                          e_p->function=fc_icc;
-                         break;
-                       }
-      case datetime: {
+}
+
+void build_functional_structure__datetime(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                        printf("datetime found\n");
 #endif
                        e_p->function=fc_datetime;
-                       break;
-                     }
-      case printable_ascii: {
+}
+
+void build_functional_structure__printable_ascii(internal_entry_t * e_p) {
 #ifdef RULE_DEBUG
                               printf("printable_ascii found\n");
 #endif
                               exe_regex_push(e_p, "^[[:print:]]*$");
                               e_p->function=fc_tag_has_value_matching_regex;
-                              break;
-                            }
-      default:
-                  fprintf(stderr, "unknown val %i, should not occure\n", val);
-                  exit(EXIT_FAILURE);
+}
+/* builds an entry structure holding function and their values */
+void build_functional_structure(internal_entry_t * e_p, values_t val) {
+    switch (val) {
+        case range: 
+            build_functional_structure__range(e_p);
+            break;
+        case ntupel: 
+            build_functional_structure__ntupel(e_p);
+            break;
+        case only: 
+            build_functional_structure__only(e_p);
+            break;
+        case any: 
+            build_functional_structure__any(e_p);
+            break;
+        case regex: 
+            build_functional_structure__regex(e_p);
+            break;
+        case iccprofile: 
+            build_functional_structure__iccprofile(e_p);
+            break;
+        case datetime: 
+            build_functional_structure__datetime(e_p);
+            break;
+
+        case printable_ascii: 
+            build_functional_structure__printable_ascii(e_p);
+            break;
+            /* TODO:
+            case sbit: {
+            #ifdef RULE_DEBUG
+       printf("sbit found\n");
+            #endif
+        exe_regex_push(e_p, r_pop());
+        e_p->function=fc_tag_has_value;
+        break;
+      }
+             */
+        default:
+            fprintf(stderr, "unknown val %i, should not occure\n", val);
+            exit(EXIT_FAILURE);
     }
 }
 
-void rule_add_logical_config() {
+/* adds preconditions to stack, first comes the real function, than the preconditions! */
+void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
+    assert( e.function != fc_dummy);
+#ifdef RULE_DEBUG
+    printf("eval e=%s\n", get_parser_function_description(e.function));
+#endif
+    
+    if (e.function == fc_internal_logic_combine_close) {
+#ifdef RULE_DEBUG
+        printf("\n### eval req logical close found\n");
+#endif
+        e.function = fc_internal_logic_combine_close;
+                exe_push(e); // TODO: exe_push(e); /* <-- logical close */
+                // TODO: exe_push(e); /* <--   real rule(s) */
+                for (int i = 0; i< parser_state.logical_elements; i++) {
+                    values_t val = v_pop();
+                    e.function = fc_dummy;
+                    build_functional_structure(&e, val); /* <-- this builds the tiff test */
+#ifdef RULE_DEBUG                    
+                    printf("###### i=%i e=%s\n", i, get_parser_function_description(e.function));
+#endif
+                    exe_push(e);
+                };
+                e.function=fc_internal_logic_combine_open;
+    }
+    exe_push(e);
+    switch (req) {
+        case ifdepends:
+        {
+            internal_entry_t p = prepare_internal_entry();
+
+            if (parser_state.mode & mode_enable_type_checks) {
+                internal_entry_t z = e;
+                z.is_precondition = true;
+                z.function = fc_tag_has_valid_type;
+                exe_push(z);
+            }
+            exe_push(p);
+            break;
+        }
+        case mandatory:
+        {
+
+            if (parser_state.mode & mode_enable_type_checks) {
+                internal_entry_t z = e;
+                z.is_precondition = true;
+                z.function = fc_tag_has_valid_type;
+                exe_push(z);
+            }
+            break;
+        }
+        case optional:
+        {
+            internal_entry_t p = prepare_internal_entry();
+
+            if (parser_state.mode & mode_enable_type_checks) {
+                internal_entry_t z = e;
+                z.is_precondition = true;
+                z.function = fc_tag_has_valid_type;
+                exe_push(z);
+            }
+            exe_push(p);
+            break;
+        }
+        case optdepends:
+        {
+            internal_entry_t pp;
+            pp.i_stackp = 0;
+            pp.regex_stackp = 0;
+            pp.lineno = getlineno();
+            pp.is_precondition = true;
+            pp.tag = e.tag;
+            pp.function = fc_tag_quiet;
+
+            internal_entry_t p = prepare_internal_entry();
+
+            if (parser_state.mode & mode_enable_type_checks) {
+                internal_entry_t z = e;
+                z.is_precondition = true;
+                z.function = fc_tag_has_valid_type;
+                exe_push(z);
+            }
+            exe_push(p);
+            exe_push(pp);
+            break;
+        }
+        default:
+        {
+            fprintf(stderr, "unknown parserstate.req (%i), should not occure\n", parser_state.req);
+            exit(EXIT_FAILURE);
+        }
+            
+    }
+}
+
+void set_rule_logical_open() {
 #ifdef RULE_DEBUG
   printf("rule_add_logical_config\n");
+#endif
+  /*
+  internal_entry_t e;
+  e.tag = parser_state.tag;
+  e.i_stackp=0;
+  e.regex_stackp=0;
+  e.lineno=getlineno();
+  e.is_precondition=false;
+  e.function=fc_internal_logic_combine_open;
+  //exe_push(e);
+   */
+  parser_state.within_logical_or=true;
+  //evaluate_req_and_push_exe( parser_state.req, e);
+  //rule_addtag_config();
+  
+}
+
+void incr_logical_elements() {
+#ifdef RULE_DEBUG
+  printf("incr logical elements to %i\n",  parser_state.logical_elements+1);
+#endif
+
+  parser_state.logical_elements++;
+}
+
+/* helper function for parser */
+void set_rule_logical_close() {
+#ifdef RULE_DEBUG
+  printf("reset_logical_list\n");
 #endif
   internal_entry_t e;
   e.tag = parser_state.tag;
@@ -919,55 +964,11 @@ void rule_add_logical_config() {
   e.regex_stackp=0;
   e.lineno=getlineno();
   e.is_precondition=false;
-  e.function=fc_internal_logic_combine;
-  if (parser_state.mode & mode_enable_type_checks) {
-    exe_i_push(&e, 2*parser_state.lelist); /* because type checking adds a precondition to *each* variant */
-  } else {
-    exe_i_push(&e, parser_state.lelist);
-  }
-
-  /* stack should be organized as:
-   * [ruleA]
-   * [ruleB]
-   * [logicalorAB]       <- combines ruleA and ruleB with OR
-   * [preconditionAB]    <- optional
-   * [prepreconditionAB] <-optional
-   */
-  do {
-#ifdef RULE_DEBUG
-    printf("was ist noch auf stacks?\n");
-    printf("--------->\n");
-    v_printstack();
-    i_printstack();
-    r_printstack();
-    printf("<---------\n");
-    printf("auf exe stack ist nun:\n");
-    printf("--------->\n");
-    exe_printstack();
-    printf("<---------\n");
-#endif
-    values_t val = v_pop();
-    /* set predicate if and only if lastreq = depends */
-    /* HINT: order of evaluating last val and last req is IMPORTANT! */
-    /* HINT: order of calling arguments from stacks is IMPORTANT! */
-    internal_entry_t c;
-    c.tag = parser_state.tag;
-    c.is_precondition=false;
-    c.i_stackp=0;
-    c.regex_stackp=0;
-    c.lineno=getlineno();
-    build_functional_structure(&c, val);
-    evaluate_req_and_push_exe( mandatory , c);
-  } while ( parser_state.val_stackp > 0);
-
+  e.function=fc_internal_logic_combine_close;
+  //exe_push(e);
   evaluate_req_and_push_exe( parser_state.req, e);
-#ifdef RULE_DEBUG
-  printf("auf exe2 (logical) stack ist nun:\n");
-    printf("--------->\n");
-  exe_printstack();;
-    printf("<---------\n");
-#endif
-
+  parser_state.within_logical_or=false;
+  parser_state.logical_elements=0;
 }
 
 /* this adds the config of a tagline to execution plan
@@ -1023,16 +1024,19 @@ void rule_addtag_config() {
       printf("-----\n");
 #endif
       e.function = fc_dummy;
-      build_functional_structure(&e, val);
+      build_functional_structure(&e, val); /* <-- this builds the tiff test */
       /* set predicate if and only if lastreq = depends */
       /* HINT: order of evaluating last val and last req is IMPORTANT! */
       /* HINT: order of calling arguments from stacks is IMPORTANT! */
-      evaluate_req_and_push_exe( parser_state.req, e);
+      evaluate_req_and_push_exe( parser_state.req, e); /* <-- this sets the predicates */
     } while ( parser_state.val_stackp > 0);
     reset_valuelist();
     parser_state.any_reference = 0;
 #ifdef RULE_DEBUG
+    printf("ENDE rule_addtag\n");
     exe_printstack();
+    printf("\n\n\n");
+
 #endif
   }
 }
@@ -1040,7 +1044,7 @@ void rule_addtag_config() {
 /* set_mode */
 void set_mode(modes_t mode) {
 #ifdef RULE_DEBUG
-	printf("Mode=%s at line=%i (needs to be implemented)\n", mode, parser_state.lineno );
+	printf("Mode=%i at line=%i (needs to be implemented)\n", mode, parser_state.lineno );
 #endif
   internal_entry_t e;
   e.i_stackp=0;
@@ -1082,7 +1086,6 @@ void reset_parser_state() {
   parser_state.exe_stackp=0;
   parser_state.includedepth=0;
   parser_state.i_stackp=0;
-  parser_state.lelist=0;
   parser_state.lineno=1;
   parser_state.regex_stackp=0;
   parser_state.req=0;
@@ -1092,6 +1095,8 @@ void reset_parser_state() {
   parser_state.val_stackp=0;
   parser_state.valuelist=0;
   parser_state.mode=0;
+  parser_state.within_logical_or=false;
+  parser_state.logical_elements=0;
   for (int i=0; i<MAXTAGS; i++) {
         parser_state.called_tags[i]= false;
   }
@@ -1200,7 +1205,6 @@ void clean_plan_results() {
       free(  parser_state.result_stack[i].expected_value );
       parser_state.result_stack[i].expected_value=NULL;
     }
-    parser_state.result_stack[i].logical_or_count=0;
   }
 }
 

@@ -53,7 +53,8 @@ typedef enum {
   fc_all_offsets_are_word_aligned,
   fc_all_offsets_are_used_once_only,
   fc_all_IFDs_are_word_aligned,
-  fc_internal_logic_combine,
+  fc_internal_logic_combine_open,
+  fc_internal_logic_combine_close,
   fc_dummy
 } function_t;
 
@@ -77,7 +78,6 @@ typedef struct full_res_s {
   function_t function;
   char * expected_value;
   char * found_value;
-  int logical_or_count;
   returncode_t returncode;
 } full_res_t;
 
@@ -85,7 +85,6 @@ typedef struct parser_state_s {
   // TODO: Anzahl le-Werte für Tupel in Stack speichern
   int lineno;
   int valuelist;
-  int lelist;
   tag_t tag;
   tag_t tagref;
   values_t val_stack[MAXSTACKDEPTH];
@@ -105,6 +104,8 @@ typedef struct parser_state_s {
   int exe_stackp;
   internal_entry_t exe_stack[MAXSTACKDEPTH];
   int mode;
+  bool_t within_logical_or;
+  int logical_elements;
 } parser_state_t;
 
 void _helper_push_result(full_res_t res);

@@ -19,15 +19,18 @@ ModeLine        <- 'mode' OpenBracket < Mode > ClosingBracket  { int i = i_pop()
                  / 'mode' OpenBracket                          { set_parse_error( "modeline requires a mode", yytext); }
                  / 'mode'                                      { set_parse_error( "modeline requires an open bracket", yytext); }
 
-LogicalOr       <- 'logical_or' OpenBracket LogicalOrList ClosingBracket { rule_add_logical_config(); reset_logical_list();}
+LogicalOr       <- 'logical_or' LogicalOrOpen LogicalOrList LogicalOrClose
 
-LogicalOrListElement   <- Any                                  { v_push( any );incr_logical_elements(); }
-                 / Range                                       { v_push( range);incr_logical_elements();  }
-                 / Only                                        { v_push( only );incr_logical_elements();  }
-                 / Number                                      { v_push( only );incr_logical_elements();  }
-                 / NTupel                                      { v_push( ntupel); reset_valuelist(); incr_logical_elements(); }
-                 / RegEx                                       { v_push( regex );incr_logical_elements();  }
-                 / PrintableAscii                              { v_push( printable_ascii );incr_logical_elements();  }
+LogicalOrOpen   <- OpenBracket                                 { set_rule_logical_open();}
+LogicalOrClose  <- ClosingBracket                              { }
+
+LogicalOrListElement   <- Any                                  { v_push( any ); incr_logical_elements();}
+                 / Range                                       { v_push( range); incr_logical_elements();}
+                 / Only                                        { v_push( only ); incr_logical_elements();}
+                 / Number                                      { v_push( only ); incr_logical_elements();}
+                 / NTupel                                      { v_push( ntupel); incr_logical_elements();}
+                 / RegEx                                       { v_push( regex ); incr_logical_elements();}
+                 / PrintableAscii                              { v_push( printable_ascii ); incr_logical_elements();}
                  / < MiscUntilEOL >                            { set_parse_error("wrong values-keyword", yytext);}
 LogicalOrList   <- LogicalOrListElement (Colon LogicalOrListElement)*
 
@@ -39,6 +42,7 @@ Mode            <- 'baseline'                                  { i_push(mode_bas
                  / MiscUntilEOL                                { set_parse_error("mode expects either 'baseline' or 'enhanced'", yytext); }
 
 TagLine         <- Tag Semicolon Requirements Semicolon Content { rule_addtag_config();  }
+                 / Tag Semicolon Requirements Semicolon LogicalOr { set_rule_logical_close(); }
                  / Tag Semicolon Requirements Semicolon        { set_parse_error("tagline requires content", yytext); }
                  / Tag Semicolon Requirements                  { set_parse_error("tagline expects missed semicolon here", yytext); }
                  / Tag Semicolon                               { set_parse_error("tagline requires a requiemrent-keyword (mandatory, etc.)",yytext); }
@@ -82,7 +86,6 @@ OptDepends      <- 'optdepends' OpenBracket TagReference Dot ValueReference Clos
 
 Content          <- Any                                         { v_push( any ); }
                  / Range                                       { v_push( range); }
-                 / LogicalOr
                  / Only                                        { v_push( only ); }
                  / NTupel                                      { v_push( ntupel ); reset_valuelist() }
                  / RegEx                                       { v_push( regex ); }
@@ -90,7 +93,6 @@ Content          <- Any                                         { v_push( any );
                  / Datetime                                    { v_push( datetime ); }
                  / Iccprofile                                  { v_push( iccprofile ); }
 #                 / SBit                                        { v_push( sbit ); }
-                 / < MiscUntilEOL >                            { set_parse_error("wrong values-keyword", yytext);}
 Range           <- 'range' OpenBracket Number Colon Number ClosingBracket
                  / 'range' OpenBracket Number Colon Number     { set_parse_error("'range' expects a closing bracket", yytext); }
                  / 'range' OpenBracket Number Colon            { set_parse_error("'range' expects a number", yytext); }

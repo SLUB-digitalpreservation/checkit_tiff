@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
 
 typedef int thandle_t;
 
@@ -98,7 +99,8 @@ typedef enum {
   parser_logicalor_error,
   tagerror_expected_offsetdata,
   tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
-  parser_logical_combine, /* if fc_logicalcombine was called first (no error) */
+  parser_logical_combine_open, /* if fc_logicalcombine was called first (no error) */
+  parser_logical_combine_close, /* if fc_logicalcombine was called first (no error) */
 
 
 } returncode_t;
