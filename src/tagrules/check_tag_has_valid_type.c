@@ -102,6 +102,9 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
                return ret;
              };
   }
+#ifdef DEBUG
+  printf("for tag %i found datatype=%s, res=%i\n", tag, TIFFTypeName(datatype), res);
+#endif
   if (!res) {
                ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagerror_unexpected_type_found;
