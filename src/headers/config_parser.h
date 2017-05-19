@@ -61,6 +61,7 @@ typedef enum {
 #define INTERNALSTACKDEPTH 10
 typedef struct internal_entry_s {
   int lineno;
+  char * line;
   bool_t is_precondition;
   tag_t tag;
   function_t function;
@@ -84,6 +85,7 @@ typedef struct full_res_s {
 typedef struct parser_state_s {
   // TODO: Anzahl le-Werte für Tupel in Stack speichern
   int lineno;
+  char * line;
   int valuelist;
   tag_t tag;
   tag_t tagref;

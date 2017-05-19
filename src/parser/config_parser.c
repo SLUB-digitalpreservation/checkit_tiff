@@ -130,6 +130,39 @@ const char * r_pop () { const char * v; POP(&parser_state, regex, v); return v; 
 void exe_push (internal_entry_t i) { PUSH(&parser_state, exe, i);}
 internal_entry_t exe_pop () { internal_entry_t e; POP(&parser_state, exe, e); return e; }
 
+void exe_printstack_human_readable () {
+  CHECKOVERFLOW(&parser_state, exe);
+  CHECKUNDERFLOW(&parser_state, exe);
+
+  for (int j=0; j< parser_state.exe_stackp; j++) {
+      const char * line;
+      if (NULL == parser_state.exe_stack[j].line) { line = ""; }
+      else {line = strndup(parser_state.exe_stack[j].line, 1024);}
+    printf("/* lineno=%i */\n/* rule=[%s] */\n", parser_state.exe_stack[j].lineno, line );
+    printf(" exe-stack value[ %i ] --> {\n\tlineno=%i\n\tis_precondition=%s (%i)\n\ttag=%hu\n\tfunction_used=%s (%i)\n",
+        j,
+        parser_state.exe_stack[j].lineno,
+		(parser_state.exe_stack[j].is_precondition == true?"true":"false"),
+        parser_state.exe_stack[j].is_precondition,
+        parser_state.exe_stack[j].tag,
+        get_parser_function_description(parser_state.exe_stack[j].function),
+        parser_state.exe_stack[j].function
+        );
+    /*  print i_stack */
+    if ( parser_state.exe_stack[j].i_stackp >=0 &&  parser_state.exe_stack[j].i_stackp<=MAXSTACKDEPTH) {
+      for (int i=0; i < parser_state.exe_stack[j].i_stackp; i++) {
+        printf("\ti_stack[%i]=%u\n", i, parser_state.exe_stack[j].i_stack[i]);
+      }
+    }
+    /*  print regex_stack */
+    if ( parser_state.exe_stack[j].regex_stackp >=0 &&  parser_state.exe_stack[j].regex_stackp<=MAXSTACKDEPTH) {
+      for (int i=0; i < parser_state.exe_stack[j].regex_stackp; i++) {
+        printf("\tregex_stack[%i]=%s\n", i, parser_state.exe_stack[j].regex_stack[i]);
+      }
+    }
+    printf("}\n\n");
+  }
+}
 
 /* help function to print exe stack */
 void exe_printstack () {
@@ -572,6 +605,21 @@ int incrlineno() {
 /* helper function for parser */
 int getlineno() { return parser_state.lineno;}
 
+void copy_line( const char * line ) {
+    printf("copy line[%i] = '%s'\n", parser_state.lineno, line);
+    parser_state.line = strndup(line, 1024);
+}
+
+char * get_line() {
+    char * ret; 
+    if (NULL != parser_state.line) {
+        ret = strndup(parser_state.line, 1024);
+    } else {
+        ret = strndup("", 1024);
+    }
+    return ret;
+}
+
 /*
 int rule_tagorder_in_dsl( int tag ) {
   int prevtag = gettag();
@@ -684,6 +732,7 @@ internal_entry_t prepare_internal_entry() {
   p.i_stackp=0;
   p.regex_stackp=0;
   p.lineno=getlineno();
+  p.line=get_line();
   p.is_precondition=true;
   p.tag=parser_state.tagref;
   p.function=fc_tag_quiet;
@@ -900,6 +949,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
             pp.i_stackp = 0;
             pp.regex_stackp = 0;
             pp.lineno = getlineno();
+            pp.line=get_line();
             pp.is_precondition = true;
             pp.tag = e.tag;
             pp.function = fc_tag_quiet;
@@ -963,6 +1013,7 @@ void set_rule_logical_close() {
   e.i_stackp=0;
   e.regex_stackp=0;
   e.lineno=getlineno();
+  e.line=get_line();
   e.is_precondition=false;
   e.function=fc_internal_logic_combine_close;
   //exe_push(e);
@@ -982,6 +1033,7 @@ void rule_addtag_config() {
     e.i_stackp=0;
     e.regex_stackp=0;
     e.lineno=getlineno();
+    e.line=get_line();
     e.is_precondition=false; /*  no precondition as default */
     e.tag = parser_state.tag;
 
@@ -1050,6 +1102,9 @@ void set_mode(modes_t mode) {
   e.i_stackp=0;
   e.regex_stackp=0;
   e.lineno=getlineno();
+  e.line=get_line();
+  const char * line = (const char * ) get_line();
+  e.line = strndup(line, 1024);
   e.is_precondition=false; /*  no precondition as default */
   e.tag = parser_state.tag;
 
