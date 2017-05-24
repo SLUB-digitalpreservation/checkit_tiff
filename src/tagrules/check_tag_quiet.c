@@ -20,7 +20,7 @@ ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
       ret.returncode=is_valid;
   } else {
     char msg[VALUESTRLEN];
-    snprintf(msg, VALUESTRLEN, "tag %i is missed", tag);
+    snprintf(msg, VALUESTRLEN, "tag %i is missing", tag);
     ret = set_value_found_ret(&ret, msg);
     ret.returncode=tag_does_not_exist;
 
