@@ -15,6 +15,8 @@
 ret_t check_icc(ctiff_t * ctif ) {
   GET_EMPTY_RET(ret)
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, TIFFTAG_ICCPROFILE);
+  if (ret.returncode != is_valid) return ret;
 
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);
   uint32 icc_profile_size;
