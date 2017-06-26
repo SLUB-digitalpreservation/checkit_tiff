@@ -11,11 +11,12 @@
 #endif
 */
 #define FAIL(RETCODE, ...) {snprintf(errmessage, errsize, __VA_ARGS__); return RETCODE;};
-#define INFO(...) ;
+//#define INFO(...) ;
+#define INFO(...) fprintf(stderr,__VA_ARGS__);
 // TODO: errormessage pointer und maxsize übergeben
 
-
-icc_returncode_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage) {
+/*  parses common parts of ICC 2.4.0 / 4.3.0 and 5.0.0 (ICC MAX) headers */
+icc_returncode_t parse_icc_common_header(unsigned long iccsize, char * iccdata, unsigned long errsize, char * errmessage, icc_profile_version_t icc_profile_version) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
@@ -161,13 +162,35 @@ icc_returncode_t parse_icc_header_v240_v430(unsigned long iccsize, char * iccdat
   return icc_is_valid;
 }
 
-/* checks a ICC header, see chapter 7 of http://www.color.org/specification/ICC1v43_2010-12.pdf */
+
+/* checks a ICC header for ICC.1:2004-08, see chapter 6 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf
+ * it also allos older 2.x.x versions, but there is no spec available anymore.
+ * But we have checked 2.2.0 with 2.4.0, there is no difference in ICC profile
+ * header */
+icc_returncode_t parse_icc_v240(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
+  assert(iccdata != NULL);
+  assert(errmessage != NULL);
+  assert(errsize > 0);
+  if (iccsize < 128) FAIL (icc_error_header_v240_v430, "Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details");
+  int ret_header =  parse_icc_common_header( iccsize, iccdata, errsize, errmessage, icc_profile_v240_v430);
+  if (icc_is_valid != ret_header) return ret_header;
+  else {
+  // PCS xyz illuminant  68-79
+  /* -- */
+  // Profile creator signature 80-83
+  /* -- */
+  // Reserved field bytes 84-127
+  };
+  return icc_is_valid;
+}
+
+/* checks a ICC header for ICC.1:2010, see chapter 7 of http://www.color.org/specification/ICC1v43_2010-12.pdf */
 icc_returncode_t parse_icc_v430(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
   if (iccsize < 128) FAIL (icc_error_header_1v43_2010, "Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details");
-  icc_returncode_t ret_header =  parse_icc_header_v240_v430( iccsize, iccdata, errsize, errmessage);
+  icc_returncode_t ret_header =  parse_icc_common_header( iccsize, iccdata, errsize, errmessage, icc_profile_1v43_2010);
   if (icc_is_valid != ret_header) return ret_header;
   else {
   // PCS illuminant field 68-79
@@ -182,20 +205,32 @@ icc_returncode_t parse_icc_v430(unsigned long iccsize, char* iccdata, unsigned l
   return icc_is_valid;
 }
 
-/* checks a ICC header, see chapter 6 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf */
-icc_returncode_t parse_icc_v240(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
+/* checks a ICC header for ICC.2 (ICC MAX), see chapter 7 of http://www.color.org/iccmax/ICC.2-2016-7.pdf */
+icc_returncode_t parse_icc_v500(unsigned long iccsize, char* iccdata, unsigned long errsize, char * errmessage) {
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 128) FAIL (icc_error_header_v240_v430, "Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details");
-  int ret_header =  parse_icc_header_v240_v430( iccsize, iccdata, errsize, errmessage);
+  if (iccsize < 128) FAIL (icc_error_header_v500_2016, "Invalid ICC profile ICC.2:2016, see http://www.color.org/iccmax/ICC.2-2016-7.pdf for details");
+  int ret_header =  parse_icc_common_header( iccsize, iccdata, errsize, errmessage, icc_profile_v500_2016);
   if (icc_is_valid != ret_header) return ret_header;
   else {
   // PCS xyz illuminant  68-79
   /* -- */
   // Profile creator signature 80-83
   /* -- */
-  // Reserved field bytes 84-127
+  // Profile Id Field 84-99
+  /* -- */
+  // Spectral PCS 100-103
+  /* -- */
+  // Spectral PCS wavelength range 104-109
+  /* -- */
+  // Bi-spectral PCS wavelength range 110-115
+  /* -- */
+  // MCS signature 116-119
+  /* -- */
+  // Profile/Device Subclass 120-123
+  /* -- */
+  // Reserved field bytes 124-127
   };
   return icc_is_valid;
 }
@@ -211,11 +246,10 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   short c =  (iccdata[9] & 0x000f);
   char profileversion[6]="    "; snprintf(profileversion, 6, "%1i.%1i.%1i", a, b, c);
   INFO("ICC: profileversion='%s'\n", profileversion);
+  if (0==strncmp(profileversion, "5.0.0", 5)) return parse_icc_v500(iccsize, iccdata, errsize, errmessage);
   if (0==strncmp(profileversion, "4.3.0",5))  return parse_icc_v430(iccsize, iccdata, errsize, errmessage);
-  else if (0==strncmp(profileversion, "2.4.0",5)) return parse_icc_v240(iccsize,iccdata, errsize, errmessage);
-  else {
-        return parse_icc_header_v240_v430(iccsize,iccdata, errsize, errmessage);
-  }
+  else if (0==strncmp(profileversion, "2.4.0",2)) return parse_icc_v240(iccsize,iccdata, errsize, errmessage);
+  else return icc_error_header_version_outdated;
   return icc_should_not_occur;
 }
 

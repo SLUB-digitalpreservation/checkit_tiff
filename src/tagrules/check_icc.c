@@ -63,16 +63,20 @@ ret_t check_icc(ctiff_t * ctif ) {
   if (NULL != icc_profile) free(icc_profile);
   switch (icc_ret) { /*  map between returncodes icc profile and tag check */
     case icc_is_valid: ret.returncode = is_valid; break; 
-    case icc_error_profileclass: ret.returncode = iccerror_profileclass; break; 
-    case icc_error_colorspacedata: ret.returncode = iccerror_colorspacedata; break; 
-    case icc_error_connectionspacedata: ret.returncode = iccerror_connectionspacedata; break; 
-    case icc_error_primaryplatformsignature: ret.returncode = iccerror_primaryplatformsignature; break; 
-    case icc_error_header_1v43_2010: ret.returncode = iccerror_header_1v43_2010; break; 
-    case icc_error_header_v240_v430: ret.returncode = iccerror_header_v240_v430; break; 
-    case icc_error_header_generic: ret.returncode = iccerror_header_generic; break; 
+    case icc_error_profileclass: ret.returncode = iccerror_profileclass; break;
+    case icc_error_colorspacedata: ret.returncode = iccerror_colorspacedata; break;
+    case icc_error_connectionspacedata: ret.returncode = iccerror_connectionspacedata; break;
+    case icc_error_primaryplatformsignature: ret.returncode = iccerror_primaryplatformsignature; break;
+    case icc_error_header_1v43_2010: ret.returncode = iccerror_header_1v43_2010; break;
+    case icc_error_header_v240_v430: ret.returncode = iccerror_header_v240_v430; break;
+    case icc_error_header_generic: ret.returncode = iccerror_header_generic; break;
     case icc_error_preferredcmmtype: ret.returncode = iccerror_preferredcmmtype; break;
     case icc_error_committed_size_differs: ret.returncode = iccerror_committed_size_differs; break;
+    case icc_error_header_v500_2016: ret.returncode = iccerror_header_v500_2016; break;
+    case icc_error_header_version_undefined: ret.returncode = iccerror_header_version_undefined; break;
+    case icc_error_header_version_outdated: ret.returncode = iccerror_header_version_outdated; break;
     case icc_should_not_occur:  ret.returncode = should_not_occur; break;
+    default: ret.returncode = should_not_occur;
   }
   ret = set_value_found_ret(&ret, errmessage);
   free (errmessage);

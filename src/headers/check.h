@@ -86,6 +86,9 @@ typedef enum {
   iccerror_header_generic= ICC_ERROR_OFFSET + 6, /* size < 10 */
   iccerror_preferredcmmtype= ICC_ERROR_OFFSET + 7, /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
   iccerror_committed_size_differs   = ICC_ERROR_OFFSET + 8,
+  iccerror_header_v500_2016 = ICC_ERROR_OFFSET +9,
+  iccerror_header_version_undefined = ICC_ERROR_OFFSET +10,
+  iccerror_header_version_outdated = ICC_ERROR_OFFSET +11,
   tiff_seek_error_header,
   tiff_read_error_header,
   tiff_seek_error_offset,
