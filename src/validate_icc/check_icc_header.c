@@ -143,8 +143,8 @@ icc_returncode_t parse_icc_common_header(unsigned long iccsize, char * iccdata, 
       (0 != strncmp("MSFT", primaryplattformsignature, 4)) &&
       (0 != strncmp("SGI ", primaryplattformsignature, 4)) &&
       (0 != strncmp("SUNW", primaryplattformsignature, 4)) &&
-      (0 != strncmp("TGNT", primaryplattformsignature, 4))
-     ) FAIL(icc_error_primaryplatformsignature, "primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT'", primaryplattformsignature);
+      ((icc_profile_version == icc_profile_v240_v430) && (0 != strncmp("TGNT", primaryplattformsignature, 4)))
+     ) FAIL(icc_error_primaryplatformsignature, "primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW' (and for v2.x.x only: additional 'TGNT')", primaryplattformsignature);
 
   /* -- */
   // Profile Flags 44-47
