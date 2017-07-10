@@ -14,19 +14,19 @@
 
 /* check if IFDs are word aligned */
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif) {
-  //printf("check if all IFDs are word aligned\n");
-  tif_rules("all IFDs are word aligned");
-  // assert( NULL != ctif->ifd0p );
+  GET_EMPTY_RET(ret)
+  tifp_check( ctif);
+
   uint32 ifd = get_ifd0_pos( ctif ); /*  TODO: check all other IFDs, too */
   if ( 0 != (ifd & 1)) {
     // FIXME: tif_fails?
     char array[VALUESTRLEN];
     snprintf(array, sizeof(array), "offset of first IFD points to 0x%08x and is not word-aligned", ifd);
-    return tif_fails(array);
+    ret = set_value_found_ret (&ret, array);
+    ret.returncode = ifderror_offset_not_word_aligned;
+    return ret;
   }
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
-  return res;
+  ret.returncode=is_valid;
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

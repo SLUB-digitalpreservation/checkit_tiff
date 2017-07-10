@@ -49,20 +49,26 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  * @param filename filename which should be processed, repaired
  */
 ret_t check_datetime(ctiff_t * ctif ) {
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
+
+  GET_EMPTY_RET(ret)
+
   tifp_check( ctif);
-  //printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
-  tif_rules_tag(TIFFTAG_DATETIME, "is correct");
+  ret_t rc=check_tag_quiet(ctif, TIFFTAG_DATETIME);
+  if (rc.returncode != is_valid) return rc;
+
   /* find date-tag and fix it */
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, TIFFTAG_DATETIME );
   if (datatype != TIFF_ASCII) {
-    return tif_fails_tag(TIFFTAG_DATETIME, "", "has not the expected datatype ASCII");
+    char array[VALUESTRLEN];
+    snprintf(array, sizeof(array), "type:%s", TIFFTypeName(datatype));
+    ret = set_value_found_ret( &ret, array);
+    ret.returncode = tagerror_unexpected_type_found;
+    return ret;
   }
-  int count=0;
+  uint32 count=0;
   char *datetime=NULL;
-  count = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime);
+  ret = TIFFGetFieldASCII(ctif, TIFFTAG_DATETIME, &datetime, &count);
+  if (ret.returncode != is_valid) return ret;
 
   // printf("DATETIME='%s'\n", datetime);
     int day=0;
@@ -72,7 +78,7 @@ ret_t check_datetime(ctiff_t * ctif ) {
     int min=0;
     int sec=0;
     int r = 0;
-    for (int i=0; i<count; i++) {
+    for (uint32 i=0; i<count; i++) {
         if ((datetime[i] == '\0') && (i != 19)) { /* \0 at 20th byte  allowed */
           r = i+1;
           break;
@@ -81,30 +87,31 @@ ret_t check_datetime(ctiff_t * ctif ) {
 #ifdef DEBUG
     printf(" count=%u\n\n", count);
 #endif
+    ret = set_value_found_ret(&ret, datetime);
     if (0 == r) {
       if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
+        free(datetime);
         if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
-          return res;
-
+          ret.returncode=0;
+          return ret;
         } else {
-          char array[TIFFAILSTRLEN];
-          snprintf(array, sizeof(array), "of datetime not plausible, was \"%s\"", datetime);
-          return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
-          //tif_fails("tag %u (%s) value of datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
+          ret.returncode = tagerror_datetime_not_plausible;
+          return ret;
         }
       } else {
-        char array[TIFFAILSTRLEN];
-        snprintf(array, sizeof(array), "of datetime was \"%s\"", datetime);
-        return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
-        //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
+        free(datetime);
+        ret.returncode = tagerror_datetime_wrong_format;
+        return ret;
       }
     } else {
-       char array[TIFFAILSTRLEN];
-       snprintf(array, sizeof(array), "of datetime was \"%s\" and contains a \\0 at %i (count=%u)", datetime, r, count);
-       return tif_fails_tag( TIFFTAG_DATETIME, "should be  \"yyyy:MM:DD hh:mm:ss\"", array);
-       //tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);
+        free(datetime);
+        ret.returncode = tagerror_datetime_wrong_size;
+        return ret;
     }
-  return res;
+    free(datetime);
+    ret.returncode = should_not_occur;
+    assert( ret.returncode != should_not_occur);
+    return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

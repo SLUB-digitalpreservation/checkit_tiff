@@ -9,7 +9,7 @@ A: remove that file and use "git checkout config_dsl.grammar.c" to restore it
    from repository. Try to avoid "make distclean", because it erases the file.
 
 Q: My C-compiler reports error-messages like "cc: error: unrecognized command
-   line option '-fsanitze=undefined'"
+   line option '-fsanitize=undefined'"
 A: You use an older GCC variant. Try 'SANITIZE="" make'
 
 Q: How can I compile a windows version of your program?

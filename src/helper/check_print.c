@@ -8,6 +8,7 @@
 #define DEBUG
 #define _GNU_SOURCE
 
+#include <assert.h>
 #include <string.h>
 #include "check.h"
 #include "check_helper.h"
@@ -26,6 +27,51 @@ static inline char *strndup(const char *s, size_t n)
 }
 #endif
 
+returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const char * src, rm_type_t src_type) {
+   assert(pointer != NULL);
+   retmsg_t * actual_render = NULL;
+   actual_render = *pointer;
+   assert(actual_render != NULL);
+   assert(src != NULL);
+   assert(actual_render->next==NULL);
+   assert(actual_render->rm_msg != NULL);
+   actual_render->next = malloc ( sizeof(retmsg_t));
+   if (NULL == actual_render->next) {
+     exit( could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+   actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
+   if (NULL == actual_render->next->rm_msg) {
+     exit (could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+   memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
+   strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
+   actual_render->next->rm_type = src_type;
+   // fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
+   actual_render = actual_render->next;
+   assert(actual_render != NULL);
+   assert(actual_render->rm_msg != NULL);
+   actual_render->next=NULL;
+   *pointer = actual_render;
+   return is_valid;
+}
+
+void __clean_render_pipeline( retmsg_t * pointer ) {
+   assert(pointer != NULL);
+   retmsg_t * next = pointer->next;
+   if (NULL != pointer->rm_msg) {
+     free( pointer->rm_msg);
+     pointer->rm_msg = NULL;
+   }
+   free( pointer );
+   pointer = NULL;
+   if (NULL != next)
+     __clean_render_pipeline( next );
+}
+
+
+/* 
 ret_t tif_fails(const char* fail_message) {
   ret_t res;
   char * str =malloc( sizeof(char) *MAXSTRLEN );
@@ -158,18 +204,6 @@ ret_t tif_files(const char *msg) {
   return res;
 }
 
-void tifp_check( ctiff_t * ctif) {
-  /* 
-  if (NULL == ctif) { tif_fails("ctif_t pointer is empty\n"); };
-  if (0 > ctif->fd) { tif_fails("TIFF FD pointer is empty\n"); };
-  if (NULL == ctif->streamp) { tif_fails("TIFF stream pointer is empty\n"); };
-  */
-  assert(NULL != ctif);
-  assert(0 <= ctif->fd);
-  assert(NULL == ctif->streamp);
-}
-
-/* TODO: add tif_returns specialized for types */
 
 ret_t tif_returns(tag_t tag, const char* expected, const char* value) {
   ret_t res;
@@ -221,19 +255,22 @@ ret_t tif_fails_by_returns( ret_t ret ) {
 
 ret_t _empty_result() {
   ret_t t;
-  t.returncode=0;
+  t.returncode=is_valid;
   t.returnmsg=NULL;
-  t.count=1;
   t.returnmsg = malloc( sizeof( retmsg_t) * t.count );
   retmsg_t * p =  t.returnmsg;
   if  (NULL==t.returnmsg) {
     fprintf(stderr, "could not allocate memory for _empty_result\n");
     exit(EXIT_FAILURE);
   };
-  // header
-  p->rm_type=rm_default;
-  p->rm_msg = "ok";
   return t;
+}
+*/
+returncode_t tifp_check( ctiff_t * ctif) {
+  if (NULL == ctif) { return code_error_ctif_empty; };
+  if (0 > ctif->fd) { return code_error_filedescriptor_empty; };
+  if (NULL == ctif->streamp) { return code_error_streampointer_empty; };
+  return should_not_occur;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

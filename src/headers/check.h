@@ -12,10 +12,14 @@
 #include "tiff.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
+#include <assert.h>
 
 typedef int thandle_t;
 
 typedef uint16 tag_t;
+
+typedef enum{ true=1, false=0 } bool_t;
 
 typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
 
@@ -36,18 +40,80 @@ typedef struct ctiff_s {
 	/* TODO: add file size */
 } ctiff_t;
 
-typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error } rm_type_t;
+typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_logicalor_valid, rm_is_valid, rm_endrule, rm_endtiff, rm_mode, rm_lineno, rm_error_description} rm_type_t;
 typedef struct retmsg_s {
   rm_type_t rm_type;
   char * rm_msg;
-
+  struct retmsg_s * next;
 } retmsg_t;
 
+#define ICC_ERROR_OFFSET 100
+
+typedef enum {
+  is_valid=0, /* no problems detected */
+  calling_error_count_size, /* a called function has wrong arguments */
+  could_not_allocate_memory, /* malloc fails */
+  could_not_print, /* snprintf, fprintf, print fails */
+  should_not_occur, /* dummy, for dead code */
+  tagerror_expected_count_differs, /* if a tag reports count=m, but the rule expects count=n */
+  tagerror_expected_count_iszero, /* if a tag reports count=0, but the rule expects count=n */
+  tagerror_expected_count_isgreaterone,
+  tagerror_value_differs, /* if a tag reports value=m, but the rule expects value=n */
+  tagerror_unexpected_type_found, /* if a tag reports a type=m, but a type=n was expected */
+  tagerror_datetime_not_plausible, /* if a datetime tag has date values out of range */
+  tagerror_datetime_wrong_format, /* if a datetime tag has date with wrong format string */
+  tagerror_datetime_wrong_size, /* if a datetime tag has date with wrong size */
+  tagerror_value_not_found, /* if a value of a given tag is not found */
+  tagwarn_type_of_unknown_tag_could_not_be_checked, /* there is no explicite type check defined yet */
+  tag_exist, /* if a tag exists, but should not (only used by fc_notag) */
+  tag_does_not_exist, /* if a tag does not exist, but should (only used by fc_tag_quiet) */
+  tagerror_encoded_as_value_excited_space, /* tag encoded as value instead as offset, but there is no enough space to hold it, pE. ICC-Profile encoded without offset */
+  tagerror_pcre_nomatch, /*  regex does not match value */
+  pcre_compile_error, /* regex is wrong */
+  tagerror_multiple_zeros_in_asciivalue, /* doubled \0 in string */
+  tagerror_denominator_is_zero_in_fract,
+  ifderror_offset_used_twice,
+  ifderror_multiple_ifd_detected,
+  ifderror_tags_not_in_ascending_order,
+  tagerror_offset_not_word_aligned,
+  ifderror_offset_not_word_aligned,
+  iccerror_profileclass= ICC_ERROR_OFFSET + 0, /* profile class ('%s'), should be one of following strings for device classes: 'scnr', 'mntr', 'prtr' or for profile classes: 'link', 'spac', 'abst', 'nmcl'" */
+  iccerror_colorspacedata= ICC_ERROR_OFFSET + 1, /* colorspace data ('%s'), should be one of following strings: 'XYZ ' 'Lab ' 'Luv ' 'YCbr' 'Yvx ' 'RGB ' 'GRAY' 'HSV ' 'HLS ' 'CMYK' 'CMY ' '2CLR' '3CLR' '4CLR' '5CLR' '6CLR' '7CLR' '8CLR' '9CLR' 'ACLR' 'BCLR' 'CCLR' 'DCLR' 'ECLR' 'FCLR'" */
+  iccerror_connectionspacedata= ICC_ERROR_OFFSET + 2, /* "connection space data ('%s') should be one of following strings: 'XYZ ' 'Lab '" */
+  iccerror_primaryplatformsignature= ICC_ERROR_OFFSET + 3, /* primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT' */
+  iccerror_header_1v43_2010= ICC_ERROR_OFFSET + 4, /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
+  iccerror_header_v240_v430= ICC_ERROR_OFFSET + 5, /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
+  iccerror_header_generic= ICC_ERROR_OFFSET + 6, /* size < 10 */
+  iccerror_preferredcmmtype= ICC_ERROR_OFFSET + 7, /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
+  iccerror_committed_size_differs   = ICC_ERROR_OFFSET + 8,
+  iccerror_header_v500_2016 = ICC_ERROR_OFFSET +9,
+  iccerror_header_version_undefined = ICC_ERROR_OFFSET +10,
+  iccerror_header_version_outdated = ICC_ERROR_OFFSET +11,
+  tiff_seek_error_header,
+  tiff_read_error_header,
+  tiff_seek_error_offset,
+  tiff_read_error_offset,
+  tiff_byteorder_error, /* not an expected byteorder found */
+  tiff_ifd0_offset_must_be_greater_than_eight, /* must be greater than 8, because first 8 Bytes contains the TIFF header */
+  code_error_streampointer_empty,
+  code_error_filedescriptor_empty,
+  code_error_ctif_empty,
+  parser_error_wrong_function_found_in_parser_state_exe_stack,
+  parser_logicalor_error,
+  tagerror_expected_offsetdata,
+  tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
+  parser_logical_combine_open, /* if fc_logicalcombine was called first (no error) */
+  parser_logical_combine_close, /* if fc_logicalcombine was called first (no error) */
+
+
+} returncode_t;
+
 typedef struct ret_s {
-  int returncode;
-  int count;
-  retmsg_t * returnmsg;
+  returncode_t returncode;
+  char * value_found;
+  int logical_or_count;
 } ret_t;
+
 
 
 typedef struct ifd_entry_s {
@@ -135,11 +201,12 @@ typedef struct mem_map_s {
 
 
 #define MAXSTRLEN 1024
-#define EXPECTSTRLEN 160
-#define VALUESTRLEN 160
+#define EXPECTSTRLEN 500
+#define VALUESTRLEN 500
 #define TIFFAILSTRLEN (EXPECTSTRLEN + VALUESTRLEN)
 #define MAXRESULT 200000
-void tifp_check( ctiff_t * ctif);
+returncode_t tifp_check( ctiff_t * ctif);
+/* 
 ret_t tif_returns(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails_tag(tag_t tag, const char* expected, const char* value);
 ret_t tif_fails(const char* fail_message);
@@ -148,8 +215,8 @@ ret_t tif_rules_tag(tag_t tag, const char *msg);
 ret_t tif_rules(const char *msg);
 ret_t tif_files(const char *msg);
 ret_t tif_no_tag(tag_t tag);
-
 ret_t _empty_result();
+*/
 
 const char * float2str(float v);
 const char* tag2str(tag_t tag);
@@ -158,8 +225,8 @@ const char* frac2str(int d, int n);
 const char* range2str(int d, int n);
 off_t ct_seek(ctiff_t * ctif, off_t pos, int whence);
 ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count);
-ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
-ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, unsigned int * values);
+ret_t check_tag_has_some_of_these_values( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
+ret_t check_tag_has_valuelist( ctiff_t * ctif, tag_t tag, int count, const unsigned int * values);
 ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(ctiff_t * ctif, tag_t tag, unsigned int value);
 ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected_value);

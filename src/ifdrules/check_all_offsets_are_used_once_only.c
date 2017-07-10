@@ -13,8 +13,8 @@
 
 /* check if offsets are used only once */
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
-  //printf("check if all offsets are used once only\n");
-  tif_rules("all offsets are used once only");
+  GET_EMPTY_RET(ret)
+  tifp_check( ctif);
   int count = get_ifd0_count( ctif);
   int tagidx;
   uint32 offsets[ count ];
@@ -36,17 +36,18 @@ ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif) {
           // FIXME: tif_fails?
           char array[TIFFAILSTRLEN];
           snprintf(array, sizeof(array), "offset of tag %u (%s) points to %08x, which address is used previously by tag %u (%s)", tag, TIFFTagName(tag), offset, tags[i], TIFFTagName(tags[i]) );
-          return tif_fails(array);
+          ret.returncode = ifderror_offset_used_twice;
+          ret = set_value_found_ret(&ret, array);
+          return ret;
         }
       }
       offsets[ ++count_of_offsets ] = offset;
       tags[ count_of_offsets ] = tag;
     }
   }
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
-  return res;
+  ret.returncode=is_valid;
+  return ret;
 }
+
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

@@ -13,8 +13,16 @@
 
 
 typedef enum { mandatory, ifdepends, optdepends, optional } requirements_t;
-typedef enum { range, logical_or, any, only, regex, ntupel } values_t;
+typedef enum { range, logical_or, any, only, regex, ntupel, sbit, iccprofile, datetime, printable_ascii } values_t;
 typedef enum { no_ref, any_ref, only_ref, range_ref, ntupel_ref, regex_ref } reference_t;
+
+typedef enum {
+  mode_baseline=1,
+  mode_enable_type_checks=2,
+  mode_enable_offset_checks=4,
+  mode_enable_ifd_checks=8,
+} modes_t;
+
 /* MINTAGS - MAXTAGS is range of possible existing TAG numbers */
 #define MINTAGS 254
 #define MAXTAGS 65536
@@ -45,14 +53,15 @@ typedef enum {
   fc_all_offsets_are_word_aligned,
   fc_all_offsets_are_used_once_only,
   fc_all_IFDs_are_word_aligned,
-  fc_internal_logic_combine,
+  fc_internal_logic_combine_open,
+  fc_internal_logic_combine_close,
   fc_dummy
 } function_t;
 
 #define INTERNALSTACKDEPTH 10
 typedef struct internal_entry_s {
   int lineno;
-  int is_precondition;
+  bool_t is_precondition;
   tag_t tag;
   function_t function;
   values_t val_stack[INTERNALSTACKDEPTH];
@@ -67,14 +76,15 @@ typedef struct full_res_s {
   int lineno;
   tag_t tag;
   function_t function;
-  ret_t result;
+  char * expected_value;
+  char * found_value;
+  returncode_t returncode;
 } full_res_t;
 
 typedef struct parser_state_s {
   // TODO: Anzahl le-Werte für Tupel in Stack speichern
   int lineno;
   int valuelist;
-  int lelist;
   tag_t tag;
   tag_t tagref;
   values_t val_stack[MAXSTACKDEPTH];
@@ -93,18 +103,20 @@ typedef struct parser_state_s {
   int  result_stackp;
   int exe_stackp;
   internal_entry_t exe_stack[MAXSTACKDEPTH];
-
+  int mode;
+  bool_t within_logical_or;
+  int logical_elements;
 } parser_state_t;
 
 void _helper_push_result(full_res_t res);
 full_res_t _helper_pop_result();
-void _helper_mark_top_n_results(int n, rm_type_t type);
+void _helper_mark_top_n_results(int n, returncode_t type);
 full_res_t _helper_get_nth(int n);
-
+ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep);
 void set_parse_error(char * msg, char * yytext);
 void execute_plan (ctiff_t * ctif);
 void print_plan ();
-int print_plan_results ();
+ret_t print_plan_results (retmsg_t *);
 void clean_plan ();
 void parse_plan ();
 void parse_plan_via_stream (FILE * file);

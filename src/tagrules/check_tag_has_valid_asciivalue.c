@@ -14,10 +14,11 @@
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
+  ret=check_tag_quiet(ctif, tag);
+  if (ret.returncode != is_valid) return ret;
+
   TIFFDataType datatype =  TIFFGetRawTagType( ctif, tag );
 #ifdef DEBUG
   printf("### datatype=%i \n", datatype);
@@ -25,32 +26,39 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
   char *string=NULL;
   uint32 count=0;
   int r = 0;
+  char * val=NULL;
   if (datatype == TIFF_ASCII) {
-    //printf("check if tag %u (%s) has valid asciivalue\n", tag, TIFFTagName(tif, tag));
-    tif_rules_tag(tag, "has valid asciivalue");
-    char * val=NULL;
-    int count = TIFFGetFieldASCII(ctif, tag, &val);
+    uint32 count=0;
+    ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
     if (0 < count) { /* there exists a tag */
-      for (int i=0; i<count; i++) {
+      for (uint32 i=0; i<count; i++) {
         if (string[i] == '\0') {
           r = i+1;
           break;
         }
       }
+    } else {
+      ret.returncode = tagerror_expected_count_iszero;
+      return ret;
     }
   } else {
-    return tif_fails_tag(tag, "", "has not the expected datatype ASCII");
+    ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
+    ret.returncode = tagerror_unexpected_type_found;
+    return ret;
   }
   if (0 != r) {
     char array[VALUESTRLEN];
-    snprintf(array, sizeof(array), "incorrect asciivalue (\\0 at position %i in %i-len String)", r, count);
-    return tif_fails_tag( tag, "", array);
+    snprintf(array, sizeof(array), "'%s' (\\0 at position %i in %i-len)", val, r, count);
+    ret = set_value_found_ret(&ret, array);
+    ret.returncode = tagerror_multiple_zeros_in_asciivalue;
+    return ret;
   } else {
-    ret_t res;
-    res.returnmsg=NULL;
-    res.returncode=0;
-    return res;
+    ret.returncode=is_valid;
+    return ret;
   }
+  ret.returncode=should_not_occur;
+  assert( ret.returncode != should_not_occur);
+  return ret;
 }
 
 

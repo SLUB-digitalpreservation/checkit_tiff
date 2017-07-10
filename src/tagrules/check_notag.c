@@ -13,20 +13,18 @@
 /* checks if TIF does not have a specified tag,
  * needed only for checks to ensure whitelist */
 ret_t check_notag(ctiff_t * ctif, tag_t tag) {
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
-  res = check_tag_quiet( ctif, tag);
-  if (res.returncode == 0) {
-    return tif_no_tag( tag);
-  } else {
-    if (NULL != res.returnmsg) {
-      free(res.returnmsg);
+  ret_t r =  check_tag_quiet( ctif, tag);
+  if (is_valid == r.returncode) {
+    ret.returncode = tag_exist;
+  } else if (tag_does_not_exist == r.returncode) {
+    if (NULL != r.value_found) {
+      free(r.value_found);
+      r.value_found = NULL;
     }
-    res.returnmsg=NULL;
-    res.returncode=0;
-    return res;
-  }
+    ret.returncode = is_valid;
+  } else return r;
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

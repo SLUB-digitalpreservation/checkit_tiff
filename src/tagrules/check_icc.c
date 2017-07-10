@@ -13,37 +13,36 @@
 /** checks a ICC tag, see Annex B of http://www.color.org/specification/ICC1v43_2010-12.pdf
  */
 ret_t check_icc(ctiff_t * ctif ) {
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
+  GET_EMPTY_RET(ret)
   tifp_check( ctif);
-  tif_rules_tag(TIFFTAG_ICCPROFILE, "is correct");
+  ret=check_tag_quiet(ctif, TIFFTAG_ICCPROFILE);
+  if (ret.returncode != is_valid) return ret;
+
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);
-  // printf("DEBUG: count=%i\n", ifd_entry.count);
-  // printf("DEBUG: datatype=%i\n", ifd_entry.datatype);
   uint32 icc_profile_size;
   uint32 count;
   char * icc_profile = NULL;
- //uint32 retval = TIFFGetField (ctif->tif, TIFFTAG_ICCPROFILE, &icc_profile_size, &icc_profile);
-   switch (ifd_entry.datatype) { /* icc datatype should be undefined (val=7) */
+  switch (ifd_entry.datatype) { /* icc datatype should be undefined (val=7) */
       case TIFF_UNDEFINED: {
                        icc_profile_size = ifd_entry.count;
                        count = ifd_entry.count;
                      /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
-                        offset_t offset = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype);
+                        offset_t offset;
+                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset);
+                        if (ret.returncode != is_valid) return ret;
                         icc_profile = (char *)offset.data32p;
                       } else {
-                        return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to an offset", "encoded as value instead as offset, but there is no enough space to hold it");
+                        ret.returncode = tagerror_encoded_as_value_excited_space;
+                        return ret;
                       }
                        break;
                      }
     default: { /*  none */
-               char array[VALUESTRLEN];
-               snprintf(array, sizeof(array), " but was datatype:%u",  ifd_entry.datatype);
-               return tif_returns( TIFFTAG_ICCPROFILE, "of type undefined", array );
+               ret = set_value_found_ret( &ret, TIFFTypeName(ifd_entry.datatype));
+               ret.returncode = tagerror_unexpected_type_found;
+               return ret;
                break;
-
              };
   }
 
@@ -58,16 +57,31 @@ ret_t check_icc(ctiff_t * ctif ) {
   }
   printf("\n");
   */
-#define ERRSIZE 1024
-  char * errmessage = malloc(sizeof(char) * ERRSIZE);
-  unsigned long errsize = ERRSIZE;
-  int ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
+  char * errmessage = malloc(sizeof(char) * VALUESTRLEN);
+  unsigned long errsize = VALUESTRLEN;
+  icc_returncode_t icc_ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
   if (NULL != icc_profile) free(icc_profile);
-  if (0 != ret) {
-    return tif_fails_tag( TIFFTAG_ICCPROFILE, "pointing to valid ICC profile", errmessage);
+  switch (icc_ret) { /*  map between returncodes icc profile and tag check */
+    case icc_is_valid: ret.returncode = is_valid; break; 
+    case icc_error_profileclass: ret.returncode = iccerror_profileclass; break;
+    case icc_error_colorspacedata: ret.returncode = iccerror_colorspacedata; break;
+    case icc_error_connectionspacedata: ret.returncode = iccerror_connectionspacedata; break;
+    case icc_error_primaryplatformsignature: ret.returncode = iccerror_primaryplatformsignature; break;
+    case icc_error_header_1v43_2010: ret.returncode = iccerror_header_1v43_2010; break;
+    case icc_error_header_v240_v430: ret.returncode = iccerror_header_v240_v430; break;
+    case icc_error_header_generic: ret.returncode = iccerror_header_generic; break;
+    case icc_error_preferredcmmtype: ret.returncode = iccerror_preferredcmmtype; break;
+    case icc_error_committed_size_differs: ret.returncode = iccerror_committed_size_differs; break;
+    case icc_error_header_v500_2016: ret.returncode = iccerror_header_v500_2016; break;
+    case icc_error_header_version_undefined: ret.returncode = iccerror_header_version_undefined; break;
+    case icc_error_header_version_outdated: ret.returncode = iccerror_header_version_outdated; break;
+    case icc_should_not_occur:  ret.returncode = should_not_occur; break;
+    default: ret.returncode = should_not_occur;
   }
+  ret = set_value_found_ret(&ret, errmessage);
   free (errmessage);
-  return res;
+  assert( ret.returncode != should_not_occur);
+  return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

@@ -130,15 +130,16 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
     case TIFF_LONG: {
                       /*  value */
                       if (stripoffset_entry.value_or_offset == is_value) {
-                        for (int i=0; i< stripoffset_entry.count; i++) {
+                        for (uint32 i=0; i< stripoffset_entry.count; i++) {
                           stripoffset_values[i] = stripoffset_entry.data32;
                         }
                       }
                       /*  offset */
                       if (stripoffset_entry.value_or_offset == is_offset) {
-                        offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                        offset_t offset;
+                        ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                         uint32 * p = offset.data32p;
-                        for (int i=0; i< stripoffset_entry.count; i++) {
+                        for (uint32 i=0; i< stripoffset_entry.count; i++) {
                           uint32 pval = *p;
                           if (is_byteswapped(ctif)) {
                             TIFFSwabLong(&pval);
@@ -152,15 +153,16 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
     case TIFF_SHORT: {
                        /*  value */
                        if (stripoffset_entry.value_or_offset == is_value) {
-                         for (int i=0; i< stripoffset_entry.count; i++) {
+                         for (uint32 i=0; i< stripoffset_entry.count; i++) {
                            stripoffset_values[i]= stripoffset_entry.data16[i];
                          }
                        }
                        /*  offset */
                        if (stripoffset_entry.value_or_offset == is_offset) {
-                         offset_t offset = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype);
+                         offset_t offset;
+                         ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                          uint16 * p = offset.data16p;
-                         for (int i=0; i< count; i++) {
+                         for (uint32 i=0; i< count; i++) {
                            uint16 pval = *p;
                            if (is_byteswapped(ctif)) {
                              TIFFSwabShort(&pval);
@@ -193,8 +195,8 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   */
 
   /* add all unused areas */
-  int memmap_orig_count = memmap.count;
-  for (int j=1; j< memmap_orig_count; j++) {
+  uint32 memmap_orig_count = memmap.count;
+  for (uint32 j=1; j< memmap_orig_count; j++) {
     mem_map_entry_t * prev=memmap.base_p+j-1;
     mem_map_entry_t * act =memmap.base_p+j;
     uint32 estimated_offset = (prev->offset + prev->count);

@@ -19,7 +19,7 @@ sub call_checkit_tiff {
     my $tiff = shift;
     #print "DEBUG: $checkit_tiff -c $tiff $cfg\n";
     print "------------------------\n";
-    system("$checkit_tiff", "-c", $tiff, $cfg);
+    system("$checkit_tiff", "-c", $cfg, $tiff);
     print "========================\n";
     my $ret=0;
     if ($? == -1) {

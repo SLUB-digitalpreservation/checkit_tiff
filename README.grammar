@@ -67,3 +67,38 @@ Values
 
 At the moment, the parser only supports a limited type of values. To make
 handling easier, it uses only the value/offset part of an IFD entry.
+
+Test if grammar parser works correctly
+======================================
+
+You could use the program '/checkit_check_config < your.cfg', this would print
+a reversed stack ouput, how echa rule will be applied.
+
+For example, if your rule is
+
+----
+258; optdepends(262.1); logical_or(1, 4, 8)'
+----
+
+it will print:
+
+----
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ PRECOND: fc_tag_quiet tag=258 top i stack=(0)
+/* lineno=001 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(1)
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_open tag=258 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=258 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=258 top i stack=(4)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=258 top i stack=(8)
+
+----
+

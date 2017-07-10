@@ -13,14 +13,18 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag_quiet(ctiff_t * ctif, tag_t tag) {
-  ret_t res;
-  res.returnmsg=NULL;
+ GET_EMPTY_RET(ret)
+
   tifp_check( ctif);
   if (-1 < TIFFGetRawTagListIndex(ctif, tag)) {
-      res.returncode=0;
-      return res;
+      ret.returncode=is_valid;
+  } else {
+    char msg[VALUESTRLEN];
+    snprintf(msg, VALUESTRLEN, "tag %i is missed", tag);
+    ret = set_value_found_ret(&ret, msg);
+    ret.returncode=tag_does_not_exist;
+
   }
-  res.returncode=1;
-  return res;
+  return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

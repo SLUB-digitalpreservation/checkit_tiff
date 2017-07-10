@@ -1,44 +1,44 @@
 # rule based checks if given TIFF is a specific baseline TIFF
 #
-# author: Andreas Romeyke, 2015/2016
+# author: Andreas Romeyke, 2015-2017
 # licensed under conditions of libtiff
 # (see http://libtiff.maptools.org/misc.html)
 #
 
 start           <- ( Line )+ EndOfFile
-Line            <- CommentLine EndOfLine
-                 / SpaceLine EndOfLine
-                 / ModeLine EndOfLine
-                 / IncludeLine EndOfLine
-                 / TagLine EndOfLine
-                 / < MiscUntilEOL >                            { set_parse_error("wrong line entry",yytext); }
-CommentLine     <- '#' ( !EndOfLine . )*                       { commentline(); }
+Line            <- LineType EndOfLine		
+LineType        <- TagLine				       		      
+                 / ModeLine				       
+		 / CommentLine
+                 / SpaceLine
+                 / IncludeLine
+		 / < ( !EndOfLine .)+ >			       {fprintf(stderr, "REST: '%s'\n", yytext); }
+CommentLine     <- '#' ( !EndOfLine .)*                        { commentline(); }
 IncludeLine     <- 'include' OpenBracket < ( [A-Za-z0-9_./\-]+ ) > ClosingBracket { set_include ( yytext );  }
-ModeLine        <- 'mode' OpenBracket < Mode > ClosingBracket  { set_mode( yytext );  }
-                 / 'mode' OpenBracket Mode                     { set_parse_error( "modeline expects a closing bracket", yytext); }
-                 / 'mode' OpenBracket                          { set_parse_error( "modeline requires a mode", yytext); }
-                 / 'mode'                                      { set_parse_error( "modeline requires an open bracket", yytext); }
+ModeLine        <- 'mode' OpenBracket < Mode > ClosingBracket  { int i = i_pop(); set_mode( i );  }
+LogicalOr       <- 'logical_or' LogicalOrOpen LogicalOrList LogicalOrClose
 
-LogicalOr       <- 'logical_or' OpenBracket LogicalOrList ClosingBracket { rule_add_logical_config(); reset_logical_list();}
+LogicalOrOpen   <- OpenBracket                                 { set_rule_logical_open();}
+LogicalOrClose  <- ClosingBracket                              { }
 
-LogicalOrListElement   <- Any                                  { v_push( any );incr_logical_elements(); }
-                 / Range                                       { v_push( range);incr_logical_elements();  }
-                 / Only                                        { v_push( only );incr_logical_elements();  }
-                 / Number                                      { v_push( only );incr_logical_elements();  }
-                 / NTupel                                      { v_push( ntupel); reset_valuelist(); incr_logical_elements(); }
-                 / RegEx                                       { v_push( regex );incr_logical_elements();  }
-                 / < MiscUntilEOL >                            { set_parse_error("wrong values-keyword", yytext);}
+LogicalOrListElement   <- Any                                  { v_push( any ); incr_logical_elements();}
+                 / Range                                       { v_push( range); incr_logical_elements();}
+                 / Only                                        { v_push( only ); incr_logical_elements();}
+                 / Number                                      { v_push( only ); incr_logical_elements();}
+                 / NTupel                                      { v_push( ntupel); incr_logical_elements();}
+                 / RegEx                                       { v_push( regex ); incr_logical_elements();}
+                 / PrintableAscii                              { v_push( printable_ascii ); incr_logical_elements();}
 LogicalOrList   <- LogicalOrListElement (Colon LogicalOrListElement)*
 
-Mode            <- 'baseline'
-                 / 'enhanced'
-                 / MiscUntilEOL                                { set_parse_error("mode expects either 'baseline' or 'enhanced'", yytext); }
+Mode            <- 'baseline'                                  { i_push(mode_baseline ); }
+                 / 'enable_type_checks'                        { i_push(mode_enable_type_checks); }
+                 / 'enable_offset_checks'                      { i_push(mode_enable_offset_checks); }
+                 / 'enable_ifd_checks'                         { i_push(mode_enable_ifd_checks); }
+                 / 'enhanced'                                  #/* TODO: later if all types of TIFF are supported */
 
 TagLine         <- Tag Semicolon Requirements Semicolon Content { rule_addtag_config();  }
-                 / Tag Semicolon Requirements Semicolon        { set_parse_error("tagline requires content", yytext); }
-                 / Tag Semicolon Requirements                  { set_parse_error("tagline expects missed semicolon here", yytext); }
-                 / Tag Semicolon                               { set_parse_error("tagline requires a requiemrent-keyword (mandatory, etc.)",yytext); }
-                 / Tag                                         { set_parse_error("tagline expects missed semicolon here", yytext); }
+                 / Tag Semicolon Requirements Semicolon LogicalOr { set_rule_logical_close(); }
+            
 Tag             <- < Number >                                  {
                         int tag = i_pop();
                         /* rule_tagorder_in_dsl( tag ); */
@@ -52,82 +52,58 @@ TagReference    <- < Number >                                  {
                         else if (tag > 65535) set_parse_error("wrong tagreference (should be <65536)", yytext);
                         else settagref( tag );
                 }
-                 / < MiscUntilEOL >                            { set_parse_error("wrong tagreference", yytext); }
 Semicolon       <- ';' ( Space )*
-                 / < MiscUntilEOL >                            { set_parse_error("missed semicolon", yytext);}
 Requirements    <- 'mandatory'                                 { set_mandatory(); }
                  / IfDepends                                   { set_ifdepends(); }
                  / OptDepends                                  { set_optdepends(); }
                  / 'optional'                                  { set_optional(); }
-                 / < MiscUntilEOL >                            { set_parse_error("wrong requirements-keyword", yytext);}
 IfDepends       <- 'depends' OpenBracket TagReference Dot ValueReference ClosingBracket
-                 / 'depends' OpenBracket TagReference Dot ValueReference { set_parse_error("'depends' expects a closing bracket",  yytext); }
-                 / 'depends' OpenBracket TagReference Dot      { set_parse_error("'depends' expects a value reference",  yytext); }
-                 / 'depends' OpenBracket TagReference          { set_parse_error("'depends' expects a dot",  yytext); }
-                 / 'depends' OpenBracket                       { set_parse_error("'depends' expects a tagreference",  yytext); }
-                 / 'depends'                                   { set_parse_error("'depends' expects an open bracket",  yytext); }
 
 OptDepends      <- 'optdepends' OpenBracket TagReference Dot ValueReference ClosingBracket
-                 / 'optdepends' OpenBracket TagReference Dot ValueReference { set_parse_error("'optdepends' expects a closing bracket",  yytext); }
-                 / 'optdepends' OpenBracket TagReference Dot   { set_parse_error("'optdepends' expects a value reference",  yytext); }
-                 / 'optdepends' OpenBracket TagReference       { set_parse_error("'optdepends' expects a dot",  yytext); }
-                 / 'optdepends' OpenBracket                    { set_parse_error("'optdepends' expects a tagreference",  yytext); }
-                 / 'optdepends'                                { set_parse_error("'optdepends' expects an open bracket",  yytext); }
 
 
 Content          <- Any                                         { v_push( any ); }
                  / Range                                       { v_push( range); }
-                 / LogicalOr
                  / Only                                        { v_push( only ); }
                  / NTupel                                      { v_push( ntupel ); reset_valuelist() }
                  / RegEx                                       { v_push( regex ); }
-                 / < MiscUntilEOL >                            { set_parse_error("wrong values-keyword", yytext);}
+                 / PrintableAscii                              { v_push( printable_ascii ); }
+                 / Datetime                                    { v_push( datetime ); }
+                 / Iccprofile                                  { v_push( iccprofile ); }
+#                 / SBit                                        { v_push( sbit ); }
 Range           <- 'range' OpenBracket Number Colon Number ClosingBracket
-                 / 'range' OpenBracket Number Colon Number     { set_parse_error("'range' expects a closing bracket", yytext); }
-                 / 'range' OpenBracket Number Colon            { set_parse_error("'range' expects a number", yytext); }
-                 / 'range' OpenBracket Number                  { set_parse_error("'range' expects a colon", yytext); }
-                 / 'range' OpenBracket                         { set_parse_error("'range' expects a number", yytext); }
-                 / 'range'                                     { set_parse_error("'range' expects an open bracket", yytext); }
 Number          <- < '0x' ( [0-9a-f]+ ) >                      { i_push(strtol(yytext, NULL, 0) ); }
                  / '2^' < ( Digit )+ >                         { i_push(2<<atol(yytext) ); }
                  / < ( Digit )+ >                              { i_push(atol(yytext) );}
 Colon           <- ',' (Space )*
-                 / < MiscUntilEOL >                            { set_parse_error("missed colon", yytext);}
 Dot             <- '.' (Space )*
-                 / < MiscUntilEOL >                            { set_parse_error("missed dot", yytext)}
 OpenBracket     <- '('
 ClosingBracket     <- ')'
 
 ValueList       <- Value (Colon Value)*
 Value           <- Number                                      { incr_values(); }
 NTupel          <- 'ntupel' OpenBracket ValueList ClosingBracket {int v=parser_state.valuelist; i_push(v); reset_valuelist(); }
-                 / 'ntupel' OpenBracket ValueList              { set_parse_error("'ntupel' expects a closing bracket", yytext);}
-                 / 'ntupel' OpenBracket                        { set_parse_error("'ntupel' expects a value list", yytext);}
-                 / 'ntupel'                                    { set_parse_error("'ntupel' expects an open bracket", yytext);}
 ValueReference  <- Any                                         { parser_state.any_reference = any_ref; }
                  / Number                                      { parser_state.any_reference = only_ref; i_push(atol(yytext) );}
                  / RegEx                                       { parser_state.any_reference = regex_ref; }
                  / Range                                       { parser_state.any_reference = range_ref; }
                  / NTupel                                      { parser_state.any_reference = ntupel_ref; }
                  / Only                                        { parser_state.any_reference = only_ref; }
-                 / < MiscUntilEOL >                            { set_parse_error("value reference error: '%s'", yytext);}
 Only            <- 'only' OpenBracket Number ClosingBracket    {  }
-                 / 'only' OpenBracket Number                   { set_parse_error("'only' expects a closing bracket", yytext);}
-                 / 'only' OpenBracket                          { set_parse_error("'only' expects a value list", yytext);}
-                 / 'only'                                      { set_parse_error("'only' expects an open bracket", yytext);}
+#SBit            <- 'sbit'  OpenBracket < Digit > ClosingBracket{  i_push(atol(yytext) ); }
+#                 / 'sbit'  OpenBracket Digit                   { set_parse_error("'sbit' expects a closing bracket", yytext); }
+#                 / 'sbit'  OpenBracket                         { set_parse_error("'sbit' expects a digit", yytext); }
+#                 / 'sbit'                                      { set_parse_error("'sbit' expects an open bracket", yytext); }
 RegEx           <- 'regex' OpenBracket '"' < ( PCRE )* > '"' ClosingBracket { regex_push ( yytext ); }
-                 / 'regex' OpenBracket '"' < ( PCRE )* > '"'   { set_parse_error("'regex' expects a closing bracket", yytext); }
-                 / 'regex' OpenBracket '"' < ( PCRE )* >       { set_parse_error("'regex' expects a closing '\"'", yytext); }
-                 / 'regex' OpenBracket '"'                     { set_parse_error("'regex' expects a PCRE-regex", yytext); }
-                 / 'regex' OpenBracket                         { set_parse_error("'regex' expects an open '\"'", yytext); }
-                 / 'regex'                                     { set_parse_error("'regex' expects an open bracket", yytext); }
+Datetime        <- 'datetime'
+Iccprofile      <- 'iccprofile'
+PrintableAscii  <- 'printascii'
 SpaceLine       <- ( Space )*
 Space           <- ' ' / '\t'
 Any             <- 'any'
 Digit           <- [0-9]
-EndOfLine       <- [\r\n]                                      {incrlineno(); }
+EndOfLine       <- [\r\n]                                      {incrlineno();}
 EndOfFile       <- !.
-MiscUntilEOL    <- [^\r\n]+
 PCRE            <- EscapedPCRE
                  / [^"\\]
 # FIXME: unescape char in yybuffer

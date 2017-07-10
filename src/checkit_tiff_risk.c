@@ -81,8 +81,11 @@ int main(int argc, char * argv[]) {
     exit (EXIT_FAILURE);
   }
   const char *tiff_file=argv[optind];
-  tif_files(tiff_file);
   ctiff_t * ctif = initialize_ctif( tiff_file, is_filep  );
+  parse_header_and_endianess( ctif );
+  uint32 offset;
+  ret_t res=get_first_IFD(ctif, &offset);
+ 
   mem_map_t * memmap_p = scan_mem_map(ctif);
   if (FLAGGED == flag_print_map) 
     print_mem_map ( memmap_p );

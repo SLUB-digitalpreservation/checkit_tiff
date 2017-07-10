@@ -31,6 +31,8 @@ int main()
   printf("((( print empty plan)))\n");
   print_plan();
   */
+  printf("((( print internal execution plan )))\n");
+  exe_printstack_human_readable();
   return 0;
 }
 

@@ -12,16 +12,6 @@
 
 /* checks if TIF has a specified tag */
 ret_t check_tag(ctiff_t * ctif, tag_t tag) {
-  ret_t res;
-  res.returnmsg=NULL;
-  res.returncode=0;
-  tifp_check( ctif);
-  tif_rules_tag(tag, "exists");
-  res = check_tag_quiet( ctif, tag);
-  if (res.returncode == 0) {
-    return check_tag_has_valid_type( ctif, tag);
-  } else {
-    return tif_fails_tag(tag, "", "was not found, but requested because defined");
-  }
+  return check_tag_quiet( ctif, tag);
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
