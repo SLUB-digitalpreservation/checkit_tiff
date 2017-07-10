@@ -135,8 +135,8 @@ icc_returncode_t parse_icc_common_header(unsigned long iccsize, char * iccdata, 
   char profilefilesignature[5]="    "; memcpy(profilefilesignature, &iccdata[36],4);
   INFO("ICC: profilefilesignature='%s'\n", profilefilesignature);
   /* -- */
-  char primaryplatformsignature[5]="    "; memcpy(primaryplatformsignature, &iccdata[40],4);
-  INFO("ICC: primaryplatformsignature='%s'\n", primaryplatformsignature);
+  char primaryplattformsignature[5]="    "; memcpy(primaryplattformsignature, &iccdata[40],4);
+  INFO("ICC: primaryplattformsignature='%s'\n", primaryplattformsignature);
   if ( /*  see page 15, table 15 of http://www.color.org/ICC_Minor_Revision_for_Web.pdf */
       ('\0' != primaryplattformsignature[0]) &&
       (0 != strncmp("APPL", primaryplattformsignature, 4)) &&

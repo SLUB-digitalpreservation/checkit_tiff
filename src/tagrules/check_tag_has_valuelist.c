@@ -66,7 +66,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                         for (int i=0; i< count; i++) {
                           uint32 pval = *p;
 #ifdef DEBUG
-                            printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
+                          printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                           if (v[i] != *p) {
                             snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
@@ -74,6 +74,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                             ret.returncode = tagerror_value_differs;
                             return ret;
                           }
+                          p++;
                         }
                       }
                       break;
@@ -99,7 +100,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                          for (int i=0; i< count; i++) {
                            uint16 pval = *p;
 #ifdef DEBUG
-                             printf("SHORTOFFSET (tag=%i): v[%i]=%u p[%i]=0x%04x\n", tag, i,v[i],i,pval);
+                           printf("SHORTOFFSET (tag=%i): v[%i]=%u p[%i]=0x%04x\n", tag, i,v[i],i,pval);
 #endif
                            if (v[i] != pval) {
                              snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
@@ -107,6 +108,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                              ret.returncode = tagerror_value_differs;
                              return ret;
                            }
+                           p++;
                          }
                        }
                        break;
@@ -119,7 +121,6 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                         return ret;
                       }
 
-    }
   }
   ret.returncode=is_valid;
   return ret;

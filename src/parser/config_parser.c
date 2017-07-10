@@ -624,7 +624,7 @@ void commentline() {
 }
 /* helper function for parser */
 /*
-void rule_should_not_occur(char* s) {
+void rule_should_not_occure(char* s) {
 #ifdef DEBUG
   printf("no parser rule matched after line %i (prev tag was %u): '%s'\n", getlineno(), gettag(), s);
 #endif

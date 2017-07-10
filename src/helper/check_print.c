@@ -12,7 +12,6 @@
 #include <string.h>
 #include "check.h"
 #include "check_helper.h"
-#include <assert.h>
 
 #ifdef WIN32
 static inline char *strndup(const char *s, size_t n)
