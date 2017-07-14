@@ -847,7 +847,15 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
   int tagidx = TIFFGetRawTagListIndex(ctif, tag);
   if (tagidx >= 0) { /* there exists the tag */
     ifd_entry_t entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-    assert (entry.datatype == TIFF_ASCII);
+    /* assert (entry.datatype == TIFF_ASCII); */
+    if (entry.datatype != TIFF_ASCII) {
+      char msg[200];
+      snprintf(msg, 200, "data of type ASCII expected, but got type %s", TIFFTypeName(entry.datatype));
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_unexpected_type_found;
+      return ret;
+    }
+
     *countp = entry.count;
     *(string_pp) = malloc( sizeof(char) * entry.count +1);
     if (NULL == (* string_pp)) {
@@ -911,7 +919,15 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, const tag_t tag, uint32 ** long_pp, uint3
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
-    assert (entry.datatype == TIFF_LONG);
+    /* assert (entry.datatype == TIFF_LONG); */
+    if (entry.datatype != TIFF_LONG) {
+      char msg[200];
+      snprintf(msg, 200, "data of type LONG expected, but got type %s", TIFFTypeName(entry.datatype));
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_unexpected_type_found;
+      return ret;
+    }
+
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 1);
       //printf("LONG (direct)=%lu\n", entry.data32);
@@ -960,7 +976,15 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** short_pp, uin
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
-    assert (entry.datatype == TIFF_SHORT);
+    /* assert (entry.datatype == TIFF_SHORT); */
+    if (entry.datatype != TIFF_SHORT) {
+      char msg[200];
+      snprintf(msg, 200, "data of type SHORT expected, but got type %s", TIFFTypeName(entry.datatype));
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_unexpected_type_found;
+      return ret;
+    }
+
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 2);
       memcpy((void *) (*short_pp), (void *) &entry.data16, (sizeof(uint16)*entry.count));
@@ -1010,7 +1034,15 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** float_pp, u
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
-    assert (entry.datatype == TIFF_RATIONAL);
+    /* assert (entry.datatype == TIFF_RATIONAL); */
+    if (entry.datatype != TIFF_RATIONAL) {
+      char msg[200];
+      snprintf(msg, 200, "data of type RATIONAL expected, but got type %s", TIFFTypeName(entry.datatype));
+      ret = set_value_found_ret(&ret, msg);
+      ret.returncode = tagerror_unexpected_type_found;
+      return ret;
+    }
+
     /*  rational is defined as 2x32bits */
     if (entry.value_or_offset == is_value) {
       ret.returncode = tagerror_expected_offsetdata;

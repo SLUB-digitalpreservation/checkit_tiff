@@ -27,7 +27,7 @@ const char * TIFFTypeName( uint16 tagtype ) {
     case TIFF_LONG8: return "LONG8"; break;
     case TIFF_SLONG8: return "SLONG8"; break;
     case TIFF_IFD8: return "IFD8"; break;
-    default: return "unknown type"; break;
+    default: return "unknown (unregistered) type"; break;
   }
 }
 
