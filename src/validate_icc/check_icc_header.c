@@ -240,7 +240,7 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   assert(iccdata != NULL);
   assert(errmessage != NULL);
   assert(errsize > 0);
-  if (iccsize < 10) FAIL (icc_error_header_generic, "Invalid ICC profile");
+  if (iccsize < 10) FAIL (icc_error_header_generic, "Invalid ICC profile, size is less 10 bytes");
   short a =  (iccdata[8]) & 0x000f;
   short b = ((iccdata[9] & 0x00f0) >>4);
   short c =  (iccdata[9] & 0x000f);
@@ -249,7 +249,7 @@ icc_returncode_t parse_icc(unsigned long iccsize, char* iccdata, unsigned long e
   if (0==strncmp(profileversion, "5.0.0", 5)) return parse_icc_v500(iccsize, iccdata, errsize, errmessage);
   if (0==strncmp(profileversion, "4.3.0",5))  return parse_icc_v430(iccsize, iccdata, errsize, errmessage);
   else if (0==strncmp(profileversion, "2.4.0",2)) return parse_icc_v240(iccsize,iccdata, errsize, errmessage);
-  else return icc_error_header_version_outdated;
+  else FAIL (icc_error_header_version_outdated, "ICC: profileversion='%s' is outdated or wrong", profileversion);
   return icc_should_not_occur;
 }
 

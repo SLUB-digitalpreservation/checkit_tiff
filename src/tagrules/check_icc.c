@@ -61,6 +61,7 @@ ret_t check_icc(ctiff_t * ctif ) {
   unsigned long errsize = VALUESTRLEN;
   icc_returncode_t icc_ret = parse_icc(icc_profile_size, icc_profile, errsize, errmessage);
   if (NULL != icc_profile) free(icc_profile);
+  ret.returncode = should_not_occur; 
   switch (icc_ret) { /*  map between returncodes icc profile and tag check */
     case icc_is_valid: ret.returncode = is_valid; break; 
     case icc_error_profileclass: ret.returncode = iccerror_profileclass; break;
@@ -76,7 +77,6 @@ ret_t check_icc(ctiff_t * ctif ) {
     case icc_error_header_version_undefined: ret.returncode = iccerror_header_version_undefined; break;
     case icc_error_header_version_outdated: ret.returncode = iccerror_header_version_outdated; break;
     case icc_should_not_occur:  ret.returncode = should_not_occur; break;
-    default: ret.returncode = should_not_occur;
   }
   ret = set_value_found_ret(&ret, errmessage);
   free (errmessage);

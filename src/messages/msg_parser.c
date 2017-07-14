@@ -101,6 +101,9 @@ const char * get_parser_error_description( returncode_t r ) {
     case iccerror_primaryplatformsignature: return "but value found for ICC primaryplatformsignature is not part of controlled vocabulary."; break; /* primary plattform signature ('%s') should be empty or one of following strings: 'APPL', 'MSFT', 'SGI ', 'SUNW', 'TGNT' */
     case iccerror_header_1v43_2010: return "but invalid header in ICC profile of type 1v43_2010 found."; break; /* Invalid ICC profile 1v43_2010, see http://www.color.org/specification/ICC1v43_2010-12.pdf for details  */
     case iccerror_header_v240_v430: return "but invalid header in ICC profile of type v240_v430 found."; break; /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
+    case iccerror_header_v500_2016: return "but invalid header in ICC profile of type v500 found."; break;
+    case iccerror_header_version_undefined: return "but invalid header in ICC profile with undefined version found."; break;
+    case iccerror_header_version_outdated: return "but invalid header in ICC profile with outdated version found."; break;
     case iccerror_header_generic: return "but the ICC header is too short (size < 10)."; break; /* size < 10 */
     case iccerror_preferredcmmtype: return "but value found for ICC preferredcmmtype is not part of controlled vocabulary."; break; /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
     case iccerror_committed_size_differs   : return "but ICC profile size given in ICC header differs from size given in TIFF tag."; break;
