@@ -430,12 +430,39 @@ const char * TIFFTagName( tag_t tag ) {
     /* 50834 */ case TIFFTAG_CURRENTPREPROFILEMATRIX: return ("CURRENTPREPROFILEMATRIX");
     /* 50838 */ case 50838: return ("ImageJ Metadata Bytecounts (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
     /* 50839 */ case 50839: return ("ImageJ Metadata (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
-    /* 50933 */ case 50933: return ("ExtraCameraProfiles"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
+    /* 50931 */ case 50931: return ("CameraCalibration Sig");
+    /* 50932 */ case 50932: return ("ProfileCalibration Sig");
+
+    /* 50933 */ case 50933: return ("ExtraCameraProfiles IFD"); /* http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf */
+    /* 50934 */ case 50934: return ("AsShotProfileName");
+    /* 50935 */ case 50935: return ("NoiseReductionApplied");
+    /* 50936 */ case 50936: return ("ProfileName");
+    /* 50937 */ case 50937: return ("ProfileHueSatMapDims");
+    /* 50938 */ case 50938: return ("ProfileHueSatMapData1");
+    /* 50939 */ case 50939: return ("ProfileHueSatMapData2");
+    /* 50940 */ case 50940: return ("ProfileToneCurve");
+    /* 50941 */ case 50941: return ("ProfileEmbedPolicy");
+    /* 50942 */ case 50942: return ("ProfileEmbedCopyright");
+    /* 50964 */ case 50964: return ("ForwardMatrix1");
+    /* 50965 */ case 50965: return ("ForwardMatrix2");
+    /* 50966 */ case 50966: return ("PreviewApplicationName");
+    /* 50967 */ case 50967: return ("PreviewApplicationVersion");
+    /* 50968 */ case 50968: return ("PreviewSettingsName");
+    /* 50969 */ case 50969: return ("PreviewSettingsDigest");
+    /* 50970 */ case 50970: return ("PreviewColorSpace");
+    /* 50971 */ case 50971: return ("PreviewDateTime");
+    /* 50972 */ case 50972: return ("RawImageDigest");
+    /* 50973 */ case 50973: return ("OriginalRawFileDigest");
+    /* 50981 */ case 50981: return ("ProfileLookTableDims");
+    /* 50982 */ case 50982: return ("ProfileLookTableData");
+    /* 51041 */ case 51041: return ("NoiseProfile (DNG 1.3)");
+    /* 51111 */ case 51111: return ("NewRawImageDigest (DNG 1.4)");
+
+    /* 51123 */ case 51123: return ("MicroManagerMetadata (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
     /* 59932 */ case 59932: return ("Padding/ Exif MS HDPhoto"); /* see exiftool, http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html,
                                                                     also check https://commons.apache.org/proper/commons-imaging/xref/org/apache/commons/imaging/formats/tiff/constants/MicrosoftHdPhotoTagConstants.html
                                                                     it is around 2kB and used for Windows Vista */
     
-    /* 51123 */ case 51123: return ("MicroManagerMetadata (Micromanager)"); /* https://micro-manager.org/wiki/Micro-Manager_File_Formats */
     /* 64772 */ case 64772: return ("Kodak P-Series"); /* see http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
 
     default: 

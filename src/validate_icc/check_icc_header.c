@@ -11,8 +11,8 @@
 #endif
 */
 #define FAIL(RETCODE, ...) {snprintf(errmessage, errsize, __VA_ARGS__); return RETCODE;};
-//#define INFO(...) ;
-#define INFO(...) fprintf(stderr,__VA_ARGS__);
+#define INFO(...) ;
+//#define INFO(...) fprintf(stderr,__VA_ARGS__);
 // TODO: errormessage pointer und maxsize übergeben
 
 /*  parses common parts of ICC 2.4.0 / 4.3.0 and 5.0.0 (ICC MAX) headers */
