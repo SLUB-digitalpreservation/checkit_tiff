@@ -124,7 +124,7 @@ const char * get_parser_error_description( returncode_t r ) {
     case tagerror_count_results_in_offsets_overflow: return "Tag counts n elements, but resulting offset exceeds 4GB size"; break;
     case parser_logical_combine_open: return "internal parser state, combine multiple rules with logical or opened"; break;
     case parser_logical_combine_close: return "internal parser state, combine multiple rules with logical or closed"; break;
-    case tagerror_offset_is_zero: return "an offset zero is used, but not allowed"; break;
+    case tagerror_offset_is_zero: return "but an offset zero is used."; break;
 
   }
   assert( r == is_valid ); /* missed error description, should not occur */
