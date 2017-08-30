@@ -1,6 +1,6 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * author: Andreas Romeyke, 2015
+ * author: Andreas Romeyke, 2015-2017
  * licensed under conditions of libtiff 
  * (see file LICENSE)
  *
@@ -104,6 +104,7 @@ typedef enum {
   tagerror_count_results_in_offsets_overflow, /* example: rational is defined as 2 uint32. offset is defined as uint32. If we read count>2147483647 we got offset overflow */
   parser_logical_combine_open, /* if fc_logicalcombine was called first (no error) */
   parser_logical_combine_close, /* if fc_logicalcombine was called first (no error) */
+  tagerror_offset_is_zero, 
 
 
 } returncode_t;
@@ -242,6 +243,7 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag);
 ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char* regex_string);
 ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif);
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif);
+ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif);
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
 
 

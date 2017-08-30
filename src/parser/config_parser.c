@@ -1,6 +1,6 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * author: Andreas Romeyke, 2015
+ * author: Andreas Romeyke, 2015-2017
  * licensed under conditions of libtiff 
  * (see http://libtiff.maptools.org/misc.html)
  *
@@ -378,6 +378,7 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
 	        case fc_all_IFDs_are_word_aligned:      { ret = check_all_IFDs_are_word_aligned(ctif); break;}
 	        case fc_internal_logic_combine_open:    { ret.returncode = parser_logical_combine_open ; break; }
 	        case fc_internal_logic_combine_close:   { ret.returncode = parser_logical_combine_close ; break; }
+	        case fc_all_offsets_are_not_zero:       { ret = check_all_offsets_are_greater_zero(ctif); break;}
 	        default: {
 	                   GET_EMPTY_RET(res)
 	                   res.value_found = __ch_malloc(res.value_found);
@@ -1083,6 +1084,8 @@ void set_mode(modes_t mode) {
                                       e.function = fc_all_offsets_are_word_aligned;
                                       exe_push(e);
                                       e.function = fc_all_offsets_are_used_once_only;
+                                      exe_push(e);
+                                      e.function = fc_all_offsets_are_not_zero;
                                       exe_push(e);
                                       break;
                                     }

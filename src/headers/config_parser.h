@@ -55,6 +55,7 @@ typedef enum {
   fc_all_IFDs_are_word_aligned,
   fc_internal_logic_combine_open,
   fc_internal_logic_combine_close,
+  fc_all_offsets_are_not_zero,
   fc_dummy
 } function_t;
 

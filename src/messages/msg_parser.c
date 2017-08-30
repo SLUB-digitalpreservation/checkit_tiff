@@ -32,6 +32,7 @@ const char * get_parser_function_name( function_t f ) {
     case fc_all_IFDs_are_word_aligned: return "fc_all_IFDs_are_word_aligned"; break;
     case fc_internal_logic_combine_open: return "fc_internal_logic_combine_open"; break;
     case fc_internal_logic_combine_close: return "fc_internal_logic_combine_close"; break;
+    case fc_all_offsets_are_not_zero: return "fc_all_offsets_are_not_zero"; break;
     case fc_dummy: return "fc_dummy"; break;
   }
   return "missed function description, should not occur";
@@ -61,6 +62,7 @@ const char * get_parser_function_description( function_t f ) {
     case fc_all_IFDs_are_word_aligned: return "All IFDs should be word aligned,"; break;
     case fc_internal_logic_combine_open: return "One or more conditions needs to be combined in a logical_or operation (open)"; break;
     case fc_internal_logic_combine_close: return "One or more conditions needs to be combined in a logical_or operation (close)"; break;
+    case fc_all_offsets_are_not_zero: return "All tag offsets should be greater than zero,"; break;
     case fc_dummy: return "Dummy."; break;
   }
   return "missed function description, should not occur";
@@ -122,6 +124,7 @@ const char * get_parser_error_description( returncode_t r ) {
     case tagerror_count_results_in_offsets_overflow: return "Tag counts n elements, but resulting offset exceeds 4GB size"; break;
     case parser_logical_combine_open: return "internal parser state, combine multiple rules with logical or opened"; break;
     case parser_logical_combine_close: return "internal parser state, combine multiple rules with logical or closed"; break;
+    case tagerror_offset_is_zero: return "an offset zero is used, but not allowed"; break;
 
   }
   assert( r == is_valid ); /* missed error description, should not occur */
