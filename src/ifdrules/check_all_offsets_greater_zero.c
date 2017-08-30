@@ -19,10 +19,31 @@ ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif) {
   int tagidx;
   for (tagidx = 0; tagidx< count; tagidx++) {
     ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
-    if (ifd_entry.value_or_offset==is_offset) {
-      uint32 offset = ifd_entry.data32offset;
+    uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
+    uint32 offset=0;
+    if (ifd_entry.value_or_offset==is_offset || tag == TIFFTAG_EXIFIFD) {
+      if (ifd_entry.value_or_offset==is_offset) offset = ifd_entry.data32offset;
+      else if (tag == TIFFTAG_EXIFIFD) {
+        if (ifd_entry.count > 1) {
+          ret = set_value_found_ret(&ret, int2str(ifd_entry.count));
+          ret.returncode = tagerror_expected_count_isgreaterone;
+          return ret;
+        }
+        switch (ifd_entry.datatype) {
+          case TIFF_LONG: { /*  correct type */
+                            offset = ifd_entry.data32;
+                            break;
+                          }
+          default: { /*  incorrect type for EXIF IFD */
+                     ret = set_value_found_ret(&ret, TIFFTypeName(ifd_entry.datatype));
+                     ret.returncode = tagerror_unexpected_type_found;
+                     return ret;
+                     break;
+                   };
+
+        }
+      } /*  end else if tag == TIFFTAG_EXIFIFD */
       if ( 0 == offset) {
-        uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
         // FIXME: tif_fails?
         char array[TIFFAILSTRLEN];
         snprintf(array, sizeof(array), "tag %i pointing to 0x%08x", tag, offset);
