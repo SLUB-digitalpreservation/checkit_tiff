@@ -124,7 +124,7 @@ void parse_plan_via_stream (FILE * file);
 void parse_plan_via_file (const char * cfg_file);
 void add_default_rules_to_plan();
 void set_include( const char * );
-
+void exe_printstack_human_readable ();
 void result_push(full_res_t);
 #endif
 /* _FIXIT_TIFF_CONFIG_PARSER */
