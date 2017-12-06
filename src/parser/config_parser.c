@@ -571,7 +571,7 @@ void execute_plan (ctiff_t * ctif) {
       }
     }
   }
-#endif NOTAGCHECK
+#endif /* NOTAGCHECK */
 
 }
 
