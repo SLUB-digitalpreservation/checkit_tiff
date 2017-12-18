@@ -29,7 +29,7 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
   memset( res, '\0', RENDERSIZE);
   const retmsg_t * startp = ret;
   secstrcat(res, "<checkit_tiff_result>\n", RENDERSIZE);
-  short int is_valid=0;
+  render_context_t is_valid=within_valid;
   while (NULL != startp) {
     assert(startp->rm_msg != NULL);
     switch (startp->rm_type) {
@@ -55,16 +55,16 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
                           break;
       case rm_hard_error: secstrcat(res, "<error level=\"critical\">", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          is_valid = 1;
+                          is_valid = within_harderror;
                           break;
       case rm_error:      if (strlen(startp->rm_msg) > 0) {
                             secstrcat(res, "<error level=\"summary\">", RENDERSIZE);
                             secstrcat(res, startp->rm_msg, RENDERSIZE);
                             secstrcat(res, "</error>", RENDERSIZE);
-                            is_valid = 2;
+                            is_valid = within_summaryerror;
                           } else {
                             secstrcat(res, "<error level=\"error\">", RENDERSIZE);
-                            is_valid = 1;
+                            is_valid = within_error;
                           }
                           break;
       case rm_error_description:
@@ -74,11 +74,11 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
                           break;
       case rm_warning:    secstrcat(res, "<error level=\"warning\">", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          is_valid = 1;
+                          is_valid = within_error;
                           break;
       case rm_logicalor_error:    secstrcat(res, "<error level=\"logical or error\">", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          is_valid = 1;
+                          is_valid = within_error;
                           break;
       case rm_file:       secstrcat(res, "<file>", RENDERSIZE  );
                           secstrcat(res, startp->rm_msg, RENDERSIZE);
@@ -90,15 +90,17 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
                           break;
       case rm_endrule:
       case rm_endtiff:
-                          if (is_valid == 0) {
+                          if (is_valid == within_valid) {
                             secstrcat(res, "</valid>", RENDERSIZE);
-                          } else if (is_valid == 1) {
+                          } else if (is_valid == within_error) {
+                            secstrcat(res, "</error>", RENDERSIZE);
+                          } else if (is_valid == within_harderror) {
                             secstrcat(res, "</error>", RENDERSIZE);
                           }
                           secstrcat(res, "\n", RENDERSIZE);
                           break;
       case rm_is_valid:   secstrcat(res, "<valid>", RENDERSIZE);
-                          is_valid = 0;
+                          is_valid = within_valid;
                           break;
       default:            secstrcat(res, "<dummy>", RENDERSIZE);
                           secstrcat(res, startp->rm_msg, RENDERSIZE);

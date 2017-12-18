@@ -14,6 +14,7 @@
 /* 65536 Tags a 256 chars message + 100 Messages */
 #define RENDERSIZE (65536*256 + 100*256)
 typedef enum{ render_default, render_ansi, render_xml} render_type;
+typedef enum{ within_valid, within_error, within_file, within_summaryerror, within_harderror } render_context_t;
 
 const char * renderer ( const retmsg_t * ret );
 void set_renderer_to_ansi();
