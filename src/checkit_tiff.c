@@ -69,7 +69,8 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   if (res.returncode != is_valid) {
 	  assert(NULL != res.value_found);
 	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
-  printf("res.val='%s'\n", res.value_found);
+    __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endtiff);
+    //printf("res.val='%s'\n", res.value_found);
 	  goto renderer_exit;
   }  
   uint32 offset;
@@ -77,6 +78,7 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
   if (res.returncode != is_valid) {
 	  assert(NULL != res.value_found);
 	  __add_to_render_pipeline_via_strncpy(&actual_render, res.value_found, rm_hard_error);
+    __add_to_render_pipeline_via_strncpy(&actual_render, "", rm_endtiff);
 	  goto renderer_exit;
   }  
   execute_plan(ctif);
