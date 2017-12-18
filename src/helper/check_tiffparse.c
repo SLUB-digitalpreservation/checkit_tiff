@@ -281,7 +281,7 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     if (magic2==0x4f52) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
     if (magic2==0x5352) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
     ret = set_value_found_ret(&ret, errmsg);
-    ret.returncode = tiff_byteorder_error; 
+    ret.returncode = tiff_byteorder_error;
     return ret;
   }
   ret.returncode = should_not_occur;
@@ -416,8 +416,8 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 #define OFFSET_MALLOC(ctif, offsetdata, offset_type, count ) {\
   offsetdata = NULL; offsetdata = malloc ( sizeof(offset_type) * count);\
   if ( ct_read( ctif, offsetdata, sizeof(offset_type) * count) != (sizeof(offset_type) *count) ) {\
-       fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count);\
-       exit( EXIT_FAILURE );\
+       /*  fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); */\
+       /*  exit( EXIT_FAILURE ); */\
     char msg[VALUESTRLEN]; \
     snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); \
     ret = set_value_found_ret( &ret, msg); \
