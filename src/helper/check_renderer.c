@@ -17,22 +17,29 @@
 #include <string.h>
 
 render_type render_engine=render_default;
+short int is_quiet = 1;
+const char * xmlfile = NULL;
+
+void set_renderer_to_quiet() {
+  is_quiet=0;
+}
 
 void set_renderer_to_ansi() {
   if (isatty (STDOUT_FILENO)) {
     render_engine=render_ansi;
   }
 }
-void set_renderer_to_xml() {
+void set_renderer_to_xml( const char * given_xmlfile) {
     render_engine=render_xml;
+    xmlfile = given_xmlfile;
 }
 
 const char * renderer ( const retmsg_t * ret ) {
   // call debug renderer
   switch (render_engine) {
-    case render_xml: return renderer_xml( ret );
-    case render_ansi: return renderer_ansi( ret );
-    default: return renderer_default( ret );
+    case render_xml: return renderer_xml( ret, xmlfile);
+    case render_ansi: return renderer_ansi( ret, is_quiet );
+    default: return renderer_default( ret, is_quiet );
   }
   return "";
 }

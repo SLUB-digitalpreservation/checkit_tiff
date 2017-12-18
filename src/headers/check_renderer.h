@@ -17,10 +17,11 @@ typedef enum{ render_default, render_ansi, render_xml} render_type;
 
 const char * renderer ( const retmsg_t * ret );
 void set_renderer_to_ansi();
-void set_renderer_to_xml();
-const char * renderer_ansi ( const retmsg_t * ret );
-const char * renderer_default ( const retmsg_t * ret );
-const char * renderer_xml ( const retmsg_t * ret );
+void set_renderer_to_xml(const char *);
+void set_renderer_to_quiet();
+const char * renderer_ansi ( const retmsg_t * ret, short int );
+const char * renderer_default ( const retmsg_t * ret, short int );
+const char * renderer_xml ( const retmsg_t * ret, const char * xml );
 
 #endif
 

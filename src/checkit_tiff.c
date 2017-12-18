@@ -1,7 +1,7 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
- * 
+ *
  * author: Andreas Romeyke, 2015-2017
- * licensed under conditions of libtiff 
+ * licensed under conditions of libtiff
  * (see file LICENSE)
  *
  */
@@ -37,13 +37,14 @@ void help () {
   printf ("\trevision: %s\n", REPO_REVISION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n\n");
   printf ("call it with:\n");
-  printf ("\tcheckit_tiff [-c|-h|-m|-d] <configfile> <tifffile> [<tifffile>]\n");
+  printf ("\tcheckit_tiff [-c|-h|-m|-d|-q] <configfile> <tifffile> [<tifffile>]\n");
   printf ("\nwhere <tifffile> is the tiff file (or directory) to be validated\n");
   printf ("and <configfile> is the file name of the validation profile\n");
   printf ("\t-h this help\n");
   printf ("\t-c colorized output using ANSI escape sequences\n");
   printf ("\t-m uses memmapped I/O (faster validation, but needs more RAM)\n");
   printf ("\t-d check all files in that directory\n");
+  printf ("\t-q supresses the output of all valid tags\n");
   printf ("example:\n\tcheckit_tiff example_configs/baseline_minimal.cfg tiffs_should_pass/minimal_valid.tiff \n");
   printf ("\n");
 }
@@ -105,7 +106,7 @@ int main (int argc, char * argv[]) {
   int c;
   int flag_check_directory=UNFLAGGED;
   int flag_use_memorymapped_io=UNFLAGGED;
-  while ((c = getopt (argc, argv, "chmdx")) != -1) {
+  while ((c = getopt (argc, argv, "chmdx:q")) != -1) {
     switch (c)
     {
       case 'h': /* help */
@@ -114,8 +115,8 @@ int main (int argc, char * argv[]) {
       case 'c': /*  colorize output */
         set_renderer_to_ansi();
         break;
-      case 'x': /*  colorize output */
-        set_renderer_to_xml();
+      case 'x': /*  xml output */
+        set_renderer_to_xml( optarg);
         break;
       case 'd': /* check directory */
         flag_check_directory = FLAGGED;
@@ -123,6 +124,9 @@ int main (int argc, char * argv[]) {
         break;
       case 'm': /* use memory mapped I/O */
         flag_use_memorymapped_io=FLAGGED;
+        break;
+      case 'q': /* supresses output of valid rules/tags */
+        set_renderer_to_quiet();
         break;
       case '?': /* something goes wrong */
         /*

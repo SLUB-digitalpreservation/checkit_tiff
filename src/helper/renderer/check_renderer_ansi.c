@@ -52,59 +52,64 @@
 #define ANSI_WHITE      "\033[01;37m"
 #define ANSI_INVERSE    "\033[7m"
 
-const char * renderer_ansi ( const retmsg_t * ret ) {
+const char * renderer_ansi ( const retmsg_t * ret, short int is_quiet ) {
   assert (ret != NULL);
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
     exit(could_not_allocate_memory);
   }
   memset( res, '\0', RENDERSIZE);
-  secstrcat( res, "\t", RENDERSIZE  );
+  char * tmp = malloc( sizeof(char) * RENDERSIZE);
+  if (NULL == tmp) {
+    exit(could_not_allocate_memory);
+  }
+  memset( tmp, '\0', RENDERSIZE);
   const retmsg_t * startp = ret;
+  short int is_valid = 1;
   while (NULL != startp) {
     assert(startp->rm_msg != NULL);
     switch (startp->rm_type) {
-      case rm_rule:       secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
-                          secstrcat(res, "\t--> ", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_rule:       secstrcat(tmp, ANSI_NORMAL   , RENDERSIZE);
+                          secstrcat(tmp, "\t--> ", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_tag:        secstrcat(res, "\t", RENDERSIZE  );
-                          secstrcat(res, ANSI_BOLD     , RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_tag:        secstrcat(tmp, "\t", RENDERSIZE  );
+                          secstrcat(tmp, ANSI_BOLD     , RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_mode:       secstrcat(res, "\t", RENDERSIZE  );
-                          secstrcat(res, ANSI_BOLD     , RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_mode:       secstrcat(tmp, "\t", RENDERSIZE  );
+                          secstrcat(tmp, ANSI_BOLD     , RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_value:      secstrcat(res, ANSI_RED     , RENDERSIZE);
-                          secstrcat(res, " found: ", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_value:      secstrcat(tmp, ANSI_RED     , RENDERSIZE);
+                          secstrcat(tmp, " found: ", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_expected:   secstrcat(res, ANSI_BLUE, RENDERSIZE);
-                          secstrcat(res, " expected: " , RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_expected:   secstrcat(tmp, ANSI_BLUE, RENDERSIZE);
+                          secstrcat(tmp, " expected: " , RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_hard_error: secstrcat(res, ANSI_RED_BOLD , RENDERSIZE);
-                          secstrcat(res, "(HE)", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_hard_error: secstrcat(tmp, ANSI_RED_BOLD , RENDERSIZE);
+                          secstrcat(tmp, "(HE)", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_error:      secstrcat(res, ANSI_RED      , RENDERSIZE);
-                          secstrcat(res, "(EE)", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_error:      secstrcat(tmp, ANSI_RED      , RENDERSIZE);
+                          secstrcat(tmp, "(EE)", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
       case rm_error_description:
-                          secstrcat(res, ANSI_RED      , RENDERSIZE);
-                          secstrcat(res, " ", RENDERSIZE  );
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          secstrcat(tmp, ANSI_RED      , RENDERSIZE);
+                          secstrcat(tmp, " ", RENDERSIZE  );
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
-      case rm_warning:    secstrcat(res, ANSI_GREY   , RENDERSIZE);
-                          secstrcat(res, "(WW)", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_warning:    secstrcat(tmp, ANSI_GREY   , RENDERSIZE);
+                          secstrcat(tmp, "(WW)", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
       case rm_logicalor_error:
-                          secstrcat(res, ANSI_YELLOW   , RENDERSIZE);
-                          secstrcat(res, "(LE)", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+                          secstrcat(tmp, ANSI_YELLOW   , RENDERSIZE);
+                          secstrcat(tmp, "(LE)", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
                           break;
       case rm_file:       secstrcat(res, "file: ", RENDERSIZE  );
                           secstrcat(res, ANSI_BLUE_BOLD, RENDERSIZE);
@@ -112,26 +117,35 @@ const char * renderer_ansi ( const retmsg_t * ret ) {
                           secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
                           secstrcat(res, "\n", RENDERSIZE);
                           break;
-      case rm_lineno:     secstrcat(res, ANSI_GREY, RENDERSIZE);
-                          secstrcat(res, " (lineno: ", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, ")", RENDERSIZE);
+      case rm_lineno:     secstrcat(tmp, ANSI_GREY, RENDERSIZE);
+                          secstrcat(tmp, " (lineno: ", RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
+                          secstrcat(tmp, ")", RENDERSIZE);
                           break;
       case rm_endrule:
       case rm_endtiff:
-                          secstrcat(res, ANSI_NORMAL, RENDERSIZE);
-                          secstrcat(res, "\n", RENDERSIZE);
+                          secstrcat(tmp, ANSI_NORMAL, RENDERSIZE);
+                          secstrcat(tmp, "\n", RENDERSIZE);
+                          /*  copy tmp to res, reset tmp */
+                          if ((is_valid == 0) && (is_quiet == 0)) {
+                          } else {
+                            secstrcat(res, tmp, RENDERSIZE);
+                          }
+                          memset( tmp, '\0', RENDERSIZE);
+                          is_valid =1;
                           break;
-      case rm_is_valid:   secstrcat(res, ANSI_GREEN_BOLD, RENDERSIZE);
-                          secstrcat(res, "(./)", RENDERSIZE);
+      case rm_is_valid:   secstrcat(tmp, ANSI_GREEN_BOLD, RENDERSIZE);
+                          secstrcat(tmp, "(./)", RENDERSIZE);
+                          is_valid = 0;
                           break;
-      default:            secstrcat(res, ANSI_NORMAL   , RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      default:            secstrcat(tmp, ANSI_NORMAL   , RENDERSIZE);
+                          secstrcat(tmp, startp->rm_msg, RENDERSIZE);
     }
     startp=startp->next;
   }
   secstrcat(res, ANSI_NORMAL, RENDERSIZE);
   secstrcat(res, "\n", RENDERSIZE);
+  free(tmp);
   return res;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
