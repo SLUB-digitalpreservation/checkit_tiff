@@ -352,6 +352,7 @@ int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
 
   uint16 count;
   if ( ct_read( ctif, &count, 2) != 2 ) {
+    /*  FIXME: replace perror/exit with own error handling routine */
     perror ("TIFF Header ct_read error2");
     exit( EXIT_FAILURE );
   }
@@ -372,6 +373,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
   ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
   if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
+    /*  FIXME: replace perror/exit with own error handling routine */
     perror ("TIFF Header ct_read error3");
     exit( EXIT_FAILURE );
   }
@@ -551,6 +553,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
 
   if ( ct_read( ctif, ifdentries, 12 * tagcount) != 12*tagcount ) {
+    /*  FIXME: replace perror/exit with own error handling routine */
 	  perror ("TIFF Header ct_read error4");
 	  exit( EXIT_FAILURE );
   }
@@ -823,6 +826,7 @@ uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	ct_seek(ctif, actual_pos, SEEK_SET);
 	uint16 count;
 	if ( ct_read( ctif, &count, 2) != 2 ) {
+    /*  FIXME: replace perror/exit with own error handling routine */
 		perror ("TIFF Header ct_read error2");
 		exit( EXIT_FAILURE );
 	}
@@ -832,6 +836,7 @@ uint32 get_next_ifd_pos(ctiff_t * ctif, uint32 actual_pos) {
 	ct_seek(ctif, 12 * count, SEEK_CUR);
 	uint32 offset;
 	if ( ct_read( ctif, &offset, 4) != 4 ) {
+    /*  FIXME: replace perror/exit with own error handling routine */
 		perror ("TIFF Header ct_read error3");
 		exit( EXIT_FAILURE );
 	}
