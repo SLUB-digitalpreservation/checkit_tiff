@@ -139,6 +139,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                         offset_t offset;
                         ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                         uint32 * p = offset.data32p;
+                        if ((uint64) stripoffset_entry.count*sizeof(uint32) > 0xffffffff) {
+                          fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %lu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
+                          exit(EXIT_FAILURE);
+                        }
                         for (uint32 i=0; i< stripoffset_entry.count; i++) {
                           uint32 pval = *p;
                           if (is_byteswapped(ctif)) {
@@ -162,6 +166,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                          offset_t offset;
                          ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset);
                          uint16 * p = offset.data16p;
+                         if ((uint64) stripoffset_entry.count*sizeof(uint16) > 0xffffffff) {
+                           fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %lu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint16)), (uint64) 0xffffffff);
+                           exit(EXIT_FAILURE);
+                         }
                          for (uint32 i=0; i< count; i++) {
                            uint16 pval = *p;
                            if (is_byteswapped(ctif)) {
