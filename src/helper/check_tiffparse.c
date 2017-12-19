@@ -422,9 +422,9 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
        /*  exit( EXIT_FAILURE ); */\
     char msg[VALUESTRLEN]; \
     snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); \
-    ret = set_value_found_ret( &ret, msg); \
-    ret.returncode = tiff_read_error_offset; \
-    return ret; \
+    *ret_p  = set_value_found_ret( ret_p, msg); \
+    ret_p->returncode = tiff_read_error_offset; \
+    return *ret_p; \
   }\
 }
 
@@ -442,17 +442,17 @@ void offset_swablong(ctiff_t * ctif, uint32 * address, uint16 count) {
     }
 }
 /*  get count-data datastream from offset-address */
-ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * offset_p) {
+ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * offset_p, ret_t * ret_p) {
   assert(NULL !=  offset_p);
+  assert(NULL != ret_p);
   offset_p->count = count;
   offset_p->datatype = datatype;
-  GET_EMPTY_RET(ret)
-  ret.returncode = is_valid;
+  ret_p->returncode = is_valid;
   /* ct_read and seek to IFD address */
   if (ct_seek(ctif, address, SEEK_SET) != address) {
     offset_p->count = -1;
-    ret.returncode = tiff_seek_error_offset;
-    return ret;
+    ret_p->returncode = tiff_seek_error_offset;
+    return * ret_p;
   }
 #ifdef DEBUG
   printf("read_offsetdata(tif, adress=%u, count=%u, datatype=%u)\n", address, count, datatype);
@@ -520,17 +520,18 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
       {
         char msg[VALUESTRLEN];
         snprintf(msg, VALUESTRLEN, "offsetdata datatype=%i not supported yet", datatype);
-        ret = set_value_found_ret(&ret, msg);
-        ret.returncode = should_not_occur;
-        assert( ret.returncode != should_not_occur);
-        return ret;
+        *ret_p = set_value_found_ret(ret_p, msg);
+        ret_p->returncode = should_not_occur;
+        assert( ret_p->returncode != should_not_occur);
+        return *ret_p;
       }
   };
 #ifdef DEBUG
   printf ("is valid offset\n");
-  printf ("RET=%s\n", get_parser_error_description(ret.returncode));
+  printf ("RET=%s\n", get_parser_error_description(ret_p->returncode));
 #endif
-  return ret;
+  assert( NULL == ret_p->value_found);
+  return *ret_p;
 }
 
 /* scans first IDF and returns the type of the n-th tag */
@@ -878,7 +879,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
       offset_t offset;
-      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset, &ret);
       if (ret.returncode != is_valid) {
         /*  FIXME: free(offset.datacharp); */
         return ret;
@@ -942,7 +943,7 @@ ret_t TIFFGetFieldLONG(ctiff_t * ctif, const tag_t tag, uint32 ** long_pp, uint3
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
       offset_t offset;
-      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset, &ret);
       if (ret.returncode != is_valid) {
         /*  FIXME: free(offset.datacharp); */
         return ret;
@@ -999,7 +1000,7 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** short_pp, uin
     } else if (entry.value_or_offset == is_offset) {
       uint32 data32offset = entry.data32offset;
       offset_t offset;
-      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset, &ret);
       if (ret.returncode != is_valid) {
         /*  FIXME: free(offset.datacharp); */
         return ret;
@@ -1056,7 +1057,7 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** float_pp, u
       uint32 data32offset = entry.data32offset;
       offset_t offset;
       //printf("data32offset=%u count=%i\n", data32offset, entry.count);
-      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset);
+      ret = read_offsetdata( ctif, data32offset, entry.count, entry.datatype, &offset, &ret);
       if (ret.returncode != is_valid) {
         /*  FIXME: free(offset.datacharp); */
         return ret;

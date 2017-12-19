@@ -61,7 +61,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                       /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
                         offset_t offset;
-                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset);
+                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset, &ret);
                         uint32 * p = offset.data32p;
                         for (int i=0; i< count; i++) {
                           uint32 pval = *p;
@@ -95,7 +95,8 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                        /*  offset */
                        if (ifd_entry.value_or_offset == is_offset) {
                          offset_t offset;
-                         ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset);
+                         ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset, &ret);
+                         assert( NULL == ret.value_found);
                          uint16 * p = offset.data16p;
                          for (int i=0; i< count; i++) {
                            uint16 pval = *p;

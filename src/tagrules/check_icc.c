@@ -29,7 +29,7 @@ ret_t check_icc(ctiff_t * ctif ) {
                      /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
                         offset_t offset;
-                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset);
+                        ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset, &ret);
                         if (ret.returncode != is_valid) return ret;
                         icc_profile = (char *)offset.data32p;
                       } else {

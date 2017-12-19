@@ -93,7 +93,6 @@ long long fsize(int fd) {
 
 ret_t set_value_found_ret (ret_t * rp, const char * msg) {
   assert( NULL != rp);
-  assert( NULL == rp->value_found);
   assert( NULL != msg);
   rp->value_found=malloc(sizeof(char) * VALUESTRLEN);
   if (NULL == rp->value_found) {

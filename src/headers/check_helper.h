@@ -32,7 +32,7 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** result_string_p,
 ret_t TIFFGetFieldLONG(ctiff_t * ctif, const tag_t tag, uint32 ** result_long_p, uint32 * result_countp);
 ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** result_short_p, uint32 * result_countp);
 ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** result_float_p, uint32 * result_countp);
-ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * result_offsetp);
+ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, const uint16 datatype, offset_t * result_offsetp, ret_t * ret_p);
 char * secstrcat (char * dest, const char * src, int maxsize);
 ctiff_t * initialize_ctif( const char * tiff_file, ct_ioflag_t );
 void free_ctif( ctiff_t * ctif);
