@@ -60,6 +60,7 @@ int parse_icc_header_v240_v430(unsigned long iccsize, char * iccdata, unsigned l
       (0 != strncmp("WTG ", preferredcmmtype, 4))  &&
 #ifdef ALLOW_CMMTYPE_LINO
       (0 != strncmp("LINO", preferredcmmtype, 4))  &&
+      (0 != strncmp("Lino", preferredcmmtype, 4))  &&
 #endif
       (0 != strncmp("zc00", preferredcmmtype, 4))
 
