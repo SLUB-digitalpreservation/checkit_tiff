@@ -22,94 +22,102 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
     fprintf(stderr, "Could not open file '%s' for writing\n", xmlfile);
     exit(EXIT_FAILURE);
   }
+  /*
   char * res = malloc( sizeof(char) * RENDERSIZE);
   if (NULL == res) {
     exit(could_not_allocate_memory);
   }
   memset( res, '\0', RENDERSIZE);
+  */
+  char * res = calloc(RENDERSIZE, sizeof(char));
+  if (NULL == res) {
+    exit(could_not_allocate_memory);
+  }
+  size_t rendersize_res = RENDERSIZE-1;
+
   const retmsg_t * startp = ret;
-  secstrcat(res, "<checkit_tiff_result>\n", RENDERSIZE);
+  res=secstrcat(res, "<checkit_tiff_result>\n", &rendersize_res);
   render_context_t is_valid=within_valid;
   while (NULL != startp) {
     assert(startp->rm_msg != NULL);
     switch (startp->rm_type) {
-      case rm_rule:       secstrcat(res, "<rule>", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</rule>", RENDERSIZE);
+      case rm_rule:       res=secstrcat(res, "<rule>", & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg, &rendersize_res);
+                          res=secstrcat(res, "</rule>",  & rendersize_res);
                           break;
-      case rm_tag:        secstrcat(res, "<tag>", RENDERSIZE  );
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</tag>", RENDERSIZE);
+      case rm_tag:        res=secstrcat(res, "<tag>",  & rendersize_res  );
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</tag>",  & rendersize_res);
                           break;
-      case rm_mode:       secstrcat(res, "<mode>", RENDERSIZE  );
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</mode>", RENDERSIZE);
+      case rm_mode:       res=secstrcat(res, "<mode>",  & rendersize_res  );
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</mode>",  & rendersize_res);
                           break;
-      case rm_value:      secstrcat(res, "<value_found>", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</value_found>", RENDERSIZE);
+      case rm_value:      res=secstrcat(res, "<value_found>",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</value_found>",  & rendersize_res);
                           break;
-      case rm_expected:   secstrcat(res, "<value_expected>" , RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</value_expected>", RENDERSIZE);
+      case rm_expected:   res=secstrcat(res, "<value_expected>" ,  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</value_expected>",  & rendersize_res);
                           break;
-      case rm_hard_error: secstrcat(res, "<error level=\"critical\">", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_hard_error: res=secstrcat(res, "<error level=\"critical\">",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
                           is_valid = within_harderror;
                           break;
       case rm_error:      if (strlen(startp->rm_msg) > 0) {
-                            secstrcat(res, "<error level=\"summary\">", RENDERSIZE);
-                            secstrcat(res, startp->rm_msg, RENDERSIZE);
-                            secstrcat(res, "</error>", RENDERSIZE);
+                            res=secstrcat(res, "<error level=\"summary\">",  & rendersize_res);
+                            res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                            res=secstrcat(res, "</error>",  & rendersize_res);
                             is_valid = within_summaryerror;
                           } else {
-                            secstrcat(res, "<error level=\"error\">", RENDERSIZE);
+                            res=secstrcat(res, "<error level=\"error\">",  & rendersize_res);
                             is_valid = within_error;
                           }
                           break;
       case rm_error_description:
-                          secstrcat(res, "<description>", RENDERSIZE  );
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</description>", RENDERSIZE);
+                          res=secstrcat(res, "<description>",  & rendersize_res  );
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</description>",  & rendersize_res);
                           break;
-      case rm_warning:    secstrcat(res, "<error level=\"warning\">", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_warning:    res=secstrcat(res, "<error level=\"warning\">",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
                           is_valid = within_error;
                           break;
-      case rm_logicalor_error:    secstrcat(res, "<error level=\"logical or error\">", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
+      case rm_logicalor_error:    res=secstrcat(res, "<error level=\"logical or error\">",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
                           is_valid = within_error;
                           break;
-      case rm_file:       secstrcat(res, "<file>", RENDERSIZE  );
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</file>\n", RENDERSIZE);
+      case rm_file:       res=secstrcat(res, "<file>",  & rendersize_res  );
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</file>\n",  & rendersize_res);
                           break;
-      case rm_lineno:     secstrcat(res, "<lineno>", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</lineno>", RENDERSIZE);
+      case rm_lineno:     res=secstrcat(res, "<lineno>",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</lineno>",  & rendersize_res);
                           break;
       case rm_endrule:
       case rm_endtiff:
                           if (is_valid == within_valid) {
-                            secstrcat(res, "</valid>", RENDERSIZE);
+                            res=secstrcat(res, "</valid>",  & rendersize_res);
                           } else if (is_valid == within_error) {
-                            secstrcat(res, "</error>", RENDERSIZE);
+                            res=secstrcat(res, "</error>",  & rendersize_res);
                           } else if (is_valid == within_harderror) {
-                            secstrcat(res, "</error>", RENDERSIZE);
+                            res=secstrcat(res, "</error>",  & rendersize_res);
                           }
-                          secstrcat(res, "\n", RENDERSIZE);
+                          res=secstrcat(res, "\n",  & rendersize_res);
                           break;
-      case rm_is_valid:   secstrcat(res, "<valid>", RENDERSIZE);
+      case rm_is_valid:   res=secstrcat(res, "<valid>",  & rendersize_res);
                           is_valid = within_valid;
                           break;
-      default:            secstrcat(res, "<dummy>", RENDERSIZE);
-                          secstrcat(res, startp->rm_msg, RENDERSIZE);
-                          secstrcat(res, "</dummy>", RENDERSIZE);
+      default:            res=secstrcat(res, "<dummy>",  & rendersize_res);
+                          res=secstrcat(res, startp->rm_msg,  & rendersize_res);
+                          res=secstrcat(res, "</dummy>",  & rendersize_res);
     }
     startp=startp->next;
   }
-  secstrcat(res, "</checkit_tiff_result>", RENDERSIZE);
-  secstrcat(res, "\n", RENDERSIZE);
+  res=secstrcat(res, "</checkit_tiff_result>",  & rendersize_res);
+  res=secstrcat(res, "\n",  & rendersize_res);
   fprintf(f, "%s", res);
   fclose(f);
   memset( res, '\0', RENDERSIZE);

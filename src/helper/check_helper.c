@@ -10,6 +10,7 @@
 #include <math.h>
 #include "check.h"
 #include "check_helper.h"
+#include "check_renderer.h"
 #include <unistd.h>
 #include <sys/stat.h>
 #include <assert.h>
@@ -19,23 +20,34 @@
 #define DEBUG
 */
 
-char * secstrcat (char * dest, const char * src, int maxsize) {
+char * secstrcat (char * dest, const char * src, size_t * maxsize_p) {
+  assert(NULL != maxsize_p);
+  size_t maxsize = *maxsize_p;
   if (NULL == dest) {
     fprintf(stderr, "internal error, dest is NULL!\n");
     exit(EXIT_FAILURE);
   }
   if (NULL == src) {
-    dest="";
   } else {
-    //fprintf(stderr, "0dest='%s' , src='%s'\n", dest, src);
     int destsize = strnlen(dest, maxsize);
     int srclen = strnlen(src, maxsize);
-    //fprintf(stderr, "1dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
-    if (destsize+srclen < maxsize) {
-      strncat( dest, src, maxsize);
+    if (destsize+srclen < maxsize-1) {
+    	strncat( dest, src, srclen);
+    } else {
+      int new_maxsize=(((destsize+srclen) / RENDERSIZE)+1) * RENDERSIZE-1; 
+      if (new_maxsize < 4096*RENDERSIZE && new_maxsize > 0) {
+        char * dest_new = NULL;
+	dest_new = realloc(dest, (new_maxsize+1) * sizeof(char));
+	if (NULL == dest_new) {
+	  perror( "Could not realloc memory");
+	  exit( could_not_allocate_memory ); 
+	} else {
+	  *maxsize_p = new_maxsize;
+	  dest = dest_new;
+	  strncat( dest, src, destsize +srclen);
+	}	
+      }
     }
-    destsize = strlen(dest);
-    //fprintf(stderr, "2dest='%s' , src='%s', destsize=%i, srclen=%i\n", dest, src, destsize, srclen);
   }
   return dest;
 }
