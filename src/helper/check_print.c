@@ -39,12 +39,20 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
      exit( could_not_allocate_memory);
      // return could_not_allocate_memory;
    }
+   /*
    actual_render->next->rm_msg = malloc ( sizeof(char) * VALUESTRLEN );
    if (NULL == actual_render->next->rm_msg) {
      exit (could_not_allocate_memory);
      // return could_not_allocate_memory;
    }
    memset( actual_render->next->rm_msg, '\0', VALUESTRLEN);
+   */
+   actual_render->next->rm_msg = calloc (VALUESTRLEN, sizeof(char) );
+   if (NULL == actual_render->next->rm_msg) {
+     exit (could_not_allocate_memory);
+     // return could_not_allocate_memory;
+   }
+
    strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
    actual_render->next->rm_type = src_type;
    // fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
@@ -63,10 +71,10 @@ void __clean_render_pipeline( retmsg_t * pointer ) {
      free( pointer->rm_msg);
      pointer->rm_msg = NULL;
    }
-   free( pointer );
-   pointer = NULL;
    if (NULL != next)
      __clean_render_pipeline( next );
+   free( pointer );
+   pointer = NULL;
 }
 
 
