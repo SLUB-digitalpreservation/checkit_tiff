@@ -545,7 +545,6 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   // int fd = TIFFFileno( tif);
   //printf("count %i\n", count);
   /* ct_read count of tags (2 Bytes) */
-  int i;
   ifd_entry_t ifd_entry;
   ifd_entry.value_or_offset = is_error;
   /* replace i/o operatrions with in-memory-operations */
@@ -559,26 +558,41 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
 	  exit( EXIT_FAILURE );
   }
   uint8 * e = ifdentries;
-  for (i = 0; i<tagcount; i++) {
-    uint8 lo = *e;
-    e++;
-    uint8 hi = *e;
+  
+  for (int i = 0; i<tagcount; i++) {
+    uint8 * unloop_e = e;
+    uint8 * unloop_f = e+1;
+    uint8 * unloop_g = e+2;
+    uint8 * unloop_h = e+3;
+    uint8 lo = *unloop_e;
+    uint8 hi = *unloop_f;
     uint16 tagid = (hi << 8) + lo;
-    e++;
+    e+=2;
     if (byteswapped)
       TIFFSwabShort(&tagid);
     if (i == tagidx) {
       // tag type check
-      lo = *e; e++;
-      hi = *e; e++;
+      uint8 * unloop_e = e;
+      uint8 * unloop_f = e+1;
+      lo = *unloop_e; 
+      hi = *unloop_f; 
+      e+=2;
       uint16 tagtype = (hi << 8) + lo;
       if (byteswapped)
         TIFFSwabShort(&tagtype);
-
-      uint32 count = (*(e++));
-      count += (*(e++) << 8);
-      count += (*(e++) << 16);
-      count += (*(e++) << 24);
+      unloop_e=e;
+      unloop_f=e+1;
+      unloop_g=e+2;
+      unloop_h=e+3;
+      uint8 data0 = *unloop_e;
+      uint8 data1 = *unloop_f;
+      uint8 data2 = *unloop_g;
+      uint8 data3 = *unloop_h;
+      uint32 count = data0;
+      count += (data1 << 8);
+      count += (data2 << 16);
+      count += (data3 << 24);
+      e+=4;
       if (byteswapped)
         TIFFSwabLong( &count);
 #ifdef DEBUG
@@ -589,15 +603,21 @@ printf("\ncount=%0x\n\n", count);
       /*  TODO */
       ifd_entry.count=count;
       ifd_entry.datatype=tagtype;
-      uint8 data[4];
-      data[0] = *(e++);
-      data[1] = *(e++);
-      data[2] = *(e++);
-      data[3] = *(e++);
-      uint32 value_or_offset = (data[0]);
-      value_or_offset += (data[1] << 8);
-      value_or_offset += (data[2] << 16);
-      value_or_offset += (data[3] << 24);
+      unloop_e = e;
+      unloop_f=e+1;
+      unloop_g=e+2;
+      unloop_h=e+3;
+
+
+      data0 = *unloop_e;
+      data1 = *unloop_f;
+      data2 = *unloop_g;
+      data3 = *unloop_h;
+      uint32 value_or_offset = (data0);
+      value_or_offset += (data1 << 8);
+      value_or_offset += (data2 << 16);
+      value_or_offset += (data3 << 24);
+      e+=4;
       if (byteswapped)
         TIFFSwabLong( &value_or_offset);
       switch( tagtype) {
@@ -610,15 +630,15 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.data32offset=value_or_offset;
           } else { /*  values */
             ifd_entry.value_or_offset=is_value;
-            ifd_entry.data8[0] = data[0];
-            ifd_entry.data8[1] = data[1];
-            ifd_entry.data8[2] = data[2];
-            ifd_entry.data8[3] = data[3];
+            ifd_entry.data8[0] = data0;
+            ifd_entry.data8[1] = data1;
+            ifd_entry.data8[2] = data2;
+            ifd_entry.data8[3] = data3;
 #ifdef DEBUG
-            printf("data8[0]=%u\n", data[0]);
-            printf("data8[1]=%u\n", data[1]);
-            printf("data8[2]=%u\n", data[2]);
-            printf("data8[3]=%u\n", data[3]);
+            printf("data8[0]=%u\n", data0);
+            printf("data8[1]=%u\n", data1);
+            printf("data8[2]=%u\n", data2);
+            printf("data8[3]=%u\n", data3);
 #endif
           }; break;
         case 3: /* 16-bit unsigned integer */
@@ -628,8 +648,8 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.data32offset=value_or_offset;
           } else { /*  values */
             ifd_entry.value_or_offset=is_value;
-            uint16 w0 = (data[0]) + (data[1]<<8);
-            uint16 w1 = (data[2]) + (data[3]<<8);
+            uint16 w0 = (data0) + (data1<<8);
+            uint16 w1 = (data2) + (data3<<8);
             if (byteswapped) {
               TIFFSwabShort( &w0 );
               TIFFSwabShort( &w1 );
@@ -863,12 +883,20 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
     }
 
     *countp = entry.count;
+/*
     *(string_pp) = malloc( sizeof(char) * entry.count +1);
     if (NULL == (* string_pp)) {
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
     memset(*string_pp, '\0', entry.count+1);
+*/
+    *(string_pp) = calloc(entry.count+1, sizeof(char) );
+    if (NULL == (* string_pp)) {
+      ret.returncode=could_not_allocate_memory;
+      return ret;
+    }
+
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 4);
       for (uint32 i=0; i<entry.count; i++) {
