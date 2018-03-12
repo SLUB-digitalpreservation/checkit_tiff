@@ -51,7 +51,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                       if (ifd_entry.value_or_offset == is_value) {
                         for (int i=0; i< count; i++) {
                           if (v[i] != ifd_entry.data32) {
-                            snprintf(value, sizeof(value), "at [%u]=%u", i,  ifd_entry.data32);
+                            snprintf(value, sizeof(value), "at [%i]=%u", i,  ifd_entry.data32);
                             ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
@@ -69,7 +69,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                           if (v[i] != *p) {
-                            snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
+                            snprintf(value, sizeof(value), "at [%i]=%u", i,  pval);
                             ret = set_value_found_ret (&ret, value);
                             ret.returncode = tagerror_value_differs;
                             return ret;
@@ -85,7 +85,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                          for (int i=0; i< count; i++) {
                            int c = (v[i]) == (ifd_entry.data16[i]);
                            if (!c) {
-                             snprintf(value, sizeof(value), "at [%u]=%u", i,  ifd_entry.data16[i]);
+                             snprintf(value, sizeof(value), "at [%i]=%u", i,  ifd_entry.data16[i]);
                              ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
@@ -104,7 +104,7 @@ ret_t check_tag_has_valuelist(ctiff_t * ctif, tag_t tag, int count, const unsign
                            printf("SHORTOFFSET (tag=%i): v[%i]=%u p[%i]=0x%04x\n", tag, i,v[i],i,pval);
 #endif
                            if (v[i] != pval) {
-                             snprintf(value, sizeof(value), "at [%u]=%u", i,  pval);
+                             snprintf(value, sizeof(value), "at [%i]=%u", i,  pval);
                              ret = set_value_found_ret (&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;

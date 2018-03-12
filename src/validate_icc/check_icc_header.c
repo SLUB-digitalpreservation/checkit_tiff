@@ -28,7 +28,7 @@ icc_returncode_t parse_icc_common_header(unsigned long iccsize, char * iccdata, 
       (iccdata[3] & 0x00ff)
       ) & 0xffffffff;
   INFO("ICC: profilesize=%li %0x\n", profilesize, profilesize);
-  if (profilesize != iccsize) FAIL(icc_error_committed_size_differs, "committed ICC size (%li / 0x%04lx) differs from encoded profilesize (%li / 0x%04lx)", iccsize, iccsize, profilesize, profilesize);
+  if (profilesize != iccsize) FAIL(icc_error_committed_size_differs, "committed ICC size (%lu / 0x%04lx) differs from encoded profilesize (%lu / 0x%04lx)", iccsize, iccsize, profilesize, profilesize);
   /* -- */
   char preferredcmmtype[5]="    "; memcpy(preferredcmmtype, &iccdata[4],4);
   INFO("ICC: preferredcmmtype='%s'\n", preferredcmmtype);

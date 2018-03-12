@@ -107,7 +107,7 @@ void result_printstack() {
 
   printf("=== END result_printstack\n");
 }
-void i_printstack () { PRINT(&parser_state, "%i", i); }
+void i_printstack () { PRINT(&parser_state, "%u", i); }
 void i_push (unsigned int i) { PUSH(&parser_state, i, i);}
 unsigned int i_pop () { unsigned i; POP(&parser_state, i, i); return i; }
 void v_printstack () {
@@ -135,14 +135,13 @@ void exe_printstack_human_readable () {
   CHECKUNDERFLOW(&parser_state, exe);
   printf("\n/* the rules are in stack order, the top comes first */\n\n");
   for (int j=parser_state.exe_stackp-1; j>0; j--) {
-      const char * line;
       printf("/* lineno=%03i */ ", parser_state.exe_stack[j].lineno );
       if (parser_state.exe_stack[j].is_precondition) { printf ("PRECOND: "); }
       else {                                           printf ("EXEC:    "); }
       printf("%s tag=%i ", get_parser_function_name(parser_state.exe_stack[j].function), parser_state.exe_stack[j].tag);
          /*  print i_stack */
     if ( parser_state.exe_stack[j].i_stackp >=0 &&  parser_state.exe_stack[j].i_stackp<=MAXSTACKDEPTH) {
-	    printf ("top i stack=(%i)", parser_state.exe_stack[j].i_stack[ parser_state.exe_stack[j].i_stackp-1]);
+	    printf ("top i stack=(%u)", parser_state.exe_stack[j].i_stack[ parser_state.exe_stack[j].i_stackp-1]);
     }
     /*  print regex_stack */
     if ( parser_state.exe_stack[j].regex_stackp >=0 &&  parser_state.exe_stack[j].regex_stackp<=MAXSTACKDEPTH) {
@@ -309,7 +308,7 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
 	                                                  all_printed+=printed;
 	                                                  for (int j=0; j<count; j++) {
 	                                                    /*  reduce VALUESTRLEN with n*printed */
-	                                                    printed = snprintf(strp, VALUESTRLEN-all_printed, " [%i]=%i",j, values[j]);
+	                                                    printed = snprintf(strp, VALUESTRLEN-all_printed, " [%i]=%u",j, values[j]);
 	                                                    strp+=printed;
 	                                                    all_printed+=printed;
 	                                                  }
@@ -327,7 +326,7 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
 	                                                  all_printed+=printed;
 	                                                  for (int j=0; j<count; j++) {
 	                                                    /*  reduce VALUESTRLEN with n*printed */
-	                                                    printed = snprintf(strp, VALUESTRLEN, " [%i]=%i",j, values[j]);
+	                                                    printed = snprintf(strp, VALUESTRLEN, " [%i]=%u",j, values[j]);
 	                                                    strp+=printed;
 	                                                    all_printed+=printed;
 	                                                  }
@@ -925,6 +924,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
             internal_entry_t pp;
             pp.i_stackp = 0;
             pp.regex_stackp = 0;
+            pp.val_stackp=0;
             pp.lineno = getlineno();
             pp.is_precondition = true;
             pp.tag = e.tag;
@@ -988,6 +988,7 @@ void set_rule_logical_close() {
   e.tag = parser_state.tag;
   e.i_stackp=0;
   e.regex_stackp=0;
+  e.val_stackp = 0;
   e.lineno=getlineno();
   e.is_precondition=false;
   e.function=fc_internal_logic_combine_close;

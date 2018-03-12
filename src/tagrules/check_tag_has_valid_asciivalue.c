@@ -26,10 +26,8 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
   char *string=NULL;
   uint32 count=0;
   int r = 0;
-  char * val=NULL;
   if (datatype == TIFF_ASCII) {
-    uint32 count=0;
-    ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
+    ret = TIFFGetFieldASCII(ctif, tag, &string, &count);
     if (0 < count) { /* there exists a tag */
       for (uint32 i=0; i<count; i++) {
         if (string[i] == '\0') {
@@ -48,7 +46,7 @@ ret_t check_tag_has_valid_asciivalue(ctiff_t * ctif, tag_t tag) {
   }
   if (0 != r) {
     char array[VALUESTRLEN];
-    snprintf(array, sizeof(array), "'%s' (\\0 at position %i in %i-len)", val, r, count);
+    snprintf(array, sizeof(array), "'%s' (\\0 at position %i in %u-len)", string, r, count);
     ret = set_value_found_ret(&ret, array);
     ret.returncode = tagerror_multiple_zeros_in_asciivalue;
     return ret;

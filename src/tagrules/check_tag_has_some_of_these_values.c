@@ -34,18 +34,17 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, c
                         p++;
                       }
                       uint32 * valp = NULL;
-                      uint32 val=0;
                       uint32 vcount=0;
                       ret = TIFFGetFieldLONG(ctif, tag, &valp, &vcount);
                       if (vcount >0) {
-                        val = *valp;
+                        uint32 val= *valp;
                         char value[VALUESTRLEN];
                         snprintf(value, sizeof(value), "%u", val);
                         ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
                         ret.returncode = tagerror_value_differs;
                       };
                       return ret;
-                      break;
+                      /* break; */
                     }
     case TIFF_SHORT: {
                        p = values;
@@ -59,18 +58,17 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, c
                          p++;
                        }
                        uint16 * valp = NULL;
-                       uint16 val=0;
                        uint32 vcount=0;
                        ret = TIFFGetFieldSHORT(ctif, tag, &valp, &vcount);
                        if (vcount >0) {
-                         val = *valp;
+                         uint16 val= *valp;
                          char value[VALUESTRLEN];
                          snprintf(value, sizeof(value), "%u", val);
                          ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
                          ret.returncode = tagerror_value_differs;
                        }
                        return ret;
-                       break;
+                       /* break; */
                      }
     case TIFF_RATIONAL: {
                           p = values;
@@ -84,18 +82,17 @@ ret_t check_tag_has_some_of_these_values(ctiff_t * ctif, tag_t tag, int count, c
                             p++;
                           }
                           float * valp = NULL;
-                          float val=0.0f;
                           uint32 vcount=0;
                           ret = TIFFGetFieldRATIONAL(ctif, tag, &valp, &vcount);
                           if (count >0) {
-                            val = * valp;
+                            float val = * valp;
                             char value[VALUESTRLEN];
                             snprintf(value, sizeof(value), "%f", val);
                             ret.value_found = strncpy(ret.value_found, value, VALUESTRLEN);
                             ret.returncode = tagerror_value_differs;
                           }
                           return ret;
-                          break;
+                          /* break; */
                         }
     default: /*  none */
                         {

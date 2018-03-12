@@ -20,8 +20,8 @@ ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif) {
   for (tagidx = 0; tagidx< count; tagidx++) {
     ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
     uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
-    uint32 offset=0;
     if (ifd_entry.value_or_offset==is_offset || tag == TIFFTAG_EXIFIFD) {
+      uint32 offset=0;
       if (ifd_entry.value_or_offset==is_offset) offset = ifd_entry.data32offset;
       else if (tag == TIFFTAG_EXIFIFD) {
         if (ifd_entry.count > 1) {
@@ -38,7 +38,7 @@ ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif) {
                      ret = set_value_found_ret(&ret, TIFFTypeName(ifd_entry.datatype));
                      ret.returncode = tagerror_unexpected_type_found;
                      return ret;
-                     break;
+                     /* break; */
                    };
 
         }
@@ -46,7 +46,7 @@ ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif) {
       if ( 0 == offset) {
         // FIXME: tif_fails?
         char array[TIFFAILSTRLEN];
-        snprintf(array, sizeof(array), "tag %i pointing to 0x%08x", tag, offset);
+        snprintf(array, sizeof(array), "tag %u pointing to 0x%08x", tag, offset);
         ret = set_value_found_ret (&ret, array);
         ret.returncode = tagerror_offset_is_zero;
         return ret;

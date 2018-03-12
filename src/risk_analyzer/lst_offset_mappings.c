@@ -140,7 +140,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                         ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset, &ret);
                         uint32 * p = offset.data32p;
                         if ((uint64) stripoffset_entry.count*sizeof(uint32) > 0xffffffff) {
-                          fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %lu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
+                          fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
                           exit(EXIT_FAILURE);
                         }
                         for (uint32 i=0; i< stripoffset_entry.count; i++) {
@@ -167,7 +167,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                          ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset, &ret);
                          uint16 * p = offset.data16p;
                          if ((uint64) stripoffset_entry.count*sizeof(uint16) > 0xffffffff) {
-                           fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %lu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint16)), (uint64) 0xffffffff);
+                           fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint16)), (uint64) 0xffffffff);
                            exit(EXIT_FAILURE);
                          }
                          for (uint32 i=0; i< count; i++) {
@@ -209,10 +209,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
     mem_map_entry_t * act =memmap.base_p+j;
     uint32 estimated_offset = (prev->offset + prev->count);
     if (estimated_offset < act->offset) { /*  found a hole */
-      printf("HOLE FOUND at %i\n", estimated_offset);
+      printf("HOLE FOUND at %u\n", estimated_offset);
       
-      printf("\tprev->offset=%i prev->count=%i estimated=%i\n", prev->offset, prev->count, estimated_offset);
-      printf("\tact->offset=%i act->count=%i\n", act->offset, act->count);
+      printf("\tprev->offset=%u prev->count=%u estimated=%u\n", prev->offset, prev->count, estimated_offset);
+      printf("\tact->offset=%u act->count=%u\n", act->offset, act->count);
       
       add_mem_entry( &memmap, estimated_offset, (act->offset -estimated_offset), mt_unused);
     }
@@ -223,7 +223,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   mem_map_entry_t * last = memmap.base_p + memmap.count-1;
   uint32 estimated_offset = (last->offset + last->count);
   if (memmap.max_len > estimated_offset) {
-      printf("HOLE (at end) FOUND at %i\n", estimated_offset);
+      printf("HOLE (at end) FOUND at %u\n", estimated_offset);
       add_mem_entry( &memmap, estimated_offset, (memmap.max_len -estimated_offset), mt_unused);
   }
   /* sort entries by offset again */
@@ -239,7 +239,7 @@ void print_mem_map( mem_map_t * memmap_p ) {
 	printf("size of file is %u bytes\n", memmap.max_len);
 	for (int j=0; j< memmap.count; j++) {
 		mem_map_entry_t * i=memmap.base_p+j;
-		printf ("entry=%03i, offset_start=%10i, count=%10i, offset_next=%10i, [%02i], type=%s\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type, memtype_string[i->mem_type]);
+		printf ("entry=%03i, offset_start=%10u, count=%10u, offset_next=%10u, [%02i], type=%s\n", j,i->offset, i->count, (i->offset + i->count), i->mem_type, memtype_string[i->mem_type]);
 	}
 }
 
@@ -258,8 +258,8 @@ void print_mem_stats( mem_map_t * memmap_p) {
 	}
 	for (int i=0; i<mt_END_marker; i++) {
 		float ratio = ((float) (stat[i])) / ((float) size);
-		printf("[%02i], type=%32s, bytes=%10i, ratio=%0.5f\n", i, memtype_string[i], stat[i], ratio);
+		printf("[%02i], type=%32s, bytes=%10u, ratio=%0.5f\n", i, memtype_string[i], stat[i], ratio);
 	}
-	printf("counted: %i bytes, size: %i bytes\n", counted, size);
+	printf("counted: %u bytes, size: %u bytes\n", counted, size);
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

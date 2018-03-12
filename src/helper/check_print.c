@@ -59,7 +59,7 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
    actual_render = actual_render->next;
    assert(actual_render != NULL);
    assert(actual_render->rm_msg != NULL);
-   actual_render->next=NULL;
+   actual_render->next=NULL; /*  FIXME: cppcheck means 'memleak' */
    *pointer = actual_render;
    return is_valid;
 }
@@ -74,7 +74,7 @@ void __clean_render_pipeline( retmsg_t * pointer ) {
    if (NULL != next)
      __clean_render_pipeline( next );
    free( pointer );
-   pointer = NULL;
+   /* pointer = NULL; */
 }
 
 

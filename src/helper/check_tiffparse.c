@@ -105,7 +105,7 @@ ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
                        memcpy(buf, ctif->actual_streamp, count);
                        ctif->actual_streamp+=count;
                        return count;
-                       break;
+                       /* break; */
                      }
   }
 #else
@@ -164,11 +164,10 @@ ret_t check_tag_has_fvalue(ctiff_t * ctif, tag_t tag, float value) {
   tifp_check( ctif);
 
   float * valp = NULL;
-  float val;
   uint32 found;
   ret =TIFFGetFieldRATIONAL(ctif, tag, &valp, &found);
   if (1 == found) {
-    val = * valp;
+    float val = * valp;
     if ( fabs(val - value) < 0.01 ) {
       ret.returncode=is_valid;
       return ret;
@@ -823,7 +822,7 @@ void free_ctif( ctiff_t * ctif) {
 	 close(ctif->fd);
 	 ctif->fd = -1;
 	free (ctif);
-	ctif = NULL;
+	/* ctif = NULL; */
 }
 
 uint32 get_ifd0_pos( ctiff_t * ctif ) {

@@ -25,7 +25,7 @@ ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif) {
         uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
         // FIXME: tif_fails?
         char array[TIFFAILSTRLEN];
-        snprintf(array, sizeof(array), "tag %i pointing to 0x%08x and is not word-aligned", tag, offset);
+        snprintf(array, sizeof(array), "tag %u pointing to 0x%08x and is not word-aligned", tag, offset);
         ret = set_value_found_ret (&ret, array);
         ret.returncode = tagerror_offset_not_word_aligned;
         return ret;

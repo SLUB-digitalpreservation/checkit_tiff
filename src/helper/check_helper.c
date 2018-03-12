@@ -66,19 +66,19 @@ const char* tag2str(tag_t tag) {
 
 const char* int2str(int v) {
  char array[VALUESTRLEN];
-  snprintf(array, sizeof(array), "%u", v);
+  snprintf(array, sizeof(array), "%i", v);
   return strdup(array);
 }
 
 const char* frac2str(int d, int n) {
   char array[VALUESTRLEN];
-  snprintf(array, sizeof(array), "%u/%u", d, n);
+  snprintf(array, sizeof(array), "%i/%i", d, n);
   return strdup(array);
 }
 
 const char* range2str(int d, int n) {
   char array[VALUESTRLEN];
-  snprintf(array, sizeof(array), "<%u-%u>", d, n);
+  snprintf(array, sizeof(array), "<%i-%i>", d, n);
   return strdup(array);
 }
 

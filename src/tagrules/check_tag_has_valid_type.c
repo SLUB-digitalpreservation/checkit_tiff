@@ -95,7 +95,7 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
     case TIFFTAG_YRESOLUTION:       res=(datatype  ==  TIFF_RATIONAL); break;
     default: {
 #ifdef DEBUG
-               printf("for tag %i no explicite type check implemented\n");
+               printf("for tag %i no explicite type check implemented\n", tag);
 #endif
                ret = set_value_found_ret(&ret, TIFFTypeName(datatype));
                ret.returncode = tagwarn_type_of_unknown_tag_could_not_be_checked;

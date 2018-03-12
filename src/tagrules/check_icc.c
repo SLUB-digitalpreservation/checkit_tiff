@@ -20,13 +20,12 @@ ret_t check_icc(ctiff_t * ctif ) {
 
   ifd_entry_t ifd_entry = TIFFGetRawIFDEntry(ctif, TIFFTAG_ICCPROFILE);
   uint32 icc_profile_size;
-  uint32 count;
   char * icc_profile = NULL;
   switch (ifd_entry.datatype) { /* icc datatype should be undefined (val=7) */
       case TIFF_UNDEFINED: {
-                       icc_profile_size = ifd_entry.count;
-                       count = ifd_entry.count;
-                     /*  offset */
+                      icc_profile_size = ifd_entry.count;
+                      uint32 count= ifd_entry.count;
+                      /*  offset */
                       if (ifd_entry.value_or_offset == is_offset) {
                         offset_t offset;
                         ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset, &ret);
@@ -42,7 +41,7 @@ ret_t check_icc(ctiff_t * ctif ) {
                ret = set_value_found_ret( &ret, TIFFTypeName(ifd_entry.datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
-               break;
+               /* break; */
              };
   }
 

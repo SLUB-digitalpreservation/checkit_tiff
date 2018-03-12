@@ -19,7 +19,6 @@ ret_t check_tagorder(ctiff_t * ctif) {
     int count = get_ifd0_count(ctif);
 
     /* read count of tags (2 Bytes) */
-    int i;
     /* replace i/o operatrions with in-memory-operations */
     uint8 * ifdentries = NULL;
     ifdentries = malloc ( sizeof(uint8) * 12 * count);
@@ -29,7 +28,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
     }
     if (ct_seek(ctif, offset+2, SEEK_SET) != (offset+2)) {
       char array[VALUESTRLEN];
-      snprintf(array, VALUESTRLEN, "%i bytes, errorcode=%i", offset+2, errno);
+      snprintf(array, VALUESTRLEN, "%u bytes, errorcode=%i", offset+2, errno);
       ret = set_value_found_ret(&ret, array);
       ret.returncode = tiff_seek_error_header;
       return ret;
@@ -43,7 +42,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
     } else {
       uint8 * e = ifdentries;
       uint16 lasttag = 0;
-      for (i = 0; i<count; i++) {
+      for (int i = 0; i<count; i++) {
         uint8 lo = *e;
         e++;
         uint8 hi = *e;

@@ -172,7 +172,6 @@ int main (int argc, char * argv[]) {
       strncpy(tiff_dir, tiff_file_or_dir, len);
       tiff_dir[  len ] = 0; 
       DIR *dir;
-      struct dirent *ent;
       /* remove trailing / */
       char *dirsuffix = strrchr(tiff_dir, '/');
       if (dirsuffix != NULL) { /* found a / */
@@ -186,6 +185,7 @@ int main (int argc, char * argv[]) {
       /* iterate through all files in given dir */
       if ((dir = opendir (tiff_file_or_dir)) != NULL) {
         /* print all the files and directories within directory */
+        struct dirent *ent;
         while ((ent = readdir (dir)) != NULL) {
           struct stat attribute;
           len = strlen( tiff_dir ) + strlen( ent->d_name ) + 2;

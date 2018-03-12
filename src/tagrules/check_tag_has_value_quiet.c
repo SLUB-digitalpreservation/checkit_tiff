@@ -53,19 +53,18 @@ ret_t check_tag_has_value_quiet(ctiff_t * ctif, tag_t tag, unsigned int expected
                             ret = set_value_found_ret(&ret, msg);
                             ret.returncode = tagerror_denominator_is_zero_in_fract;
                             return ret;
-                            break;
                           } else if (expected_value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
                             ret = set_value_found_ret(&ret, frac2str( ifd_entry.data16[0], ifd_entry.data16[1]));
                             ret.returncode = tagerror_value_differs;
                             return ret;
-                            break;
                           }
+                          break;
                         };
     default: { /*  none */
                ret = set_value_found_ret(&ret, TIFFTypeName(ifd_entry.datatype));
                ret.returncode = tagerror_unexpected_type_found;
                return ret;
-               break;
+               /* break; */
 
              };
   };
