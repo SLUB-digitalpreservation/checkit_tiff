@@ -44,7 +44,7 @@ void help () {
   printf ("\t-c colorized output using ANSI escape sequences\n");
   printf ("\t-m uses memmapped I/O (faster validation, but needs more RAM)\n");
   printf ("\t-d check all files in that directory\n");
-  printf ("\t-q supresses the output of all valid tags\n");
+  printf ("\t-q suppresses the output of all valid tags\n");
   printf ("example:\n\tcheckit_tiff example_configs/baseline_minimal.cfg tiffs_should_pass/minimal_valid.tiff \n");
   printf ("\n");
 }
@@ -127,7 +127,7 @@ int main (int argc, char * argv[]) {
       case 'm': /* use memory mapped I/O */
         flag_use_memorymapped_io=FLAGGED;
         break;
-      case 'q': /* supresses output of valid rules/tags */
+      case 'q': /* suppresses output of valid rules/tags */
         set_renderer_to_quiet();
         break;
       case '?': /* something goes wrong */

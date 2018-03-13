@@ -241,14 +241,14 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
   }
   uint16 header;
   uint16 magic;
-  int endianess;
+  int endianness;
   if ( ct_read( ctif, &header, 2) != 2 ) {
     ret = set_value_found_ret(&ret, "TIFF Header ct_read error to magic byte header (first 2 bytes)");
     ret.returncode=tiff_read_error_header;
     return ret;
   }
-  if (header == 0x4949) endianess = 0; /* little endian */
-  else if (header == 0x4d4d) endianess = 1; /*  big endian */
+  if (header == 0x4949) endianness = 0; /* little endian */
+  else if (header == 0x4d4d) endianness = 1; /*  big endian */
   else {
     char errmsg[VALUESTRLEN]="";
     snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x", header);
@@ -259,7 +259,7 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     ret.returncode = tiff_byteorder_error;
     return ret;
   }
-  ctif->isbyteswapped = endianess;
+  ctif->isbyteswapped = endianness;
   if ( ct_read( ctif, &magic, 2) != 2 ) {
     ret = set_value_found_ret(&ret, "TIFF Header ct_read error to magic byte header (second 2 bytes == 42)");
     ret.returncode=tiff_read_error_header;
@@ -267,7 +267,7 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
   }
 
   uint16 magic2 = magic;
-  if (endianess) TIFFSwabShort( &magic2 ); /*  big endian */
+  if (endianness) TIFFSwabShort( &magic2 ); /*  big endian */
   if (magic2 == 42) { ret.returncode=is_valid; return ret; }
   else {
     char errmsg[VALUESTRLEN]="";
@@ -454,7 +454,7 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
     return * ret_p;
   }
 #ifdef DEBUG
-  printf("read_offsetdata(tif, adress=%u, count=%u, datatype=%u)\n", address, count, datatype);
+  printf("read_offsetdata(tif, address=%u, count=%u, datatype=%u)\n", address, count, datatype);
 #endif
   switch (datatype) {
     case 1: /* 8-bit unsigned integer */
@@ -515,7 +515,7 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
       assert( sizeof(double) == 8);
       OFFSET_MALLOC(ctif, offset_p->datas64p, int64, count)
         break;
-    default: /*  should not occure */
+    default: /*  should not occur */
       {
         char msg[VALUESTRLEN];
         snprintf(msg, VALUESTRLEN, "offsetdata datatype=%i not supported yet", datatype);

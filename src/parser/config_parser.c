@@ -444,7 +444,7 @@ void execute_plan (ctiff_t * ctif) {
     printf("last run was a precondition? (2) %s\n", (true==last_run_was_a_precondition)?"true":"false");
     printf(".. precondition_result=%s\n", get_parser_error_description(precondition_result));
     printf(".. precondition_function=%s\n", get_parser_function_description(precondition_function));
-    printf("should we go in fc call? %s\n",  ( /* last was sucessfull precondition */
+    printf("should we go in fc call? %s\n",  ( /* last was successful precondition */
 			    should_we_go_in_fc_call)?"true":"false");
     printf("parsing function %s (%i) (linecode=%i)\n", get_parser_function_description( exe.function), exe.function, exe.lineno);
 
@@ -850,7 +850,7 @@ void build_functional_structure(internal_entry_t * e_p, values_t val) {
       }
              */
         default:
-            fprintf(stderr, "unknown val %i, should not occure\n", val);
+            fprintf(stderr, "unknown val %i, should not occur\n", val);
             exit(EXIT_FAILURE);
     }
 }
@@ -944,7 +944,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
         }
         default:
         {
-            fprintf(stderr, "unknown parserstate.req (%i), should not occure\n", parser_state.req);
+            fprintf(stderr, "unknown parserstate.req (%i), should not occur\n", parser_state.req);
             exit(EXIT_FAILURE);
         }
             

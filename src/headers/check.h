@@ -29,7 +29,7 @@ typedef struct ctiff_s {
 	ct_ioflag_t ioflag;
         tagorder_t tagorder;
         int tag_cache[65536];
-	void * streamp; /* TODO: adress of memory-mapped tif stream */
+	void * streamp; /* TODO: address of memory-mapped tif stream */
 	void * actual_streamp;
 	uint32 streamlen; /* TODO: length of tif stream/file (in bytes) */
 	thandle_t fd; /* filedescriptor */
@@ -188,7 +188,7 @@ static const char* memtype_string[] = {
 };
 
 typedef struct mem_map_entry_s {
-	uint32 offset; /* adress within the tiff */
+	uint32 offset; /* address within the tiff */
 	uint32 count; /* count of bytes beginning with offset */
 	memtype_t mem_type; /* type of memory */
 } mem_map_entry_t;

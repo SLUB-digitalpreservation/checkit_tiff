@@ -21,7 +21,7 @@ typedef enum {
   icc_error_header_v240_v430         = ICC_ERROR_OFFSET + 5, /* Invalid ICC profile ICC.1:2001-04, see http://www.color.org/ICC_Minor_Revision_for_Web.pdf for details */
   icc_error_header_generic           = ICC_ERROR_OFFSET + 6, /* size < 10 */
   icc_error_preferredcmmtype         = ICC_ERROR_OFFSET + 7, /* preferred cmmtype ('%s') should be empty or (possibly, because ICC validation is alpha code) one of following strings: 'ADBE' 'ACMS' 'appl' 'CCMS' 'UCCM' 'UCMS' 'EFI ' 'FF  ' 'EXAC' 'HCMM' 'argl' 'LgoS' 'HDM ' 'lcms' 'KCMS' 'MCML' 'WCS ' 'SIGN' 'RGMS' 'SICC' 'TCMM' '32BT' 'WTG ' 'zc00'" */
-  icc_error_committed_size_differs   = ICC_ERROR_OFFSET + 8, /* commited ICC size differs from encoded profilesize */
+  icc_error_committed_size_differs   = ICC_ERROR_OFFSET + 8, /* committed ICC size differs from encoded profilesize */
   icc_error_header_v500_2016         = ICC_ERROR_OFFSET + 9, /* Invalid ICC profile ICC.1:2001-04, see  http://www.color.org/iccmax/ICC.2-2016-7.pdf for details */
   icc_error_header_version_undefined = ICC_ERROR_OFFSET +10, /* if header version was undefined yet */
   icc_error_header_version_outdated  = ICC_ERROR_OFFSET +11, /*  if header version was outdated */

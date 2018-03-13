@@ -128,13 +128,13 @@ const char * TIFFTagName( tag_t tag ) {
     /* 559 */ case TIFFTAG_STRIPROWCOUNTS: return ("StripRowCounts");
     /* 700 */ case TIFFTAG_XMLPACKET: return ("XMP");
 
-    /* 20507 */ case 20507: return ("inofficial EXIF ThumbnailData (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20515 */ case 20515: return ("inofficial EXIF ThumbnailCompression (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20525 */ case 20525: return ("inofficial EXIF ThumbnailResolutionX (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20526 */ case 20526: return ("inofficial EXIF ThumbnailResolutionY (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20528 */ case 20528: return ("inofficial EXIF ThumbnailResolutionUnit (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20624 */ case 20624: return ("inofficial EXIF LuminanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
-    /* 20625 */ case 20625: return ("inofficial EXIF ChrominanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20507 */ case 20507: return ("unofficial EXIF ThumbnailData (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20515 */ case 20515: return ("unofficial EXIF ThumbnailCompression (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20525 */ case 20525: return ("unofficial EXIF ThumbnailResolutionX (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20526 */ case 20526: return ("unofficial EXIF ThumbnailResolutionY (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20528 */ case 20528: return ("unofficial EXIF ThumbnailResolutionUnit (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20624 */ case 20624: return ("unofficial EXIF LuminanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
+    /* 20625 */ case 20625: return ("unofficial EXIF ChrominanceTable (poss. Olympus)"); /* see http://www.stefanheymann.de/homegallery/exif-felder.htm, but not in Exif2.3 standard */
 
     /* 32768 -,  0x8000 -  */
     /* 32768 */ case 32768: return ("OLD BOGUS Matteing tag" );
@@ -376,7 +376,7 @@ const char * TIFFTagName( tag_t tag ) {
     /* 50217 */ case 50217: return ("Oce Identification Number"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
     /* 50218 */ case 50218: return ("Oce ImageLogic Characteristics"); /* see http://www.rastermaster.com/RasterMaster%20DLL%20manual/WebHelp/Content/aptifftagswide.htm for explanation of tag or http://www.awaresystems.be/imaging/tiff/tifftags/docs/oce.html*/
     /* 50255 */ case 50255: return ("Photoshop Annotations"); /* http://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_17312  */
-    /* 50341 */ case 50341: return ("inofficial EXIF PrintImageMatching (poss. Olympus)"); /* see http://www.exiv2.org/tags.html, but not in Exif2.3 standard */
+    /* 50341 */ case 50341: return ("unofficial EXIF PrintImageMatching (poss. Olympus)"); /* see http://www.exiv2.org/tags.html, but not in Exif2.3 standard */
     /* 50454 */ case 50454: return ("unknown Sinar tag"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 50455 */ case 50455: return ("unknown Sinar tag"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
     /* 50459 */ case 50459: return ("Hasselblad IFD"); /* http://hg.corpus-callosum.com/X3F_Utilities/X3F_qlgenerator/rev/177b9a6b3b14?revcount=30 */
