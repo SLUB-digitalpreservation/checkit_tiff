@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 11;
+use Test::More tests => 12;
 use POSIX;
 
 my $testdir=prepare();
@@ -125,7 +125,7 @@ $cfg=<<'REGEX2_TEST';
 296; mandatory; any
 REGEX2_TEST
 write_file("$testdir/test.cfg5", $cfg) || die "could not write $testdir/test.cfg5, $!\n";
-ok (! call_checkit_tiff( "$testdir/test.cfg5", $smalltiff), "call ($testdir/test.cfg5, $smalltiff), regex false" );
+is (call_checkit_tiff( "$testdir/test.cfg5", $smalltiff),  "", "call ($testdir/test.cfg5, $smalltiff), regex false" );
 
 $cfg=<<'TAILORED_TEST';
 # tailored test for minimal_valid.tiff
@@ -260,7 +260,25 @@ write_file("$testdir/test.cfg10", $cfg) || die "could not write $testdir/test.cf
 ok ( call_checkit_tiff( "$testdir/test.cfg10", "$tiffdir/bigendian/minimal_valid_baseline_BigEndian.tiff"), "call ($testdir/test.cfg10,  $tiffdir/bigendian/minimal_valid_baseline_BigEndian.tiff), tailored w modes" );
 
 
-
-
-
-cleanup();
+$cfg=<<'TAILORED_TEST';
+# regression test for minimal_valid_baseline.tiff
+254; mandatory; any
+256; mandatory; any
+257; mandatory; any
+258; mandatory; any
+273; mandatory; any
+274; mandatory; any
+277; mandatory; any
+278; mandatory; any
+279; mandatory; any
+282; mandatory; any
+283; mandatory; any
+284; mandatory; any
+296; mandatory; any
+259; depends(262.0); logical_or(1,2,32773)
+262; mandatory; logical_or(0,2)
+TAILORED_TEST
+write_file("$testdir/test.cfg11", $cfg) || die "could not write $testdir/test.cfg11, $!\n";
+ok ( call_checkit_tiff( "$testdir/test.cfg11", "$tiffdir/minimal_valid_baseline.tiff"), "call ($testdir/test.cfg11,  $tiffdir/minimal_valid_baseline.tiff), tailored regression" );
+############
+#cleanup();
