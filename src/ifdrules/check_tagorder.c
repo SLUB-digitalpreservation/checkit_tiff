@@ -31,6 +31,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
       snprintf(array, VALUESTRLEN, "%u bytes, errorcode=%i", offset+2, errno);
       ret = set_value_found_ret(&ret, array);
       ret.returncode = tiff_seek_error_header;
+      if (NULL != ifdentries) free(ifdentries);
       return ret;
     }
     if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
