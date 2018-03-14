@@ -21,7 +21,7 @@ my $checkit_tiff="../build/checkit_tiff";
 sub call_checkit_tiff {
     my $cfg=shift;
     my $tiff = shift;
-    #print "DEBUG: $checkit_tiff -c $tiff $cfg\n";
+    # print "DEBUG: $checkit_tiff -q -c  $cfg $tiff\n";
     #print "------------------------\n";
     #system("$checkit_tiff", "-q", $cfg, $tiff);
     #print "========================\n";
@@ -31,11 +31,11 @@ sub call_checkit_tiff {
     use IO::File;
     local *CATCHERR = IO::File->new_tmpfile;
     my $pid = open3($in, \*CATCHOUT, ">&CATCHERR", "$checkit_tiff -q $cfg $tiff");
-    my @out;
+    my @out; my @err;
     while( <CATCHOUT> ) { push @out, $_; }
     waitpid($pid, 0);
     seek CATCHERR, 0, 0;
-    while( <CATCHERR> ) {}
+    while( <CATCHERR> ) { push @err, $_; }
 
     #
     my $ret=0;
@@ -53,6 +53,8 @@ sub call_checkit_tiff {
         if ($ret != 0) {
             print "----------->\n";
             print join ("\n", @out);
+            use Data::Printer;
+            p( @err );
             print "<-----------\n\n";
         }
     }
