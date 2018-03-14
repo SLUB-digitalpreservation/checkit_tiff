@@ -134,7 +134,7 @@ void exe_printstack_human_readable () {
   CHECKOVERFLOW(&parser_state, exe);
   CHECKUNDERFLOW(&parser_state, exe);
   printf("\n/* the rules are in stack order, the top comes first */\n\n");
-  for (int j=parser_state.exe_stackp-1; j>0; j--) {
+  for (int j=parser_state.exe_stackp-1; j>=0; j--) {
       printf("/* lineno=%03i */ ", parser_state.exe_stack[j].lineno );
       if (parser_state.exe_stack[j].is_precondition) { printf ("PRECOND: "); }
       else {                                           printf ("EXEC:    "); }
