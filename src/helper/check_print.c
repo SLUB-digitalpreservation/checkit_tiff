@@ -56,10 +56,10 @@ returncode_t __add_to_render_pipeline_via_strncpy (retmsg_t ** pointer, const ch
    strncpy(actual_render->next->rm_msg, src, VALUESTRLEN-1 );
    actual_render->next->rm_type = src_type;
    // fprintf(stderr, "rendertype=%i rendermsg='%s'\n",actual_render->next->rm_type, actual_render->next->rm_msg );
+   actual_render->next->next=NULL;
    actual_render = actual_render->next;
    assert(actual_render != NULL);
    assert(actual_render->rm_msg != NULL);
-   actual_render->next=NULL; /*  FIXME: cppcheck means 'memleak' */
    *pointer = actual_render;
    return is_valid;
 }
