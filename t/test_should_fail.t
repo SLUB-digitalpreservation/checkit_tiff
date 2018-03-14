@@ -64,8 +64,8 @@ $cfg_without_modes
 CFG
 write_file("$testdir/test.cfg_with_modes", $cfg_with_modes) || die "could not write $testdir/test.cfg_with_modes, $!\n";
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/invalid_date.tiff"), "call ($testdir/test.cfg_without_modes, $testdir/invalid_date.tif)" );
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes", "$tiffdir/invalid_date.tiff"), "call ($testdir/test.cfg_with_modes, $testdir/invalid_date.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/invalid_date.tiff"), "call ($testdir/test.cfg_without_modes, $tiffdir/invalid_date.tif)" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes", "$tiffdir/invalid_date.tiff"), "call ($testdir/test.cfg_with_modes, $tiffdir/invalid_date.tif) w modes" );
 # pause();
 
 my $cfg=<<CFG;
@@ -76,107 +76,107 @@ mode(enable_offset_checks)
 mode(enable_ifd_checks)
 CFG
 write_file("$testdir/test.cfg3", $cfg) || die "could not write $testdir/test.cfg3, $!\n";
-ok (!call_checkit_tiff( "$testdir/test.cfg3", "$tiffdir/minimal_empty_IFD.tif"), "call ($testdir/test.cfg3, $testdir/minimal_empty_IFD.tif) w modes" );
+ok (call_checkit_tiff( "$testdir/test.cfg3", "$tiffdir/minimal_empty_IFD.tif"), "call ($testdir/test.cfg3, $tiffdir/minimal_empty_IFD.tif) w modes" );
 # pause();
 
 # TODO: error message test
 #write_file("$testdir/test.cfg4", $cfg) || die "could not write $testdir/test.cfg4, $!\n";
-#like(call_checkit_tiff( "$testdir/test.cfg4", "$tiffdir/minimal_empty_IFD.tif"), qr/pointer to IFD0 must be greater than 8/, "call ($testdir/test.cfg4, $testdir/minimal_empty_IFD.tif) err msg" );
+#like(call_checkit_tiff( "$testdir/test.cfg4", "$tiffdir/minimal_empty_IFD.tif"), qr/pointer to IFD0 must be greater than 8/, "call ($testdir/test.cfg4, $tiffdir/minimal_empty_IFD.tif) err msg" );
 
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_not_word_aligned.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_IFD_not_word_aligned.tif)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_not_word_aligned.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_IFD_not_word_aligned.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_not_word_aligned.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_IFD_not_word_aligned.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_not_word_aligned.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_IFD_not_word_aligned.tif) w modes" );
 # pause();
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_points_outside_filesize.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_IFD_points_outside_filesize.tif)" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_points_outside_filesize.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_IFD_points_outside_filesize.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_points_outside_filesize.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_IFD_points_outside_filesize.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_points_outside_filesize.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_IFD_points_outside_filesize.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_with_endless_loop.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_IFD_with_endless_loop.tif)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_IFD_with_endless_loop.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_IFD_with_endless_loop.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_with_endless_loop.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_IFD_with_endless_loop.tif) w modes" );
-# pause();
-# TODO: error message test
-
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_invalid_type_imagewidth.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_invalid_type_imagewidth.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_IFD_with_endless_loop.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_IFD_with_endless_loop.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_invalid_type_imagewidth.tif)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_invalid_type_imagewidth.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_invalid_type_imagewidth.tif) w modes" );
-# pause();
-# TODO: error message test
-
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_offsets_multiple_used.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_offsets_multiple_used.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_offsets_multiple_used.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_offsets_multiple_used.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_invalid_type_imagewidth.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_offsets_not_word_aligned.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_offsets_not_word_aligned.tif)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_invalid_type_imagewidth.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_offsets_not_word_aligned.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_offsets_not_word_aligned.tif) w modes" );
-# pause();
-# TODO: error message test
-
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_is_doubled.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_tag_is_doubled.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_is_doubled.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_tag_is_doubled.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_invalid_type_imagewidth.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_invalid_type_imagewidth.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_points_outside_filesize.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_tag_points_outside_filesize.tif)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_offsets_multiple_used.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_offsets_multiple_used.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_points_outside_filesize.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_tag_points_outside_filesize.tif) w modes" );
-# pause();
-# TODO: error message test
-
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tags_in_wrong_order.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_tags_in_wrong_order.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tags_in_wrong_order.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_tags_in_wrong_order.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_offsets_multiple_used.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_offsets_multiple_used.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff)" );
+ok ( call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_offsets_not_word_aligned.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_offsets_not_word_aligned.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff) w modes" );
-# pause();
-# TODO: error message test
-
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_with_count_equal_null.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_tag_with_count_equal_null.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_with_count_equal_null.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_tag_with_count_equal_null.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_offsets_not_word_aligned.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_offsets_not_word_aligned.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_without_IFD.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_without_IFD.tif)" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_is_doubled.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_tag_is_doubled.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_without_IFD.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_without_IFD.tif) w modes" );
-# pause();
-# TODO: error message test
-
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_wrong_exififd_type.tif"), "call ($testdir/test.cfg_without_modes, $testdir/minimal_wrong_exififd_type.tif)" );
-# pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_wrong_exififd_type.tif"), "call ($testdir/test.cfg_with_modes, $testdir/minimal_wrong_exififd_type.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_is_doubled.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_tag_is_doubled.tif) w modes" );
 # pause();
 # TODO: error message test
 
-ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif"), "call ($testdir/test.cfg_without_modes, $testdir/wrong_subfile_type__wrong_xresolution_alignment.tif)" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_points_outside_filesize.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_tag_points_outside_filesize.tif)" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif"), "call ($testdir/test.cfg_with_modes, $testdir/wrong_subfile_type__wrong_xresolution_alignment.tif) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_points_outside_filesize.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_tag_points_outside_filesize.tif) w modes" );
+# pause();
+# TODO: error message test
+
+ok (call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tags_in_wrong_order.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_tags_in_wrong_order.tif)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tags_in_wrong_order.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_tags_in_wrong_order.tif) w modes" );
+# pause();
+# TODO: error message test
+
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_tag_with_contradictory_photometricinterpretation_and_colortag.tiff) w modes" );
+# pause();
+# TODO: error message test
+
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_tag_with_count_equal_null.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_tag_with_count_equal_null.tif)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_tag_with_count_equal_null.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_tag_with_count_equal_null.tif) w modes" );
+# pause();
+# TODO: error message test
+
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_without_IFD.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_without_IFD.tif)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_without_IFD.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_without_IFD.tif) w modes" );
+# pause();
+# TODO: error message test
+
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/minimal_wrong_exififd_type.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/minimal_wrong_exififd_type.tif)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/minimal_wrong_exififd_type.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/minimal_wrong_exififd_type.tif) w modes" );
+# pause();
+# TODO: error message test
+
+ok (!call_checkit_tiff( "$testdir/test.cfg_without_modes", "$tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif"), "call ($testdir/test.cfg_without_modes, $tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif)" );
+# pause();
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif"), "call ($testdir/test.cfg_with_modes, $tiffdir/wrong_subfile_type__wrong_xresolution_alignment.tif) w modes" );
 # pause();
 # TODO: error message test
 
 ######### no tiff tests
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.jxr"), "call ($testdir/test.cfg_with_modes, $testdir/no_tiff/minimal.jxr) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.jxr"), "call ($testdir/test.cfg_with_modes, $tiffdir/no_tiff/minimal.jxr) w modes" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.tiff64"), "call ($testdir/test.cfg_with_modes, $testdir/no_tiff/minimal.tiff64) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.tiff64"), "call ($testdir/test.cfg_with_modes, $tiffdir/no_tiff/minimal.tiff64) w modes" );
 # pause();
-ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.mdi"), "call ($testdir/test.cfg_with_modes, $testdir/no_tiff/minimal.mdi) w modes" );
+ok (!call_checkit_tiff( "$testdir/test.cfg_with_modes"   , "$tiffdir/no_tiff/minimal.mdi"), "call ($testdir/test.cfg_with_modes, $tiffdir/no_tiff/minimal.mdi) w modes" );
 
 cleanup();
