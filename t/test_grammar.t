@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 180;
+use Test::More tests => 181;
 
 my $testdir=prepare();
 
@@ -502,6 +502,43 @@ $expected=<<EXPECT;
 
 EXPECT
 is( call2_checkit_check_config("mode(baseline)\nmode(enable_type_checks)\nmode(enable_offset_checks)\nmode(enable_ifd_checks)\n259; depends(262.0); logical_or(1,2,32773)\n"), $expected, "parsercheck, modes, depends, logical_or");
+####
+$rules=<<RULES;
+259; depends(262.0); logical_or(1,2,32773)
+262; mandatory; logical_or(0,1,2)
+RULES
+$expected=<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=002 */ EXEC:    fc_internal_logic_combine_open tag=262 top i stack=(0)
+
+/* lineno=002 */ EXEC:    fc_tag_has_value tag=262 top i stack=(0)
+
+/* lineno=002 */ EXEC:    fc_tag_has_value tag=262 top i stack=(1)
+
+/* lineno=002 */ EXEC:    fc_tag_has_value tag=262 top i stack=(2)
+
+/* lineno=002 */ EXEC:    fc_internal_logic_combine_close tag=262
+
+/* lineno=001 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+EXPECT
+is( call2_checkit_check_config($rules), $expected, "parsercheck, regression_bug, depends, logical_or");
+
 
 
 #########
