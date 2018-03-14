@@ -146,7 +146,7 @@ void exe_printstack_human_readable () {
     /*  print regex_stack */
     if ( parser_state.exe_stack[j].regex_stackp >0 &&  parser_state.exe_stack[j].regex_stackp<=MAXSTACKDEPTH) {
       for (int i=0; i < parser_state.exe_stack[j].regex_stackp; i++) {
-        printf(" regex_stack[%i]=%s\n", i, parser_state.exe_stack[j].regex_stack[i]);
+        printf(" regex_stack[%i]=%s", i, parser_state.exe_stack[j].regex_stack[i]);
       }
     }
     if (!parser_state.exe_stack[j].is_precondition) { printf ("\n"); }
