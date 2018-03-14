@@ -47,3 +47,12 @@ make
 # make
 # run-clang-tidy-3.8.py -clang-tidy-binary /usr/bin/clang-tidy-3.8
 #
+#
+########################################################
+# Testing
+########################################################
+# you need perl with Test::More
+# change to directory "t/"
+# run "perl -I ./ *.t"
+#
+
