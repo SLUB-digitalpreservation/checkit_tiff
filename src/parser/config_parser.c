@@ -213,15 +213,22 @@ void reduce_results() {
     if (full_result.returncode == parser_logical_combine_open) {
         /* check all values until parser_logical_close found */
         bool_t one_result_is_ok = false;
-        for (int j = i; j < parser_state.result_stackp; j++) {
+        for (int j = i+1; j < parser_state.result_stackp; j++) {
             full_res_t l_full_result = parser_state.result_stack[j];
             if (l_full_result.returncode == parser_logical_combine_close) {
                 if (one_result_is_ok == true) {
-                    i=j+1;
                     full_result.returncode = is_valid;
+                    i=j;
+#ifdef DEBUG
+              printf("\tend combine i=%i j=%i\n", i, j);
+#endif
+
                 }
                 break;
             } else { /* combine results via OR */
+#ifdef DEBUG
+              printf("\tcombine result i=%i j=%i, resultcode=%i resultmsg=%s\n", i, j, l_full_result.returncode, get_parser_error_description(l_full_result.returncode ));
+#endif
                 if (l_full_result.returncode == is_valid) {
                     one_result_is_ok = true;
                 }
@@ -246,6 +253,9 @@ void reduce_results() {
   tmp=NULL;
   /* copy size */
   parser_state.result_stackp=tmpc;
+#ifdef DEBUG
+  printf("----------------------\n");
+#endif
 }
 
 /* stack function for parser */
