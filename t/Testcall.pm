@@ -84,6 +84,7 @@ sub call_checkit_check_config {
 sub call2_checkit_check_config {
     my $grammar = shift;
     my @out;
+    my @tmp;
     my ($rh, $wh, $eh);
     use Symbol 'gensym'; $eh = gensym;
     my $pid = open3($wh, $rh, $eh, "$checkit_check_config");
@@ -92,9 +93,8 @@ sub call2_checkit_check_config {
     while (<$rh>) {
         push @out, $_;
     }
-    use Data::Printer;
     while (<$eh>) {
-        p( $_ );
+        push @tmp, $_;
     }
     waitpid($pid, 0);
     if ($? == -1) {
@@ -109,7 +109,7 @@ sub call2_checkit_check_config {
         #printf "child exited with value %d\n", $? >> 8;
     }
 
-    return join("", @out);
+    return join("", @out, @tmp);
 }
 
 sub prepare {
