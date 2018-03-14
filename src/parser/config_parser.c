@@ -138,15 +138,15 @@ void exe_printstack_human_readable () {
       printf("/* lineno=%03i */ ", parser_state.exe_stack[j].lineno );
       if (parser_state.exe_stack[j].is_precondition) { printf ("PRECOND: "); }
       else {                                           printf ("EXEC:    "); }
-      printf("%s tag=%i ", get_parser_function_name(parser_state.exe_stack[j].function), parser_state.exe_stack[j].tag);
+      printf("%s tag=%i", get_parser_function_name(parser_state.exe_stack[j].function), parser_state.exe_stack[j].tag);
          /*  print i_stack */
-    if ( parser_state.exe_stack[j].i_stackp >=0 &&  parser_state.exe_stack[j].i_stackp<=MAXSTACKDEPTH) {
-	    printf ("top i stack=(%u)", parser_state.exe_stack[j].i_stack[ parser_state.exe_stack[j].i_stackp-1]);
+    if ( parser_state.exe_stack[j].i_stackp >0 &&  parser_state.exe_stack[j].i_stackp<=MAXSTACKDEPTH) {
+	    printf (" top i stack=(%u)", parser_state.exe_stack[j].i_stack[ parser_state.exe_stack[j].i_stackp-1]);
     }
     /*  print regex_stack */
-    if ( parser_state.exe_stack[j].regex_stackp >=0 &&  parser_state.exe_stack[j].regex_stackp<=MAXSTACKDEPTH) {
+    if ( parser_state.exe_stack[j].regex_stackp >0 &&  parser_state.exe_stack[j].regex_stackp<=MAXSTACKDEPTH) {
       for (int i=0; i < parser_state.exe_stack[j].regex_stackp; i++) {
-        printf("\tregex_stack[%i]=%s\n", i, parser_state.exe_stack[j].regex_stack[i]);
+        printf(" regex_stack[%i]=%s\n", i, parser_state.exe_stack[j].regex_stack[i]);
       }
     }
     if (!parser_state.exe_stack[j].is_precondition) { printf ("\n"); }
