@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 172;
+use Test::More tests => 180;
 
 my $testdir=prepare();
 
@@ -246,6 +246,76 @@ EXPECT
 
 is( call2_checkit_check_config("260; mandatory; any\n259; mandatory; any\n"), $expected, "parsercheck, simple2");
 ####
+$expected =<<'EXPECT';
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ EXEC:    fc_tag_has_value_matching_regex tag=262 regex_stack[0]=^[[:print:]]*$
+
+EXPECT
+
+is( call2_checkit_check_config("262; mandatory; printascii\n"), $expected, "parsercheck, printascii");
+####
+$expected =<<'EXPECT';
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=256 top i stack=(51966)
+
+EXPECT
+
+is( call2_checkit_check_config("0x100; mandatory; only(0xcafe)\n"), $expected, "parsercheck, hex");
+
+####
+$expected =<<'EXPECT';
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=256 top i stack=(51966)
+
+EXPECT
+
+is( call2_checkit_check_config("2^7; mandatory; only(0xcafe)\n"), $expected, "parsercheck, exponent");
+
+####
+$expected =<<'EXPECT';
+((( parse config file )))
+wrong tag (should be >253) at line 1 (error at '0xffffffff01')
+EXPECT
+
+is( call2_checkit_check_config("0xffffffff01; mandatory; only(0xcafe)\n"), $expected, "parsercheck, tag exceeded");
+
+####
+$expected =<<'EXPECT';
+((( parse config file )))
+wrong tag (should be <65536) at line 1 (error at '65536')
+EXPECT
+
+is( call2_checkit_check_config("65536; mandatory; only(0xcafe)\n"), $expected, "parsercheck, tag exceeded2");
+
+####
+$expected =<<'EXPECT';
+((( parse config file )))
+wrong tag (should be <65536) at line 1 (error at '0x10000')
+EXPECT
+
+is( call2_checkit_check_config("0x10000; mandatory; only(0xcafe)\n"), $expected, "parsercheck, tag exceeded3");
+
+
+
+####
 $expected=<<EXPECT;
 ((( parse config file )))
 ((( execute execution plan )))
@@ -313,6 +383,126 @@ $expected =<<EXPECT;
 EXPECT
 
 is( call2_checkit_check_config("260; mandatory; any\n259; depends(262.0); logical_or(2,32773)\n"), $expected, "parsercheck, depends, logical_or3");
+####
+my $rules =<<RULES;
+# 259   0103    Compression     Compression scheme used on the image data 
+### (1 means no compression, 2 CCIT Group 3, 32773 PackBits)
+### black/white (BitsPerSample is optional for b/w)
+259; depends(262.0); logical_or(1,2,32773)
+259; depends(262.1); logical_or(1,2,32773)
+### grayscale (BitsPerSample must exist)
+259; depends(258.4); logical_or(1,32773)
+259; depends(258.8); logical_or(1,32773)
+### colormap
+259; depends(262.3); logical_or(1,32773)
+### RGB
+259; depends(262.2); logical_or(1,32773)
+RULES
+$expected =<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=012 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(2)
+/* lineno=012 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=012 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=012 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=012 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=010 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(3)
+/* lineno=010 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=010 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=010 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=010 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=008 */ PRECOND: fc_tag_has_value_quiet tag=258 top i stack=(8)
+/* lineno=008 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=008 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=008 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=008 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=007 */ PRECOND: fc_tag_has_value_quiet tag=258 top i stack=(4)
+/* lineno=007 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=007 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=007 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=007 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=005 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(1)
+/* lineno=005 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=005 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=004 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=004 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=004 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=004 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=004 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=004 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+EXPECT
+
+is( call2_checkit_check_config($rules), $expected, "parsercheck, depends, complex logical_or");
+####
+$expected=<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=005 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=005 */ PRECOND: fc_tag_has_valid_type tag=259 top i stack=(1)
+/* lineno=005 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=005 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=005 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=004 */ EXEC:    fc_tagorder tag=0
+
+/* lineno=004 */ EXEC:    fc_all_IFDs_are_word_aligned tag=0
+
+/* lineno=003 */ EXEC:    fc_all_offsets_are_not_zero tag=0
+
+/* lineno=003 */ EXEC:    fc_all_offsets_are_used_once_only tag=0
+
+/* lineno=003 */ EXEC:    fc_all_offsets_are_word_aligned tag=0
+
+/* lineno=001 */ EXEC:    fc_has_only_one_ifd tag=0
+
+EXPECT
+is( call2_checkit_check_config("mode(baseline)\nmode(enable_type_checks)\nmode(enable_offset_checks)\nmode(enable_ifd_checks)\n259; depends(262.0); logical_or(1,2,32773)\n"), $expected, "parsercheck, modes, depends, logical_or");
+
 
 #########
 
