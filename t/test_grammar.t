@@ -4,7 +4,7 @@ use warnings;
 use File::Path;
 use File::Slurp;
 use Testcall;
-use Test::More tests => 167;
+use Test::More tests => 172;
 
 my $testdir=prepare();
 
@@ -212,6 +212,109 @@ ok(!call_checkit_check_config("0x10000; mandatory; any\n") , "simple non-tag (0x
 #ok(!call_checkit_check_config("256; mandatory; ntupel(\"1\",\"1\",\"1\")\n") , "simple tag mandatory ntupel(\"1\",\"1\",\"1\")");
 #ok(!call_checkit_check_config("256, mandatory; any\n") , "simple non-tag (256, mandatory)");
 #ok(!call_checkit_check_config("256; mandatory, any\n") , "simple tag (mandatory, any)");
+
+### next tests checking cornerstones of parser
+my $expected;
+####
+$expected =<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ EXEC:    fc_tag tag=259
+
+EXPECT
+
+is( call2_checkit_check_config("259; mandatory; any\n"), $expected, "parsercheck, simple1");
+####
+$expected =<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=002 */ EXEC:    fc_tag tag=259
+
+/* lineno=001 */ EXEC:    fc_tag tag=260
+
+EXPECT
+
+is( call2_checkit_check_config("260; mandatory; any\n259; mandatory; any\n"), $expected, "parsercheck, simple2");
+####
+$expected=<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=001 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(1)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+EXPECT
+is( call2_checkit_check_config("259; depends(262.0); logical_or(1,2,32773)\n"), $expected, "parsercheck, depends, logical_or");
+####
+$expected =<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=002 */ EXEC:    fc_tag tag=260
+
+/* lineno=001 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(2)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=001 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=001 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+EXPECT
+
+is( call2_checkit_check_config("259; depends(262.0); logical_or(2,32773)\n260; mandatory; any\n"), $expected, "parsercheck, depends, logical_or2");
+####
+$expected =<<EXPECT;
+((( parse config file )))
+((( execute execution plan )))
+((( clean execution plan )))
+((( print internal execution plan )))
+
+/* the rules are in stack order, the top comes first */
+
+/* lineno=002 */ PRECOND: fc_tag_has_value_quiet tag=262 top i stack=(0)
+/* lineno=002 */ EXEC:    fc_internal_logic_combine_open tag=259 top i stack=(2)
+
+/* lineno=002 */ EXEC:    fc_tag_has_value tag=259 top i stack=(2)
+
+/* lineno=002 */ EXEC:    fc_tag_has_value tag=259 top i stack=(32773)
+
+/* lineno=002 */ EXEC:    fc_internal_logic_combine_close tag=259
+
+/* lineno=001 */ EXEC:    fc_tag tag=260
+
+EXPECT
+
+is( call2_checkit_check_config("260; mandatory; any\n259; depends(262.0); logical_or(2,32773)\n"), $expected, "parsercheck, depends, logical_or3");
+
+#########
 
 cleanup();
 
