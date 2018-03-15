@@ -414,9 +414,20 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   return ret;
 }
 
-#define OFFSET_MALLOC(ctif, offsetdata, offset_type, count ) {\
+#define OFFSET_MALLOC(ctif_p, offsetdata, offset_type, count ) {\
+  if(ctif_p->streamlen < sizeof(offset_type) * count) {\
+    char msg[VALUESTRLEN]; \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes, but file has size=%lu\n", sizeof(offset_type) * count, ctif_p->streamlen); \
+    *ret_p  = set_value_found_ret( ret_p, msg); \
+    ret_p->returncode = tiff_seek_error_offset;\
+    return * ret_p;\
+  }\
   offsetdata = NULL; offsetdata = malloc ( sizeof(offset_type) * count);\
-  if ( ct_read( ctif, offsetdata, sizeof(offset_type) * count) != (sizeof(offset_type) *count) ) {\
+  if (NULL == offsetdata) {\
+    fprintf( stderr, "could not allocate memory for offset_t\n");\
+    exit (EXIT_FAILURE);\
+  }\
+  if ( ct_read( ctif_p, offsetdata, sizeof(offset_type) * count) != (sizeof(offset_type) *count) ) {\
        /*  fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); */\
        /*  exit( EXIT_FAILURE ); */\
     char msg[VALUESTRLEN]; \
@@ -447,6 +458,7 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
   offset_p->count = count;
   offset_p->datatype = datatype;
   ret_p->returncode = is_valid;
+  
   /* ct_read and seek to IFD address */
   if (ct_seek(ctif, address, SEEK_SET) != address) {
     offset_p->count = -1;
@@ -880,7 +892,6 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
       ret.returncode = tagerror_unexpected_type_found;
       return ret;
     }
-
     *countp = entry.count;
 /*
     *(string_pp) = malloc( sizeof(char) * entry.count +1);
@@ -895,7 +906,6 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
       ret.returncode=could_not_allocate_memory;
       return ret;
     }
-
     if (entry.value_or_offset == is_value) {
       assert (entry.count >= 0 && entry.count <= 4);
       for (uint32 i=0; i<entry.count; i++) {
@@ -913,10 +923,15 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
       }
       char * p = offset.datacharp;
       char * s = *(string_pp);
+#ifdef DEBUG
       /* DEBUG: */
-      //printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
+      printf("offset.count=%i, offset.datacharp=%p\n", offset.count, offset.datacharp);
+      printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
+#endif
       for (uint32 i=0; i<entry.count; i++) {
-        //printf("P[%i]=%c\n", i, *p);
+#ifdef DEBUG
+        printf("P[%u]=%c\n", i, *p);
+#endif
         *(s++) = *(p++);
       }
       //printf("ASCII='%s'\n", *(string_pp));
