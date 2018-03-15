@@ -281,4 +281,4 @@ TAILORED_TEST
 write_file("$testdir/test.cfg11", $cfg) || die "could not write $testdir/test.cfg11, $!\n";
 ok ( call_checkit_tiff( "$testdir/test.cfg11", "$tiffdir/minimal_valid_baseline.tiff"), "call ($testdir/test.cfg11,  $tiffdir/minimal_valid_baseline.tiff), tailored regression" );
 ############
-#cleanup();
+cleanup();
