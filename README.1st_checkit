@@ -46,17 +46,13 @@ see file 'README.compile' for details, in short:
 Use the builtin help via './checkit_tiff -h'
 
 Here is an example output using
-$> checkit_tiff example_configs/cit_tiff6_baseline_SLUB.cfg tiffs_should_fail/invalid_date.tiff
-'build/checkit_tiff' version: development
-	revision: 176
+$> checkit_tiff -q example_configs/cit_tiff6_baseline_SLUB.cfg tiffs_should_fail/invalid_date.tiff
+'./build/checkit_tiff' version: development
+	revision: 393
 licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)
 cfg_file=example_configs/cit_tiff6_baseline_SLUB.cfg
 tiff file/dir=tiffs_should_fail/invalid_date.tiff
-all processed
-	tag 34377 (Photoshop Image Ressources) is found, but is not whitelisted (or rule has no matched dependency)
-	tag 315 (Artist) is found, but is not whitelisted (or rule has no matched dependency)
-	tag 306 (DateTime) should have value ^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$, but has value (values or count) 04.03.2010 09:59:17
-	tag 306 (DateTime) should have value should be  "yyyy:MM:DD hh:mm:ss", but has value (values or count) of datetime was "04.03.2010 09:59:17"
-Found 4 errors
-No, the given tif is not valid :(
-
+file: tiffs_should_fail/invalid_date.tiff
+(EE)	tag 306 (DateTime)	--> DateTime tag should contain a valid value. DateTime tag has wrong format.; found: 04.03.2010 09:59:17 (lineno: 146)
+(EE)Found 1 errors
+(EE)No, the given tif is not valid :(
