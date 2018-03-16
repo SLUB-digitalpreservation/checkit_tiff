@@ -89,7 +89,7 @@ void print_plan () {
 
 
 void result_push(full_res_t r) { PUSH(&parser_state, result, r); }
-full_res_t result_pop() { full_res_t r; POP(&parser_state, result, r); return r; }
+full_res_t deprecated_result_pop() { full_res_t r; POP(&parser_state, result, r); return r; }
 void result_printstack() {
   printf("=== BEGIN result_printstack\n");
 
@@ -621,7 +621,7 @@ int rule_tagorder_in_dsl( int tag ) {
 */
 
 /* helper function for parser */
-void tagline() {  
+void deprecated_tagline() {  
 #ifdef DEBUG
   printf("tagline, %i\n", parser_state.lineno);
 #endif
@@ -701,7 +701,7 @@ void regex_push( const char * regex_string) {
 
 
 /* helper function for parser */
-void set_any_reference( reference_t v ) { parser_state.any_reference = v;}
+void deprecated_set_any_reference( reference_t v ) { parser_state.any_reference = v;}
 
 /* helper function for parser */
 void reset_valuelist() {
@@ -1350,18 +1350,18 @@ ret_t print_plan_results(retmsg_t * actual_render) {
 harderrors:
     res.returncode = is_error;
     __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_error);
-    __add_to_render_pipeline_via_strncpy(&actual_render, "No, the given tif is not valid :(", rm_error);
+    __add_to_render_pipeline_via_strncpy(&actual_render, "No, the given tif is not valid :(", rm_summary_invalid);
   } else {
     res.returncode = is_valid;
     __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_is_valid);
-    __add_to_render_pipeline_via_strncpy(&actual_render, "Yes, the given tif is valid :)", rm_is_valid);
+    __add_to_render_pipeline_via_strncpy(&actual_render, "Yes, the given tif is valid :)", rm_summary_valid);
   }
   __add_to_render_pipeline_via_strncpy(&actual_render, " ", rm_endtiff);
   clean_plan_results();
   return res;
 }
 
-void _helper_mark_top_n_results( int n, returncode_t type) {
+void deprecated_helper_mark_top_n_results( int n, returncode_t type) {
   if (parser_state.result_stackp -n < 0) {
     fprintf(stderr, "stackunderflow using n=%i, only %i on stack", n, parser_state.result_stackp);
     exit(EXIT_FAILURE);
@@ -1378,7 +1378,7 @@ void _helper_mark_top_n_results( int n, returncode_t type) {
 }
 
 
-full_res_t _helper_get_nth(int n) {
+full_res_t deprecated_helper_get_nth(int n) {
   if (parser_state.result_stackp -n < 0) {
     fprintf(stderr, "stackunderflow using n=%i, only %i on stack", n, parser_state.result_stackp);
     exit(EXIT_FAILURE);

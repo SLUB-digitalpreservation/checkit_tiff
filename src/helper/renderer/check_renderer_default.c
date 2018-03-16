@@ -97,6 +97,14 @@ const char * renderer_default ( const retmsg_t * ret, short int is_quiet ) {
       case rm_is_valid:   tmp=secstrcat(tmp, "(./)",  & rendersize_tmp);
                           is_valid = 0;
                           break;
+      case rm_summary_valid:
+                          tmp=secstrcat(tmp, "\n(./)",  & rendersize_tmp);
+                          tmp=secstrcat(tmp, startp->rm_msg,  & rendersize_tmp);
+                          break;
+      case rm_summary_invalid:
+                          tmp=secstrcat(tmp, "\n(EE)",  & rendersize_tmp);
+                          tmp=secstrcat(tmp, startp->rm_msg,  & rendersize_tmp);
+                          break;
       default:            tmp=secstrcat(tmp, startp->rm_msg,  & rendersize_tmp);
     }
     startp=startp->next;

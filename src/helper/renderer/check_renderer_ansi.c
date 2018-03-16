@@ -153,6 +153,16 @@ const char * renderer_ansi ( const retmsg_t * ret, short int is_quiet ) {
                           tmp=secstrcat(tmp, "(./)", & rendersize_tmp);
                           is_valid = 0;
                           break;
+      case rm_summary_valid:
+                          tmp=secstrcat(tmp, ANSI_GREEN_BOLD, & rendersize_tmp);
+                          tmp=secstrcat(tmp, "\n(./)",  & rendersize_tmp);
+                          tmp=secstrcat(tmp, startp->rm_msg, & rendersize_tmp);
+                          break;
+      case rm_summary_invalid:
+                          tmp=secstrcat(tmp, ANSI_RED_BOLD , & rendersize_tmp);
+                          tmp=secstrcat(tmp, "\n(EE)",  & rendersize_tmp);
+                          tmp=secstrcat(tmp, startp->rm_msg, & rendersize_tmp);
+                          break;
       default:            tmp=secstrcat(tmp, ANSI_NORMAL   , & rendersize_tmp);
                           tmp=secstrcat(tmp, startp->rm_msg, & rendersize_tmp);
     }

@@ -110,6 +110,8 @@ const char * renderer_xml ( const retmsg_t * ret, const char * xmlfile ) {
       case rm_is_valid:   res=secstrcat(res, "<valid>",  & rendersize_res);
                           is_valid = within_valid;
                           break;
+      case rm_summary_valid:
+      case rm_summary_invalid: break;
       default:            res=secstrcat(res, "<dummy>",  & rendersize_res);
                           res=secstrcat(res, startp->rm_msg,  & rendersize_res);
                           res=secstrcat(res, "</dummy>",  & rendersize_res);
