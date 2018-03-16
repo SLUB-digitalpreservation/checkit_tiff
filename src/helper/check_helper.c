@@ -58,12 +58,6 @@ const char * float2str(float v) {
   return strdup(array);
 }
 
-const char* tag2str(tag_t tag) {
- char array[VALUESTRLEN];
-  snprintf(array, sizeof(array), "%u (%s)", tag, TIFFTagName(tag));
-  return strdup(array);
-}
-
 const char* int2str(int v) {
  char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%i", v);
@@ -73,12 +67,6 @@ const char* int2str(int v) {
 const char* frac2str(int d, int n) {
   char array[VALUESTRLEN];
   snprintf(array, sizeof(array), "%i/%i", d, n);
-  return strdup(array);
-}
-
-const char* range2str(int d, int n) {
-  char array[VALUESTRLEN];
-  snprintf(array, sizeof(array), "<%i-%i>", d, n);
   return strdup(array);
 }
 

@@ -89,7 +89,6 @@ void print_plan () {
 
 
 void result_push(full_res_t r) { PUSH(&parser_state, result, r); }
-full_res_t deprecated_result_pop() { full_res_t r; POP(&parser_state, result, r); return r; }
 void result_printstack() {
   printf("=== BEGIN result_printstack\n");
 
@@ -621,12 +620,6 @@ int rule_tagorder_in_dsl( int tag ) {
 */
 
 /* helper function for parser */
-void deprecated_tagline() {  
-#ifdef DEBUG
-  printf("tagline, %i\n", parser_state.lineno);
-#endif
-}
-/* helper function for parser */
 void commentline() { 
 #ifdef DEBUG
   printf("commentline, %i\n", parser_state.lineno);
@@ -699,19 +692,15 @@ void regex_push( const char * regex_string) {
   }
 }
 
-
-/* helper function for parser */
-void deprecated_set_any_reference( reference_t v ) { parser_state.any_reference = v;}
-
 /* helper function for parser */
 void reset_valuelist() {
   parser_state.valuelist = 0;
 }
+
 /* helper function for parser */
 void incr_values () {
   parser_state.valuelist++;
 }
-
 
 /* prepare functions for preconditions */
 internal_entry_t prepare_internal_entry() {
@@ -1362,35 +1351,5 @@ harderrors:
   clean_plan_results();
   return res;
 }
-
-void deprecated_helper_mark_top_n_results( int n, returncode_t type) {
-  if (parser_state.result_stackp -n < 0) {
-    fprintf(stderr, "stackunderflow using n=%i, only %i on stack", n, parser_state.result_stackp);
-    exit(EXIT_FAILURE);
-  }
-  if (parser_state.result_stackp -n >=MAXRESULT) {
-    fprintf(stderr, "stackoverflow using n=%i, only %i results could be stored, increase MAXRESULT\n", n, MAXRESULT);
-    exit(EXIT_FAILURE);
-  }
-
-  for (int i = parser_state.result_stackp; i > parser_state.result_stackp-n; i--) {
-    printf("\tmark i=%i\n", i);
-    if (NULL != parser_state.result_stack[i].found_value) parser_state.result_stack[i].returncode=type;
-  }
-}
-
-
-full_res_t deprecated_helper_get_nth(int n) {
-  if (parser_state.result_stackp -n < 0) {
-    fprintf(stderr, "stackunderflow using n=%i, only %i on stack", n, parser_state.result_stackp);
-    exit(EXIT_FAILURE);
-  }
-  if (parser_state.result_stackp -n >=MAXRESULT) {
-    fprintf(stderr, "stackoverflow using n=%i, only %i results could be stored, increase MAXRESULT\n", n, MAXRESULT);
-    exit(EXIT_FAILURE);
-  }
-  return parser_state.result_stack[parser_state.result_stackp -n];
-}
-
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

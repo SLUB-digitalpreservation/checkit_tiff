@@ -74,7 +74,7 @@ void __clean_render_pipeline( retmsg_t * pointer ) {
    if (NULL != next)
      __clean_render_pipeline( next );
    free( pointer );
-   /* pointer = NULL; */
+   pointer = NULL;
 }
 
 

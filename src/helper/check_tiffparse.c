@@ -334,30 +334,6 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
   return ret;
 }
 
-/* scans first IDF and returns count of tags
- * Hint: sideeffect, if succeed the seek points to beginning of the first
- * IFD-entry */
-int deprecated_TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
-  /* parse TIF */
-  /* seek the image file directory (bytes 4-7) */
-  uint32 offset = ifdpos;
-
-  // printf("diroffset to %i (0x%04lx)\n", offset, offset);
-  //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false"));
-  /* ct_read and seek to IFD address */
-  ct_seek(ctif, offset, SEEK_SET);
-
-  uint16 count;
-  if ( ct_read( ctif, &count, 2) != 2 ) {
-    /*  FIXME: replace perror/exit with own error handling routine */
-    perror ("TIFF Header ct_read error2");
-    exit( EXIT_FAILURE );
-  }
-
-  if (is_byteswapped(ctif))
-    TIFFSwabShort(&count);
-  return count;
-}
 
 /* scans first IDF and returns the n-th tag */
 tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
