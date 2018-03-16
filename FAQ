@@ -54,5 +54,17 @@ Q: I am using cmake, but it fails with "CMake Error: your CXX compiler:
    C++compiler then?
 A: cmake uses C++-compiler for its checks. Sorry, you need a C++ then.
 
+Q: Your tool processes very slow, why?
+A: No, the tool is optimized for very fast processing. On a NVME-based SSD it
+   processes 550 TIFF files (2,9GB) in less 3 seconds. We have tested it also
+   on our NFS based filesystem with similar fast results.  There is only one
+   cornercase, if you have a broken TIFF with very large IFDs. Because
+   checkit_tiff tries to find all errors in a given TIFF file it does not use
+   early aborts than some other tools.
 
-
+Q: I have a fully destroyed TIFF because checkit_tiff reports IFD errors. Is
+   there any chance to repair the file?
+A: You could give "fixit_tiff" a try:
+   https://github.com/SLUB-digitalpreservation/fixit_tiff
+   This project comes with some helper tools to find lost IFDs and could
+   fix some typical errors in broken TIFF files.
