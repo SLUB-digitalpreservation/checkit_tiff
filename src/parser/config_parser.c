@@ -1343,11 +1343,12 @@ ret_t print_plan_results(retmsg_t * actual_render) {
 
    /*   printf( "%s", renderer( parser_state.result_stack[i].result)); */
   }
+harderrors:
+  {
   int errors = (parser_state.result_stackp -count_of_valid_results );
   char msg[VALUESTRLEN];
   snprintf(msg, VALUESTRLEN, "Found %i errors", errors) ;
   if (errors > 0) {
-harderrors:
     res.returncode = is_error;
     __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_error);
     __add_to_render_pipeline_via_strncpy(&actual_render, "No, the given tif is not valid :(", rm_summary_invalid);
@@ -1355,6 +1356,7 @@ harderrors:
     res.returncode = is_valid;
     __add_to_render_pipeline_via_strncpy(&actual_render, msg, rm_is_valid);
     __add_to_render_pipeline_via_strncpy(&actual_render, "Yes, the given tif is valid :)", rm_summary_valid);
+  }
   }
   __add_to_render_pipeline_via_strncpy(&actual_render, " ", rm_endtiff);
   clean_plan_results();
