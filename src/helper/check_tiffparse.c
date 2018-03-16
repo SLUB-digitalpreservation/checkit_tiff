@@ -185,11 +185,10 @@ ret_t check_tag_has_u16value(ctiff_t * ctif, tag_t tag, uint16 value) {
   tifp_check( ctif);
 
   uint16 * valp = NULL;
-  uint16 val;
   uint32 found;
   ret=TIFFGetFieldSHORT(ctif, tag, &valp, &found);
   if (1 == found) {
-    val = *valp;
+    uint16 val  = *valp;
     if ( val == value ) {
       ret.returncode=is_valid;
       return ret;
@@ -211,11 +210,10 @@ ret_t check_tag_has_u32value(ctiff_t * ctif, tag_t tag, uint32 value) {
   tifp_check( ctif);
 
   uint32 * valp = NULL;
-  uint32 val;
   uint32 found;
   ret=TIFFGetFieldLONG(ctif, tag, &valp, &found);
   if (1 == found) {
-    val = *valp;
+    uint32 val = *valp;
     if ( val == value )  {
       ret.returncode=is_valid;
       return ret;
@@ -253,7 +251,7 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     char errmsg[VALUESTRLEN]="";
     snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x", header);
     if (header == 0x4550) {
-      strncat(errmsg, ", could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00", VALUESTRLEN);
+      strcat(errmsg, ", could be a Microsoft Document Image file (little endian), if header begins with by 0x45 0x50 0x2a 0x00");
     }
     ret=set_value_found_ret(&ret, errmsg);
     ret.returncode = tiff_byteorder_error;
@@ -272,13 +270,13 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
   else {
     char errmsg[VALUESTRLEN]="";
     snprintf (errmsg, VALUESTRLEN, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
-    if (magic2==0x002b) strncat(errmsg, ", but could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html", VALUESTRLEN);
-    if (magic2==0x0055) strncat(errmsg, ", but could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/", VALUESTRLEN);
-    if (magic2==0x01bc) strncat(errmsg, ", but could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832", VALUESTRLEN);
-    if (magic2==0x314e) strncat(errmsg, ", but could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf", VALUESTRLEN);
-    if (magic2==0x4352) strncat(errmsg, ", but could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf", VALUESTRLEN);
-    if (magic2==0x4f52) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
-    if (magic2==0x5352) strncat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/", VALUESTRLEN);
+    if (magic2==0x002b) strcat(errmsg, ", but could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html");
+    if (magic2==0x0055) strcat(errmsg, ", but could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/");
+    if (magic2==0x01bc) strcat(errmsg, ", but could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832");
+    if (magic2==0x314e) strcat(errmsg, ", but could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf");
+    if (magic2==0x4352) strcat(errmsg, ", but could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf");
+    if (magic2==0x4f52) strcat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/");
+    if (magic2==0x5352) strcat(errmsg, ", but could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/");
     ret = set_value_found_ret(&ret, errmsg);
     ret.returncode = tiff_byteorder_error;
     return ret;
@@ -308,7 +306,7 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
   }
   if (offset <= 7) {
     char msg[VALUESTRLEN];
-    snprintf(msg, VALUESTRLEN, "pointer to IFD0 is %i", offset);
+    snprintf(msg, VALUESTRLEN, "pointer to IFD0 is %u", offset);
     ret=set_value_found_ret(&ret, msg);
     ret.returncode=tiff_ifd0_offset_must_be_greater_than_eight;
     return ret;
@@ -316,7 +314,7 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
   ctif->ifd0pos=offset;
   if (ct_seek(ctif, offset, SEEK_SET) != offset ) {
     char msg[VALUESTRLEN];
-    snprintf(msg, VALUESTRLEN, "TIFF Header seek error, seek set to byte %i", offset);
+    snprintf(msg, VALUESTRLEN, "TIFF Header seek error, seek set to byte %u", offset);
     ret=set_value_found_ret(&ret, msg);
     ret.returncode=tiff_seek_error_header;
     return ret;
@@ -339,7 +337,7 @@ ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {
 /* scans first IDF and returns count of tags
  * Hint: sideeffect, if succeed the seek points to beginning of the first
  * IFD-entry */
-int TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
+int deprecated_TIFFGetRawTagListCount (ctiff_t * ctif, uint32 ifdpos) {
   /* parse TIF */
   /* seek the image file directory (bytes 4-7) */
   uint32 offset = ifdpos;
@@ -417,7 +415,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 #define OFFSET_MALLOC(ctif_p, offsetdata, offset_type, count ) {\
   if(ctif_p->streamlen < sizeof(offset_type) * count) {\
     char msg[VALUESTRLEN]; \
-    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes, but file has size=%lu\n", sizeof(offset_type) * count, ctif_p->streamlen); \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes, but file has size=%u\n", sizeof(offset_type) * count, ctif_p->streamlen); \
     *ret_p  = set_value_found_ret( ret_p, msg); \
     ret_p->returncode = tiff_seek_error_offset;\
     return * ret_p;\
@@ -698,7 +696,7 @@ printf("\ncount=%0x\n\n", count);
       }
       free( ifdentries );
 #ifdef DEBUG
-      printf("tag idx=%i, tag=%u (0x%04x) tagtype=0x%04x is_offset=%s count=%lu value_or_offset=0x%08x\n", i, tagid, tagid, tagtype, (ifd_entry.value_or_offset==is_offset ? "true" : "false"), count, value_or_offset);
+      printf("tag idx=%i, tag=%u (0x%04x) tagtype=0x%04x is_offset=%s count=%u value_or_offset=0x%08x\n", i, tagid, tagid, tagtype, (ifd_entry.value_or_offset==is_offset ? "true" : "false"), count, value_or_offset);
 #endif
       return ifd_entry;
     }
@@ -925,8 +923,8 @@ ret_t TIFFGetFieldASCII(ctiff_t * ctif, const tag_t tag, char** string_pp, uint3
       char * s = *(string_pp);
 #ifdef DEBUG
       /* DEBUG: */
-      printf("offset.count=%i, offset.datacharp=%p\n", offset.count, offset.datacharp);
-      printf("tag=%i entry.count=%i offset.count=%i\n", tag, entry.count, offset.count);
+      printf("offset.count=%u, offset.datacharp=%p\n", offset.count, offset.datacharp);
+      printf("tag=%i entry.count=%u offset.count=%u\n", tag, entry.count, offset.count);
 #endif
       for (uint32 i=0; i<entry.count; i++) {
 #ifdef DEBUG
@@ -1105,12 +1103,10 @@ ret_t TIFFGetFieldRATIONAL(ctiff_t * ctif, const tag_t tag, float ** float_pp, u
         return ret;
       }
       /* copy to a float */
-      uint32 numerator = 0;
-      uint32 denominator = 0;
       uint32 * orig_data32p = offset.data32p;
       for (uint32 i = 0; i< entry.count; i++, orig_data32p+=2) {
-        numerator = *(orig_data32p);
-        denominator = *(orig_data32p+1);
+        uint32 numerator = *(orig_data32p);
+        uint32 denominator = *(orig_data32p+1);
         //printf("DEBUG: numerator=%u denumeator=%u\n", numerator, denominator);
         float v;
         if (denominator == 0) {
