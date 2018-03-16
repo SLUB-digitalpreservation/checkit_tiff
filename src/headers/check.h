@@ -26,21 +26,42 @@ typedef enum{ is_memmap, is_filep } ct_ioflag_t ; /* flag */
 typedef enum{ has_sorted_tags, has_unsorted_tags, unknown_tag_order } tagorder_t;
 
 typedef struct ctiff_s {
-	ct_ioflag_t ioflag;
-        tagorder_t tagorder;
-        int tag_cache[65536];
-	void * streamp; /* TODO: address of memory-mapped tif stream */
-	void * actual_streamp;
-	uint32 streamlen; /* TODO: length of tif stream/file (in bytes) */
-	thandle_t fd; /* filedescriptor */
-	uint32 ifd0pos; /* offset in tif stream (in bytes) */
-	uint16 ifd0c; /* count of tags in first ifd */
-	char isbyteswapped; /* true if BigEndian */
-	char *filename; /* filename */
-	/* TODO: add file size */
+  ct_ioflag_t ioflag;
+  tagorder_t tagorder;
+  int tag_cache[65536];
+  uint8 * streamp; /* TODO: address of memory-mapped tif stream */
+  uint8 * actual_streamp;
+  uint32 streamlen; /* TODO: length of tif stream/file (in bytes) */
+  thandle_t fd; /* filedescriptor */
+  uint32 ifd0pos; /* offset in tif stream (in bytes) */
+  uint16 ifd0c; /* count of tags in first ifd */
+  char isbyteswapped; /* true if BigEndian */
+  char *filename; /* filename */
+  /* TODO: add file size */
 } ctiff_t;
 
-typedef enum{ rm_default, rm_file, rm_rule, rm_tag, rm_value, rm_expected, rm_hard_error, rm_error, rm_warning, rm_precondition, rm_logicalor_error, rm_logicalor_valid, rm_is_valid, rm_endrule, rm_endtiff, rm_mode, rm_lineno, rm_error_description} rm_type_t;
+typedef enum{
+  rm_default,
+  rm_file,
+  rm_rule,
+  rm_tag,
+  rm_value,
+  rm_expected,
+  rm_hard_error,
+  rm_error,
+  rm_warning,
+  rm_precondition,
+  rm_logicalor_error,
+  rm_logicalor_valid,
+  rm_is_valid,
+  rm_endrule,
+  rm_endtiff,
+  rm_mode,
+  rm_lineno,
+  rm_error_description,
+  rm_summary_valid,
+  rm_summary_invalid,
+} rm_type_t;
 typedef struct retmsg_s {
   rm_type_t rm_type;
   char * rm_msg;
