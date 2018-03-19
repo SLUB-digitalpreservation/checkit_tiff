@@ -515,7 +515,6 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
   printf ("is valid offset\n");
   printf ("RET=%s\n", get_parser_error_description(ret_p->returncode));
 #endif
-  assert( NULL == ret_p->value_found);
   return *ret_p;
 }
 
