@@ -29,9 +29,10 @@ file( GLOB checkit_tiff_risk_SOURCES
 #
 execute_process( COMMAND git rev-list HEAD --count OUTPUT_VARIABLE REPO_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE )
 execute_process( COMMAND git rev-parse --abbrev-ref HEAD OUTPUT_VARIABLE BUILD_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process( COMMAND git describe --tags OUTPUT_VARIABLE BUILD_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process( COMMAND git rev-parse HEAD OUTPUT_VARIABLE BUILD_REV_ID OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process( COMMAND git describe --long --tags --dirty --always OUTPUT_VARIABLE BUILD_REV_ID_SHORT OUTPUT_STRIP_TRAILING_WHITESPACE)
-add_definitions(-DVERSION="${BUILD_BRANCH}")
+add_definitions(-DVERSION="${BUILD_BRANCH}_${BUILD_TAG}")
 add_definitions(-DREPO_REVISION="${REPO_REVISION}")
 
 # Check for compatibility with gnu11
