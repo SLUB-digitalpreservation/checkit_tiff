@@ -4,15 +4,16 @@
 # licensed under conditions of libtiff
 # (see http://libtiff.maptools.org/misc.html)
 #
-
+# compile grammar with 'peg' by piumarta
+#
 start           <- ( Line )+ EndOfFile
-Line            <- LineType EndOfLine		
-LineType        <- TagLine				       		      
-                 / ModeLine				       
-		 / CommentLine
+Line            <- LineType EndOfLine
+                 / < [^\r\n]+ > EndOfLine                      {fprintf(stderr, "grammar parser error at line %i (error at '%s')\n", parser_state.lineno, yytext); exit(EXIT_FAILURE); }
+LineType        <- TagLine
+                 / ModeLine
+                 / CommentLine
                  / SpaceLine
                  / IncludeLine
-		 / < ( !EndOfLine .)+ >			       {fprintf(stderr, "REST: '%s'\n", yytext); }
 CommentLine     <- '#' ( !EndOfLine .)*                        { commentline(); }
 IncludeLine     <- 'include' OpenBracket < ( [A-Za-z0-9_./\-]+ ) > ClosingBracket { set_include ( yytext );  }
 ModeLine        <- 'mode' OpenBracket < Mode > ClosingBracket  { int i = i_pop(); set_mode( i );  }
@@ -34,11 +35,11 @@ Mode            <- 'baseline'                                  { i_push(mode_bas
                  / 'enable_type_checks'                        { i_push(mode_enable_type_checks); }
                  / 'enable_offset_checks'                      { i_push(mode_enable_offset_checks); }
                  / 'enable_ifd_checks'                         { i_push(mode_enable_ifd_checks); }
+                 / 'enable_deep_geotiff_checks'                { i_push(mode_enable_deep_geotiff_checks); }
                  / 'enhanced'                                  #/* TODO: later if all types of TIFF are supported */
 
 TagLine         <- Tag Semicolon Requirements Semicolon Content { rule_addtag_config();  }
                  / Tag Semicolon Requirements Semicolon LogicalOr { set_rule_logical_close(); }
-            
 Tag             <- < Number >                                  {
                         int tag = i_pop();
                         /* rule_tagorder_in_dsl( tag ); */

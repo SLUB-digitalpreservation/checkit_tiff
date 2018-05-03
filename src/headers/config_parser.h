@@ -21,6 +21,7 @@ typedef enum {
   mode_enable_type_checks=2,
   mode_enable_offset_checks=4,
   mode_enable_ifd_checks=8,
+  mode_enable_deep_geotiff_checks=16,
 } modes_t;
 
 /* MINTAGS - MAXTAGS is range of possible existing TAG numbers */
