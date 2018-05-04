@@ -118,43 +118,28 @@ ssize_t ct_read(ctiff_t * ctif, void *buf, size_t count) {
 
 
 int TIFFGetRawTagListIndex(ctiff_t * ctif, tag_t tag) { /* find n-th entry in IFD for given tag, return -1 if not found */
-  /*
-     for (int i= 0; i < get_ifd0_count( ctif ); i++) {
-     if (tag > 253 && tag == TIFFGetRawTagListEntry( ctif, i )) {
-     return i;
-     };
-     }
-     */
-
   switch (ctif->tagorder) {
+    case has_unsorted_tags:
+    case has_sorted_tags:
+      break;
     case unknown_tag_order:
       {
         ctif->tagorder=has_sorted_tags;
         int count = get_ifd0_count( ctif);
         if (0 == count) { return -1; }
         tag_t last = TIFFGetRawTagListEntry(ctif, 0);
+        ctif->tag_cache[last] = 0;
         for (int i= 1; i < get_ifd0_count( ctif ); i++) {
-         tag_t current = TIFFGetRawTagListEntry( ctif, i );
+          tag_t current = TIFFGetRawTagListEntry( ctif, i );
           if (last >= current) {
             ctif->tagorder=has_unsorted_tags;
-            break;
           }
+          ctif->tag_cache[current] = i;
           last = current;
         };
-        /* if (has_sorted_tags == ctif->tagorder) { */
-          for (int i= 0; i < get_ifd0_count( ctif ); i++) {
-            tag_t tag = TIFFGetRawTagListEntry( ctif, i );
-            ctif->tag_cache[tag] = i;
-          }
-          return ctif->tag_cache[tag];
-        /* } */
       }
-      break;
-    case has_unsorted_tags:
-    case has_sorted_tags:
-      return ctif->tag_cache[tag];
   }
-  return -1;
+  return ctif->tag_cache[tag];
 }
 
 
@@ -341,7 +326,11 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   int count = get_ifd0_count( ctif);
   assert( count > 0);
   /* ct_read count of tags (2 Bytes) */
-  ct_seek(ctif, ctif->ifd0pos+2+tagidx*12, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries, then nth tag */
+  uint32 adress = ctif->ifd0pos+2+tagidx*12;
+  if (ct_seek(ctif, adress , SEEK_SET) != adress) { /* IFD0 plus 2byte to get IFD-entries, then nth tag */
+    perror ("TIFF Header ct_seek error");
+    exit( EXIT_FAILURE );
+  }
 
   uint16 tagid;
   if ( ct_read( ctif, &tagid, 2) != 2) {
@@ -494,12 +483,15 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
 #endif
   ifd_entry_t ifd_entry;
   ifd_entry.value_or_offset = is_error;
-  ct_seek(ctif, ctif->ifd0pos+2+tagidx*12, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries, then nth tag */
-
+  uint32 adress=ctif->ifd0pos+2+tagidx*12;
+  if (ct_seek(ctif, adress, SEEK_SET) !=adress) { /* IFD0 plus 2byte to get IFD-entries, then nth tag */
+    perror ("TIFF Header ct_read error2");
+    return ifd_entry;
+  }
   uint16 tagid;
   if ( ct_read( ctif, &tagid, 2) != 2) {
     perror ("TIFF Header ct_read error2");
-    exit( EXIT_FAILURE );
+    return ifd_entry;
   }
   if (byteswapped)
     TIFFSwabShort(&tagid);
@@ -507,14 +499,14 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
   uint16 tagtype;
   if ( ct_read( ctif, &tagtype, 2) != 2) {
     perror ("TIFF Header ct_read error2");
-    exit( EXIT_FAILURE );
+    return ifd_entry;
   }
   if (byteswapped)
     TIFFSwabShort(&tagtype);
   uint32 count;
   if ( ct_read( ctif, &count, 4) != 4) {
     perror ("TIFF Header ct_read error4");
-    exit( EXIT_FAILURE );
+    return ifd_entry;
   }
 
   if (byteswapped)
@@ -530,7 +522,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
       uint32 value_or_offset;
       if ( ct_read( ctif, &value_or_offset, 4) != 4) {
         perror ("TIFF Header ct_read error4");
-        exit( EXIT_FAILURE );
+        return ifd_entry;
       }
       if (byteswapped)
         TIFFSwabLong( &value_or_offset);
