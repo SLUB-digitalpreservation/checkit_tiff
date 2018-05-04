@@ -47,7 +47,7 @@ ret_t check_tagorder(ctiff_t * ctif) {
         uint8 lo = *e;
         e++;
         uint8 hi = *e;
-        uint16 tag = (hi << 8) + lo;
+        uint16 tag = ((uint16) hi << 8) + lo;
         e++;
         if (is_byteswapped(ctif))
           TIFFSwabShort(&tag);
