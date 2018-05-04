@@ -1,6 +1,6 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
  *
- * author: Andreas Romeyke, 2015
+ * author: Andreas Romeyke, 2015-18
  * licensed under conditions of libtiff
  * (see http://libtiff.maptools.org/misc.html)
  *
@@ -15,16 +15,14 @@
 ret_t check_notag(ctiff_t * ctif, tag_t tag) {
   GET_EMPTY_RET(ret)
   tifp_check( ctif);
-  ret_t r =  check_tag_quiet( ctif, tag);
-  if (is_valid == r.returncode) {
-    ret.returncode = tag_exist;
-  } else if (tag_does_not_exist == r.returncode) {
-    if (NULL != r.value_found) {
-      free(r.value_found);
-      r.value_found = NULL;
-    }
-    ret.returncode = is_valid;
-  } else return r;
+  if (-1 == TIFFGetRawTagListIndex(ctif, tag)) {
+      ret.returncode = is_valid;
+  } else {
+    char msg[VALUESTRLEN];
+    snprintf(msg, VALUESTRLEN, "tag %i exists", tag);
+    ret = set_value_found_ret(&ret, msg);
+    ret.returncode=tag_exist;
+  }
   return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
