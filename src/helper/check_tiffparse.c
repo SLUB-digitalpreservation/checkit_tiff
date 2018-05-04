@@ -341,51 +341,17 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   int count = get_ifd0_count( ctif);
   assert( count > 0);
   /* ct_read count of tags (2 Bytes) */
-  /* replace i/o operatrions with in-memory-operations */
-  uint8 * ifdentries = NULL;
-  ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
-  if ( ct_read( ctif, ifdentries, 12 * count) != 12*count ) {
-    /*  FIXME: replace perror/exit with own error handling routine */
-    perror ("TIFF Header ct_read error3");
+  ct_seek(ctif, ctif->ifd0pos+2+tagidx*12, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries, then nth tag */
+
+  uint16 tagid;
+  if ( ct_read( ctif, &tagid, 2) != 2) {
+    perror ("TIFF Header ct_read error2");
     exit( EXIT_FAILURE );
   }
-
-  uint8 * e = ifdentries;
-  uint16 ret = 0;
-  /*
-     for (i = 0; i<count; i++) {
-     uint8 lo = *e;
-     e++;
-     uint8 hi = *e;
-     e++;
-     if (i == tagidx) {
-     uint16 tagid = (hi << 8) + lo;
-     if (byteswapped)
-     TIFFSwabShort(&tagid);
-  // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
-  ret = tagid;
-  goto LABEL1;
-  }
-  e+=10;
-  }
-  */
-  assert(tagidx <= count);
-  assert(tagidx >= 0);
-  e+=(12*tagidx);
-  uint8 lo = *e;
-  e++;
-  uint8 hi = *e;
-  e++;
-  uint16 tagid = ((uint16) hi << 8) + lo;
   if (byteswapped)
     TIFFSwabShort(&tagid);
   //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
-  ret = tagid;
-  // LABEL1:
-  /* loop each tag until end or given tag found */
-  free( ifdentries );
-  return ret;
+  return tagid;
 }
 
 #define OFFSET_MALLOC(ctif_p, offsetdata, offset_type, count ) {\
@@ -526,82 +492,46 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
 #ifdef DEBUG
   printf(" count of tags = %i\n", tagcount);
 #endif
-  // int fd = TIFFFileno( tif);
-  //printf("count %i\n", count);
-  /* ct_read count of tags (2 Bytes) */
   ifd_entry_t ifd_entry;
   ifd_entry.value_or_offset = is_error;
-  /* replace i/o operatrions with in-memory-operations */
-  uint8 * ifdentries = NULL;
-  ifdentries = malloc ( sizeof(uint8) * 12 * tagcount);
-  ct_seek(ctif, ctif->ifd0pos+2, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries */
+  ct_seek(ctif, ctif->ifd0pos+2+tagidx*12, SEEK_SET); /* IFD0 plus 2byte to get IFD-entries, then nth tag */
 
-  if ( ct_read( ctif, ifdentries, 12 * tagcount) != 12*tagcount ) {
-    /*  FIXME: replace perror/exit with own error handling routine */
-	  perror ("TIFF Header ct_read error4");
-	  exit( EXIT_FAILURE );
+  uint16 tagid;
+  if ( ct_read( ctif, &tagid, 2) != 2) {
+    perror ("TIFF Header ct_read error2");
+    exit( EXIT_FAILURE );
   }
-  uint8 * e = ifdentries;
-  
-  for (int i = 0; i<tagcount; i++) {
-    uint8 * unloop_e = e;
-    uint8 * unloop_f = e+1;
-    uint8 * unloop_g = e+2;
-    uint8 * unloop_h = e+3;
-    uint8 lo = *unloop_e;
-    uint8 hi = *unloop_f;
-    uint16 tagid = ((uint16) hi << 8) + lo;
-    e+=2;
-    if (byteswapped)
-      TIFFSwabShort(&tagid);
-    if (i == tagidx) {
-      // tag type check
-      uint8 * unloop_e = e;
-      uint8 * unloop_f = e+1;
-      lo = *unloop_e; 
-      hi = *unloop_f; 
-      e+=2;
-      uint16 tagtype = ((uint16) hi << 8) + lo;
-      if (byteswapped)
-        TIFFSwabShort(&tagtype);
-      unloop_e=e;
-      unloop_f=e+1;
-      unloop_g=e+2;
-      unloop_h=e+3;
-      uint8 data0 = *unloop_e;
-      uint8 data1 = *unloop_f;
-      uint8 data2 = *unloop_g;
-      uint8 data3 = *unloop_h;
-      uint32 count = data0;
-      count += ((uint32) data1 << 8);
-      count += ((uint32) data2 << 16);
-      count += ((uint32) data3 << 24);
-      e+=4;
-      if (byteswapped)
-        TIFFSwabLong( &count);
+  if (byteswapped)
+    TIFFSwabShort(&tagid);
+  // tag type check
+  uint16 tagtype;
+  if ( ct_read( ctif, &tagtype, 2) != 2) {
+    perror ("TIFF Header ct_read error2");
+    exit( EXIT_FAILURE );
+  }
+  if (byteswapped)
+    TIFFSwabShort(&tagtype);
+  uint32 count;
+  if ( ct_read( ctif, &count, 4) != 4) {
+    perror ("TIFF Header ct_read error4");
+    exit( EXIT_FAILURE );
+  }
+
+  if (byteswapped)
+    TIFFSwabLong( &count);
 #ifdef DEBUG
-printf("\ncount=%0x\n\n", count);
+  printf("\ncount=%0x\n\n", count);
 #endif
 
       /*  is value or offset? */
-      /*  TODO */
       ifd_entry.count=count;
       ifd_entry.datatype=tagtype;
-      unloop_e = e;
-      unloop_f=e+1;
-      unloop_g=e+2;
-      unloop_h=e+3;
 
-
-      data0 = *unloop_e;
-      data1 = *unloop_f;
-      data2 = *unloop_g;
-      data3 = *unloop_h;
-      uint32 value_or_offset = (data0);
-      value_or_offset += ((uint32) data1 << 8);
-      value_or_offset += ((uint32) data2 << 16);
-      value_or_offset += ((uint32) data3 << 24);
-      e+=4;
+      uint32 value_or_offset;
+      if ( ct_read( ctif, &value_or_offset, 4) != 4) {
+        perror ("TIFF Header ct_read error4");
+        exit( EXIT_FAILURE );
+      }
       if (byteswapped)
         TIFFSwabLong( &value_or_offset);
       switch( tagtype) {
@@ -614,10 +544,10 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.data32offset=value_or_offset;
           } else { /*  values */
             ifd_entry.value_or_offset=is_value;
-            ifd_entry.data8[0] = data0;
-            ifd_entry.data8[1] = data1;
-            ifd_entry.data8[2] = data2;
-            ifd_entry.data8[3] = data3;
+            ifd_entry.data8[0] = value_or_offset & 0x000000ff;
+            ifd_entry.data8[1] = (value_or_offset >> 8)  & 0x000000ff;
+            ifd_entry.data8[2] = (value_or_offset >> 16) & 0x000000ff;
+            ifd_entry.data8[3] = (value_or_offset >> 24) & 0x000000ff;
 #ifdef DEBUG
             printf("data8[0]=%u\n", data0);
             printf("data8[1]=%u\n", data1);
@@ -632,8 +562,8 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.data32offset=value_or_offset;
           } else { /*  values */
             ifd_entry.value_or_offset=is_value;
-            uint16 w0 = (data0) + ((uint16) data1<<8);
-            uint16 w1 = (data2) + ((uint16) data3<<8);
+            uint16 w0 = value_or_offset & 0x0000ffff;
+            uint16 w1 = (value_or_offset >> 16) & 0x0000ffff;;
             if (byteswapped) {
               TIFFSwabShort( &w0 );
               TIFFSwabShort( &w1 );
@@ -669,16 +599,9 @@ printf("\ncount=%0x\n\n", count);
           ifd_entry.data32offset=value_or_offset;
 
       }
-      free( ifdentries );
 #ifdef DEBUG
       printf("tag idx=%i, tag=%u (0x%04x) tagtype=0x%04x is_offset=%s count=%u value_or_offset=0x%08x\n", i, tagid, tagid, tagtype, (ifd_entry.value_or_offset==is_offset ? "true" : "false"), count, value_or_offset);
 #endif
-      return ifd_entry;
-    }
-    e+=10;
-  }
-  /* loop each tag until end or given tag found */
-  free( ifdentries );
   return ifd_entry;
 }
 
