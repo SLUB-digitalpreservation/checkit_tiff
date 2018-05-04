@@ -57,6 +57,7 @@ typedef enum {
   fc_internal_logic_combine_open,
   fc_internal_logic_combine_close,
   fc_all_offsets_are_not_zero,
+  fc_all_geotiff_tags_have_same_count_of_values,
   fc_dummy
 } function_t;
 

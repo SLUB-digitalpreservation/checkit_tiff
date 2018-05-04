@@ -1,13 +1,13 @@
 /* rule based checks if given TIFF is a specific baseline TIFF
- * 
+ *
  * author: Andreas Romeyke, 2015-2017
- * licensed under conditions of libtiff 
+ * licensed under conditions of libtiff
  * (see http://libtiff.maptools.org/misc.html)
  *
  */
 
 /* #define YY_DEBUG */
-#include <stdio.h>      
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -34,7 +34,7 @@ parser_state_t parser_state;
     int yyc= fgetc(parser_state.stream);		\
     result= (EOF == yyc) ? 0 : (*(buf)= yyc, 1);	\
     yyprintf((stderr, "<%c>", yyc));			\
-  }                                                     
+  }
 
 
 
@@ -100,7 +100,7 @@ void result_printstack() {
         get_parser_function_description(full_result.function),
         full_result.function,
         get_parser_error_description(full_result.returncode),
-        full_result.returncode 
+        full_result.returncode
         );
   }
 
@@ -162,7 +162,7 @@ void exe_printstack () {
     printf(" exe-stack value[ %i ] --> {\n\tlineno=%i\n\tis_precondition=%s (%i)\n\ttag=%hu\n\tfunction_used=%s (%i)\n",
         j,
         parser_state.exe_stack[j].lineno,
-		(parser_state.exe_stack[j].is_precondition == true?"true":"false"),
+        (parser_state.exe_stack[j].is_precondition == true?"true":"false"),
         parser_state.exe_stack[j].is_precondition,
         parser_state.exe_stack[j].tag,
         get_parser_function_description(parser_state.exe_stack[j].function),
@@ -203,7 +203,7 @@ void reduce_results() {
   int tmpc=0;
   for (int i = 0; i < parser_state.result_stackp; i++) {
     full_res_t full_result = parser_state.result_stack[i];
-    
+
 
 #ifdef DEBUG
     printf("reduce i=%i tmpc=%i lineno=%i tag=%i func=%s returncode=%i\n", i, tmpc, full_result.lineno, full_result.tag, get_parser_function_description(full_result.function), full_result.returncode );
@@ -234,11 +234,10 @@ void reduce_results() {
             }
         }
     }
-    
-    int has_errors=0;
-/* 
+
+/*
     if (full_result.returncode != is_valid) {
-      // push to tmp 
+      // push to tmp
       tmp[tmpc++]=full_result;
     } else {
       // is valid
@@ -282,7 +281,7 @@ internal_entry_t * exe_regex_push (internal_entry_t * ep, const char * s) {
   return ep;
 }
 const char * exe_regex_pop(internal_entry_t * ep) {
-  const char * s; 
+  const char * s;
   POP( ep, regex, s);
 #ifdef EXE_DEBUG
   printf("-------------------\n");
@@ -391,18 +390,23 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
 	        case fc_internal_logic_combine_open:    { ret.returncode = parser_logical_combine_open ; break; }
 	        case fc_internal_logic_combine_close:   { ret.returncode = parser_logical_combine_close ; break; }
 	        case fc_all_offsets_are_not_zero:       { ret = check_all_offsets_are_greater_zero(ctif); break;}
-	        default: {
+          case fc_all_geotiff_tags_have_same_count_of_values: {
+                                                    ret = check_all_geotiff_tags(ctif); break;
+                                                  }
+          case fc_dummy:
+	         {
 	                   GET_EMPTY_RET(res)
 	                   res.value_found = __ch_malloc(res.value_found);
 	                   fprintf(stderr, "lineno=%i, stack entry tag %i", parser_state.lineno, exe.tag);
 	                   exit(parser_error_wrong_function_found_in_parser_state_exe_stack);
 	                   ;
-	                 }
-	      }
-	      assert( ret.returncode != should_not_occur );
-	      assert( ret.returncode != calling_error_count_size);
-	      *retp = ret;
-	      return ret;
+           }
+  }
+  //fprintf(stderr, "lineno=%i, stack entry tag %i (%s)\n", parser_state.lineno, exe.tag, ret.value_found);
+  assert( ret.returncode != should_not_occur );
+  assert( ret.returncode != calling_error_count_size);
+  *retp = ret;
+  return ret;
 }
 
 /* executes a plan (list) of functions, checks if predicate-function calls are
@@ -417,7 +421,7 @@ ret_t call_exec_function(ctiff_t * ctif,  ret_t * retp, internal_entry_t * exep)
  *   push fc_tag_quiet 123 <--- precondition, checks if tag exists
  *
  * @param tif pointer to TIFF structure
- * @return return-code is 0 if all called functions are succeed 
+ * @return return-code is 0 if all called functions are succeed
  */
 void execute_plan (ctiff_t * ctif) {
   /*  iterate other function-stack */
@@ -477,7 +481,7 @@ void execute_plan (ctiff_t * ctif) {
       /* combine results */
       if (
 		      (true == exe.is_precondition) &&
-		      
+		
 		      (!(
 			exe.function == fc_tag_has_valid_type &&
 			(
@@ -531,7 +535,7 @@ void execute_plan (ctiff_t * ctif) {
                     printf("exe function: %s\n", get_parser_function_description(exe.function));
 #endif
                 if (exe.function == fc_internal_logic_combine_open) { /* clean logical or if precondition fails */
-                
+
                     do {
                         internal_entry_t l_exe = exe_pop();
 #ifdef EXE_DEBUG
@@ -548,7 +552,7 @@ void execute_plan (ctiff_t * ctif) {
                 ret.returncode = is_valid;
             }
         }
-    last_run_was_a_precondition=exe.is_precondition;    
+    last_run_was_a_precondition=exe.is_precondition;
     assert( ret.returncode != should_not_occur );
 #ifdef EXE_DEBUG
     if (ret.returncode == is_valid) {
@@ -600,11 +604,11 @@ tag_t settagref( tag_t tag) { parser_state.tagref=tag; return tag; }
 /* helper function for parser */
 tag_t gettag( ) { return parser_state.tag;}
 int incrlineno() {
-  parser_state.lineno++; 
+  parser_state.lineno++;
 #ifdef DEBUG
   printf("##lineno=%i\n", parser_state.lineno);
 #endif
-  return parser_state.lineno; 
+  return parser_state.lineno;
 }
 /* helper function for parser */
 int getlineno() { return parser_state.lineno;}
@@ -624,7 +628,7 @@ int rule_tagorder_in_dsl( int tag ) {
 */
 
 /* helper function for parser */
-void commentline() { 
+void commentline() {
 #ifdef DEBUG
   printf("commentline, %i\n", parser_state.lineno);
 #endif
@@ -639,7 +643,7 @@ void rule_should_not_occure(char* s) {
 */
 
 /* helper function for parser */
-void set_mandatory() { 
+void set_mandatory() {
 #ifdef DEBUG
   printf("tag '%u' is mandatory\n", gettag());
 #endif
@@ -661,7 +665,7 @@ void set_ifdepends() {
 #ifdef DEBUG
   printf("tag '%u' is set if depends\n", gettag());
 #endif
-  parser_state.req=ifdepends; 
+  parser_state.req=ifdepends;
 }
 
 /* helper function for parser */
@@ -669,12 +673,12 @@ void set_optdepends() {
 #ifdef DEBUG
   printf("tag '%u' is set optional depends\n", gettag());
 #endif
-  parser_state.req=optdepends; 
+  parser_state.req=optdepends;
 }
 
 
 /* helper function for parser */
-void regex_push( const char * regex_string) { 
+void regex_push( const char * regex_string) {
   pcre *re;
   int erroffset;
   const char * errorcode;
@@ -740,7 +744,7 @@ internal_entry_t prepare_internal_entry() {
         p.function=fc_tag_has_valuelist;
         break;
       }
-    case regex_ref: 
+    case regex_ref:
       p.function=fc_tag_has_value_matching_regex;
       exe_regex_push(&p, r_pop());
       break;
@@ -817,29 +821,29 @@ void build_functional_structure__printable_ascii(internal_entry_t * e_p) {
 /* builds an entry structure holding function and their values */
 void build_functional_structure(internal_entry_t * e_p, values_t val) {
     switch (val) {
-        case range: 
+        case range:
             build_functional_structure__range(e_p);
             break;
-        case ntupel: 
+        case ntupel:
             build_functional_structure__ntupel(e_p);
             break;
-        case only: 
+        case only:
             build_functional_structure__only(e_p);
             break;
-        case any: 
+        case any:
             build_functional_structure__any(e_p);
             break;
-        case regex: 
+        case regex:
             build_functional_structure__regex(e_p);
             break;
-        case iccprofile: 
+        case iccprofile:
             build_functional_structure__iccprofile(e_p);
             break;
-        case datetime: 
+        case datetime:
             build_functional_structure__datetime(e_p);
             break;
 
-        case printable_ascii: 
+        case printable_ascii:
             build_functional_structure__printable_ascii(e_p);
             break;
             /* TODO:
@@ -864,7 +868,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
 #ifdef RULE_DEBUG
     printf("eval e=%s\n", get_parser_function_description(e.function));
 #endif
-    
+
     if (e.function == fc_internal_logic_combine_close) {
 #ifdef RULE_DEBUG
         printf("\n### eval req logical close found\n");
@@ -876,7 +880,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
                     values_t val = v_pop();
                     e.function = fc_dummy;
                     build_functional_structure(&e, val); /* <-- this builds the tiff test */
-#ifdef RULE_DEBUG                    
+#ifdef RULE_DEBUG
                     printf("###### i=%i e=%s\n", i, get_parser_function_description(e.function));
 #endif
                     exe_push(e);
@@ -950,7 +954,7 @@ void evaluate_req_and_push_exe(requirements_t req, internal_entry_t e) {
             fprintf(stderr, "unknown parserstate.req (%i), should not occur\n", parser_state.req);
             exit(EXIT_FAILURE);
         }
-            
+
     }
 }
 
@@ -971,7 +975,7 @@ void set_rule_logical_open() {
   parser_state.within_logical_or=true;
   //evaluate_req_and_push_exe( parser_state.req, e);
   //rule_addtag_config();
-  
+
 }
 
 void incr_logical_elements() {
@@ -1106,7 +1110,13 @@ void set_mode(modes_t mode) {
                                       break;
                         }
     case mode_enable_type_checks: { /*  nothing, because we must enable it only in rule_addtag_config */
+                                    break;
                                   }
+    case mode_enable_deep_geotiff_checks: {
+                                      e.function = fc_all_geotiff_tags_have_same_count_of_values;
+                                      exe_push(e);
+                                      break;
+                                    }
   }
   parser_state.mode |= mode;
 }
@@ -1268,7 +1278,7 @@ ret_t print_plan_results(retmsg_t * actual_render) {
 #ifdef EXE_DEBUG
   result_printstack();
 #endif
- 
+
   int count_of_valid_results = 0;
   for (int i=parser_state.result_stackp-1; i >= 0; --i) {
    full_res_t parser_result = parser_state.result_stack[i];

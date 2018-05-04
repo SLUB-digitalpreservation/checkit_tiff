@@ -33,6 +33,7 @@ const char * get_parser_function_name( function_t f ) {
     case fc_internal_logic_combine_open: return "fc_internal_logic_combine_open"; break;
     case fc_internal_logic_combine_close: return "fc_internal_logic_combine_close"; break;
     case fc_all_offsets_are_not_zero: return "fc_all_offsets_are_not_zero"; break;
+    case fc_all_geotiff_tags_have_same_count_of_values: return "fc_all_geotiff_tags_have_same_count_of_values"; break;
     case fc_dummy: return "fc_dummy"; break;
   }
   return "missed function description, should not occur";
@@ -63,6 +64,7 @@ const char * get_parser_function_description( function_t f ) {
     case fc_internal_logic_combine_open: return "One or more conditions needs to be combined in a logical_or operation (open)"; break;
     case fc_internal_logic_combine_close: return "One or more conditions needs to be combined in a logical_or operation (close)"; break;
     case fc_all_offsets_are_not_zero: return "All tag offsets should be greater than zero,"; break;
+    case fc_all_geotiff_tags_have_same_count_of_values: return "All GeoTIFF tags should have same amount of values,"; break;
     case fc_dummy: return "Dummy."; break;
   }
   return "missed function description, should not occur";
