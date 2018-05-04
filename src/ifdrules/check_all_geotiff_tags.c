@@ -91,7 +91,7 @@ char value[VALUESTRLEN];
                            if ( /* check if "count" and "NumberOfKeys" consistent */
                                ((uint32) num_of_keys * 4) != (count - 4)
                            ) {
-                             snprintf(value, sizeof(value), "NumberOfKeys (4*%i) differs with count of tag entries (%i) for GeoKeyDirectory", num_of_keys,  count);
+                             snprintf(value, sizeof(value), "NumberOfKeys (4*%i=%i) differs with count of tag entries (%i-4=%i) for GeoKeyDirectory", num_of_keys, ((uint32) num_of_keys * 4),  count, (count - 4));
                              ret = set_value_found_ret(&ret, value);
                              ret.returncode = tagerror_value_differs;
                              return ret;
