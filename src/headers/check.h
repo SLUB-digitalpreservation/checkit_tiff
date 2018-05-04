@@ -79,6 +79,8 @@ typedef enum {
   tagerror_expected_count_differs, /* if a tag reports count=m, but the rule expects count=n */
   tagerror_expected_count_iszero, /* if a tag reports count=0, but the rule expects count=n */
   tagerror_expected_count_isgreaterone,
+  tagerror_expected_count_less_than_four, /* needed for geotiff */
+  tagerror_expected_count_not_a_multiple_of_four, /* needed for geotiff */
   tagerror_value_differs, /* if a tag reports value=m, but the rule expects value=n */
   tagerror_unexpected_type_found, /* if a tag reports a type=m, but a type=n was expected */
   tagerror_datetime_not_plausible, /* if a datetime tag has date values out of range */
@@ -266,7 +268,7 @@ ret_t check_all_offsets_are_word_aligned(ctiff_t * ctif);
 ret_t check_all_offsets_are_used_once_only(ctiff_t * ctif);
 ret_t check_all_offsets_are_greater_zero(ctiff_t * ctif);
 ret_t check_all_IFDs_are_word_aligned(ctiff_t * ctif);
-
+ret_t check_all_geotiff_tags( ctiff_t * ctif);
 
 mem_map_t * scan_mem_map(ctiff_t * ctif) ;
 void print_mem_map( mem_map_t * memmap_p);
