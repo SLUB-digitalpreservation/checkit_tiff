@@ -127,7 +127,8 @@ const char * get_parser_error_description( returncode_t r ) {
     case parser_logical_combine_open: return "internal parser state, combine multiple rules with logical or opened"; break;
     case parser_logical_combine_close: return "internal parser state, combine multiple rules with logical or closed"; break;
     case tagerror_offset_is_zero: return "but an offset zero is used."; break;
-
+    case tagerror_expected_count_not_a_multiple_of_four: return "unexpected tag count value, should be a multiple of four."; break;
+    case tagerror_expected_count_less_than_four: return "unexpected tag count value, should be at least four."; break;
   }
   assert( r == is_valid ); /* missed error description, should not occur */
   return "missed error description, should not occur";
