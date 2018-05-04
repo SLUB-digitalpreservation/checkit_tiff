@@ -377,7 +377,7 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
   e++;
   uint8 hi = *e;
   e++;
-  uint16 tagid = (hi << 8) + lo;
+  uint16 tagid = ((uint16) hi << 8) + lo;
   if (byteswapped)
     TIFFSwabShort(&tagid);
   //printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
@@ -550,7 +550,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
     uint8 * unloop_h = e+3;
     uint8 lo = *unloop_e;
     uint8 hi = *unloop_f;
-    uint16 tagid = (hi << 8) + lo;
+    uint16 tagid = ((uint16) hi << 8) + lo;
     e+=2;
     if (byteswapped)
       TIFFSwabShort(&tagid);
@@ -561,7 +561,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
       lo = *unloop_e; 
       hi = *unloop_f; 
       e+=2;
-      uint16 tagtype = (hi << 8) + lo;
+      uint16 tagtype = ((uint16) hi << 8) + lo;
       if (byteswapped)
         TIFFSwabShort(&tagtype);
       unloop_e=e;
@@ -573,9 +573,9 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( ctiff_t * ctif, int tagidx ) {
       uint8 data2 = *unloop_g;
       uint8 data3 = *unloop_h;
       uint32 count = data0;
-      count += (data1 << 8);
-      count += (data2 << 16);
-      count += (data3 << 24);
+      count += ((uint32) data1 << 8);
+      count += ((uint32) data2 << 16);
+      count += ((uint32) data3 << 24);
       e+=4;
       if (byteswapped)
         TIFFSwabLong( &count);
@@ -598,9 +598,9 @@ printf("\ncount=%0x\n\n", count);
       data2 = *unloop_g;
       data3 = *unloop_h;
       uint32 value_or_offset = (data0);
-      value_or_offset += (data1 << 8);
-      value_or_offset += (data2 << 16);
-      value_or_offset += (data3 << 24);
+      value_or_offset += ((uint32) data1 << 8);
+      value_or_offset += ((uint32) data2 << 16);
+      value_or_offset += ((uint32) data3 << 24);
       e+=4;
       if (byteswapped)
         TIFFSwabLong( &value_or_offset);
@@ -632,8 +632,8 @@ printf("\ncount=%0x\n\n", count);
             ifd_entry.data32offset=value_or_offset;
           } else { /*  values */
             ifd_entry.value_or_offset=is_value;
-            uint16 w0 = (data0) + (data1<<8);
-            uint16 w1 = (data2) + (data3<<8);
+            uint16 w0 = (data0) + ((uint16) data1<<8);
+            uint16 w1 = (data2) + ((uint16) data3<<8);
             if (byteswapped) {
               TIFFSwabShort( &w0 );
               TIFFSwabShort( &w1 );
