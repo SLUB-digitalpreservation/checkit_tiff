@@ -54,7 +54,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   add_mem_entry( &memmap, 4, 4, mt_offset_to_ifd0);
   /* IFDO */
   uint32 ifd = get_ifd0_pos( ctif );
-  uint16 count = get_ifd0_count( ctif);
+  uint16 ifdcount = get_ifd0_count( ctif); /*  how many tags */
 
   add_mem_entry( &memmap, ifd, 2, mt_ifd); /* count of tags in ifd */
   int ifdbase=2+ifd;
@@ -62,7 +62,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   uint16 tagidx;
   ifd_entry_t stripoffset_entry; 
 
-  for (tagidx = 0; tagidx< count; tagidx++) {
+  for (tagidx = 0; tagidx< ifdcount; tagidx++) {
 	  add_mem_entry( &memmap, ifdbase+(tagidx*12), 8, mt_ifd); /* tagid, field type, count */
 	  ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( ctif, tagidx );
 	  uint32 tag = TIFFGetRawTagListEntry( ctif, tagidx);
@@ -121,7 +121,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
   // uint32 offset = get_ifd0_pos(ctif );
   // uint32 IFDn = get_next_ifd_pos( ctif, offset );
   // printf("IFD: offset=%i, IFD0=%i IFDn=%i ifd+count=%i\n", offset, ifd, IFDn, ifdbase+12*count);
-  add_mem_entry( &memmap, ifdbase+12*count, 4, mt_offset_to_ifd);
+  add_mem_entry( &memmap, ifdbase+12*ifdcount, 4, mt_offset_to_ifd);
 
   /* handle stripoffset data */
   //printf("ifd_count=%i, stripoffset_count=%i\n", stripoffset_entry.count, stripoffset_count);
@@ -170,7 +170,7 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                            fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint16)), (uint64) 0xffffffff);
                            exit(EXIT_FAILURE);
                          }
-                         for (uint32 i=0; i< count; i++) {
+                         for (uint32 i=0; i< stripoffset_entry.count; i++) {
                            uint16 pval = *p;
                            if (is_byteswapped(ctif)) {
                              TIFFSwabShort(&pval);
