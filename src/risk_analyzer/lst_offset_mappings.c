@@ -138,6 +138,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                       if (stripoffset_entry.value_or_offset == is_offset) {
                         offset_t offset;
                         ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset, &ret);
+                        if (ret.returncode != is_valid) {
+                          fprintf(stderr, "error reading offset data, stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
+                          exit(EXIT_FAILURE);
+                        }
                         uint32 * p = offset.data32p;
                         if ((uint64) stripoffset_entry.count*sizeof(uint32) > 0xffffffff) {
                           fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
@@ -165,6 +169,10 @@ mem_map_t * scan_mem_map(ctiff_t * ctif) {
                        if (stripoffset_entry.value_or_offset == is_offset) {
                          offset_t offset;
                          ret_t ret = read_offsetdata(ctif, stripoffset_entry.data32offset, stripoffset_entry.count, stripoffset_entry.datatype, &offset, &ret);
+                         if (ret.returncode != is_valid) {
+                           fprintf(stderr, "error reading offset data, stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint32)), (uint64) 0xffffffff);
+                           exit(EXIT_FAILURE);
+                         }
                          uint16 * p = offset.data16p;
                          if ((uint64) stripoffset_entry.count*sizeof(uint16) > 0xffffffff) {
                            fprintf(stderr, "stripoffset_entry.count has size %u, resulting address %zu, but only offset to %lu is possible\n", stripoffset_entry.count, ((uint64) stripoffset_entry.count*sizeof(uint16)), (uint64) 0xffffffff);
