@@ -35,7 +35,7 @@ make
 # ASAN_OPTIONS=detect_leaks=1 ./checkit_tiff ...
 #
 # SANITIZE with gcc
-# cmake ../src/ -DCMAKE_C_FLAGS="-Og -g -fsanitize=address -fno-omit-frame-pointer"
+# cmake ../src/ -DCMAKE_C_FLAGS="-Og -g -fsanitize=address -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow-fno-omit-frame-pointer"
 # AFL_HARDEN=1 make
 # ASAN_OPTIONS=detect_leaks=1 ./checkit_tiff ...
 #
