@@ -90,7 +90,8 @@ const char * get_parser_error_description( returncode_t r ) {
     case tagerror_encoded_as_value_excited_space: return "Tag value encoded as value but exceeded available space."; break; /* tag encoded as value instead as offset, but there is no enough space to hold it, pE. ICC-Profile encoded without offset */
     case tagerror_pcre_nomatch: return "but doesn't."; break; /*  regex does not match value */
     case pcre_compile_error: return "The predefined Regex is invalid."; break; /* regex is wrong */
-    case tagerror_multiple_zeros_in_asciivalue: return "Multiple NULL-Bytes (\0) found in ASCII value."; break; /* doubled \0 in string */
+    case tagerror_multiple_zeros_in_asciivalue: return "Multiple NULL-Bytes (\\0) found in ASCII value."; break; /* doubled \0 in string */
+    case tagerror_no_zero_as_end_of_string_in_asciivalue: return "Missed NULL-Byte (\\0) at end of ASCII value."; break;
     case tagerror_denominator_is_zero_in_fract: return "Denominator in fraction tag value is zero."; break;
     case ifderror_offset_used_twice: return "but this offset was used twice."; break;
     case ifderror_multiple_ifd_detected: return "but multiple IFDs were found."; break;
