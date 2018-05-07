@@ -236,13 +236,17 @@ void reduce_results() {
     }
     
     int has_errors=0;
-       if (full_result.returncode != is_valid) {
-      /* push to tmp */
+/* 
+    if (full_result.returncode != is_valid) {
+      // push to tmp 
       tmp[tmpc++]=full_result;
     } else {
       // is valid
-	    tmp[tmpc++]=full_result;
+      tmp[tmpc++]=full_result;
     }
+*/
+    tmp[tmpc++]=full_result;
+
   }
   /*  copy back */
   for (int i = 0; i <= tmpc; i++) {
