@@ -19,9 +19,31 @@ ret_t check_tag_has_value_matching_regex(ctiff_t * ctif, tag_t tag, const char *
     case TIFF_ASCII: {
                        char * val=NULL;
                        uint32 count=0;
+                       int r = 0;
                        ret = TIFFGetFieldASCII(ctif, tag, &val, &count);
                        if (ret.returncode != is_valid) return ret;
                        if (0 < count) {
+                         for (uint32 i=0; i<count-1; i++) {
+                           if (val[i] == '\0' && val[i+1] =='\0') {
+                             r = i+1;
+                             break;
+                           }
+                         }
+                         if (val[count-1] != '\0') {
+                           char array[VALUESTRLEN];
+                           snprintf(array, sizeof(array), "'%c' (at position %lu: '%s')", val[count-1], count-1, val);
+                           ret = set_value_found_ret(&ret, array);
+                           ret.returncode = tagerror_no_zero_as_end_of_string_in_asciivalue;
+                           return ret;
+                         }
+                         if (r != 0) {
+                           char array[VALUESTRLEN];
+                           snprintf(array, sizeof(array), "'%s' (\\0 at position %i in %u-len)", val, r, count);
+                           ret = set_value_found_ret(&ret, array);
+                           ret.returncode = tagerror_multiple_zeros_in_asciivalue;
+                           return ret;
+                         }
+
 #define OVECCOUNT 30    /* should be a multiple of 3 */
                          pcre *re;
                          int erroffset;

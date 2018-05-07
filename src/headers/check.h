@@ -92,6 +92,7 @@ typedef enum {
   tagerror_pcre_nomatch, /*  regex does not match value */
   pcre_compile_error, /* regex is wrong */
   tagerror_multiple_zeros_in_asciivalue, /* doubled \0 in string */
+  tagerror_no_zero_as_end_of_string_in_asciivalue,
   tagerror_denominator_is_zero_in_fract,
   ifderror_offset_used_twice,
   ifderror_multiple_ifd_detected,
