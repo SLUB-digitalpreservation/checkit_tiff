@@ -85,8 +85,13 @@ char value[VALUESTRLEN];
                          if (ifd_entry.value_or_offset == is_offset) {
                            offset_t offset;
                            ret = read_offsetdata(ctif, ifd_entry.data32offset, count, ifd_entry.datatype, &offset, &ret);
+                           if (ret.returncode != is_valid) {
+                             return ret;
+                           }
                            uint16 * p = offset.data16p;
-                           uint16 num_of_keys = *(p+3);
+                           uint16 * q = p;
+                           q+=3;
+                           uint16 num_of_keys = *(q);
                            // printf("num_of_keys=%i\n", num_of_keys);
                            if ( /* check if "count" and "NumberOfKeys" consistent */
                                ((uint32) num_of_keys * 4) != (count - 4)
