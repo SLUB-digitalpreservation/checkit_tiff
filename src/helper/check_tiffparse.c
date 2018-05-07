@@ -341,23 +341,35 @@ tag_t TIFFGetRawTagListEntry( ctiff_t * ctif, int tagidx ) {
 }
 
 #define OFFSET_MALLOC(ctif_p, offsetdata, offset_type, count ) {\
-  if(ctif_p->streamlen < sizeof(offset_type) * count) {\
+  size_t size = (size_t) sizeof(offset_type) * count;\
+  if((size_t) ctif_p->streamlen < size) {\
     char msg[VALUESTRLEN]; \
-    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes, but file has size=%u\n", sizeof(offset_type) * count, ctif_p->streamlen); \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%llu bytes, but file has size=%u\n", size, ctif_p->streamlen); \
     *ret_p  = set_value_found_ret( ret_p, msg); \
     ret_p->returncode = tiff_seek_error_offset;\
     return * ret_p;\
   }\
-  offsetdata = NULL; offsetdata = malloc ( sizeof(offset_type) * count);\
+  offsetdata = NULL; offsetdata = malloc (size);\
   if (NULL == offsetdata) {\
     fprintf( stderr, "could not allocate memory for offset_t\n");\
     exit (EXIT_FAILURE);\
   }\
-  if ( ct_read( ctif_p, offsetdata, sizeof(offset_type) * count) != (sizeof(offset_type) *count) ) {\
+  ssize_t result = ct_read( ctif_p, offsetdata, size);\
+  if (result == 0) {\
+    char msg[VALUESTRLEN]; \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%llu bytes, but EOF detected\n", size); \
+    *ret_p  = set_value_found_ret( ret_p, msg); \
+    ret_p->returncode = tiff_read_error_offset; \
+    return *ret_p; \
+  }\
+  if (\
+      (result == -1) ||\
+      (result != (ssize_t) size)\
+      ) {\
        /*  fprintf(stderr, "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); */\
        /*  exit( EXIT_FAILURE ); */\
     char msg[VALUESTRLEN]; \
-    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", sizeof(offset_type) * count); \
+    snprintf(msg, VALUESTRLEN,  "TIFF Offset ct_read error, try to read from offset count=%lu bytes\n", size); \
     *ret_p  = set_value_found_ret( ret_p, msg); \
     ret_p->returncode = tiff_read_error_offset; \
     return *ret_p; \
@@ -384,9 +396,8 @@ ret_t read_offsetdata(ctiff_t * ctif, const uint32 address, const uint32 count, 
   offset_p->count = count;
   offset_p->datatype = datatype;
   ret_p->returncode = is_valid;
-  
   /* ct_read and seek to IFD address */
-  if (ct_seek(ctif, address, SEEK_SET) != address) {
+  if (ct_seek(ctif, address, SEEK_SET) != (off_t) address) {
     offset_p->count = -1;
     ret_p->returncode = tiff_seek_error_offset;
     return * ret_p;
@@ -904,7 +915,7 @@ ret_t TIFFGetFieldSHORT(ctiff_t * ctif, const tag_t tag, uint16 ** short_pp, uin
     }
 
     *countp = entry.count;
-    *(short_pp) = malloc( sizeof(uint16) * entry.count);
+    *(short_pp) = malloc( (size_t) sizeof(uint16) * entry.count);
     if (NULL == *(short_pp)) {
       ret.returncode=could_not_allocate_memory;
       return ret;
