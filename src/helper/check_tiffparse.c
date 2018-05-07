@@ -266,9 +266,6 @@ ret_t parse_header_and_endianess(ctiff_t * ctif) {
     ret.returncode = tiff_byteorder_error;
     return ret;
   }
-  ret.returncode = should_not_occur;
-  assert( ret.returncode != should_not_occur);
-  return ret;
 }
 
 ret_t get_first_IFD(ctiff_t * ctif, uint32 * ifd) {

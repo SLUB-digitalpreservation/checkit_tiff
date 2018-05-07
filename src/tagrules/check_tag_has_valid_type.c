@@ -113,10 +113,6 @@ ret_t check_tag_has_valid_type(ctiff_t * ctif, tag_t tag) {
                ret.returncode = is_valid;
                return ret;
   }
-  /* we check only count, because we evaluate only int-values */
-  ret.returncode = should_not_occur;
-  assert(ret.returncode != should_not_occur);
-  return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

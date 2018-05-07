@@ -130,8 +130,5 @@ ret_t check_tag_has_value_in_range(ctiff_t * ctif, tag_t tag, unsigned int a, un
                             return ret;
                           }
     }
-    ret.returncode=should_not_occur;
-    assert( ret.returncode != should_not_occur);
-    return ret;
 }
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

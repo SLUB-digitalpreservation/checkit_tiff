@@ -108,10 +108,6 @@ ret_t check_datetime(ctiff_t * ctif ) {
         ret.returncode = tagerror_datetime_wrong_size;
         return ret;
     }
-    free(datetime);
-    ret.returncode = should_not_occur;
-    assert( ret.returncode != should_not_occur);
-    return ret;
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
