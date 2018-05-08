@@ -85,13 +85,16 @@ int main(int argc, char * argv[]) {
   parse_header_and_endianess( ctif );
   uint32 offset;
   ret_t res=get_first_IFD(ctif, &offset);
- 
-  mem_map_t * memmap_p = scan_mem_map(ctif);
-  if (FLAGGED == flag_print_map) 
-    print_mem_map ( memmap_p );
-  if (FLAGGED == flag_print_stats)
-    print_mem_stats( memmap_p );
-  return 0;
+  if (res.returncode == is_valid) {
+    mem_map_t * memmap_p = scan_mem_map(ctif);
+    if (FLAGGED == flag_print_map) 
+      print_mem_map ( memmap_p );
+    if (FLAGGED == flag_print_stats)
+      print_mem_stats( memmap_p );
+    return (EXIT_SUCCESS);
+  } else {
+    return (EXIT_FAILURE);
+  }
 }
 
 /* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/
