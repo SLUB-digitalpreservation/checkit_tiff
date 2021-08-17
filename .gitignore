@@ -1,5 +1,0 @@
-*.o
-build/*
-src/.depend
-src/checkit_check_config
-src/checkit_tiff
